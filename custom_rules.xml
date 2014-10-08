@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="custom_rules" default="stop_ts">
+	<property file="ant.properties" />
+	<property file="project.properties" />
+	<property name="lib.name" value="libcny4a-${jar.ver}" />
+	<property name="lib.dir" value="${out.dir}/libcny4a" />
+	<property name="lib.cls" value="${out.dir}/pub.cls" />
+	<target name="start_ts">
+		<exec executable="/bin/bash" dir="./TServer" failonerror="true">
+			<arg value="-xe" />
+			<arg value="build" />
+		</exec>
+		<exec executable="/bin/bash" dir="./TServer" failonerror="true">
+			<arg value="-xe" />
+			<arg value="run_srv" />
+			<arg value="start" />
+		</exec>
+	</target>
+	<target name="stop_ts">
+		<exec executable="/bin/bash" dir="./TServer" failonerror="false">
+			<arg value="-xe" />
+			<arg value="run_srv" />
+			<arg value="stop" />
+		</exec>
+		<exec executable="killall" dir="./TServer" failonerror="false">
+			<arg value="TServer" />
+		</exec>
+	</target>
+	<target name="fetch-test-report">
+		<echo>Downloading XML test report...</echo>
+		<exec executable="${adb}" failonerror="true">
+			<arg line="${adb.device.arg}" />
+			<arg value="pull" />
+			<arg value="/data/data/${app.package}/files/junit-report.xml" />
+			<arg value="${out.dir}/junit-report.xml" />
+		</exec>
+	</target>
+	<target name="w_ts_ip">
+		<exec executable="/bin/bash" dir="." failonerror="true">
+			<arg value="-xe" />
+			<arg value="addr" />
+			<arg value="stop" />
+		</exec>
+		<exec executable="killall" dir="./TServer" failonerror="false">
+			<arg value="TServer" />
+		</exec>
+	</target>
+	<target name="pub.jar">
+		<delete dir="${lib.cls}" />
+		<mkdir dir="${lib.cls}" />
+		<javac encoding="UTF-8" destdir="${lib.cls}" includeantruntime="false">
+			<classpath>
+				<fileset dir="${sdk.dir}/platforms/${target}">
+					<include name="*.jar" />
+				</fileset>
+				<fileset dir="libs">
+					<include name="*.jar" />
+				</fileset>
+			</classpath>
+			<src path="src" />
+			<src path="gen" />
+		</javac>
+		<copy todir="${lib.cls}">
+			<fileset dir="src">
+				<exclude name="org/cny/cny4a/net/http/Test*" />
+				<include name="org/cny/cny4a/net/http/*" />
+			</fileset>
+		</copy>
+		<jar destfile="${lib.dir}/${lib.name}.jar">
+			<fileset dir="${lib.cls}">
+				<exclude name="org/cny/cny4a/net/http/Test*" />
+				<include name="org/cny/cny4a/net/http/*" />
+			</fileset>
+		</jar>
+		<javadoc destdir="${lib.dir}/${lib.name}" windowtitle="Cny4a Project Class Library" use="yes" linksource="no" splitindex="yes" encoding="UTF-8" docencoding="UTF-8">
+			<classpath>
+				<fileset dir="${sdk.dir}/platforms/${target}">
+					<include name="*.jar" />
+				</fileset>
+				<path path="${lib.cls}" />
+			</classpath>
+			<packageset dir="src" defaultexcludes="yes">
+				<include name="org/cny/amf/net/**" />
+			</packageset>
+		</javadoc>
+		<jar destfile="${lib.dir}/${lib.name}.doc.zip">
+			<fileset dir="${lib.dir}/${lib.name}">
+				<include name="*/**" />
+			</fileset>
+		</jar>
+	</target>
+
+	<target name="pub.pkg">
+		<echo>copy file to publish</echo>
+		<copy todir="./publish" failonerror="true" overwrite="false">
+			<fileset dir="${lib.dir}">
+				<include name="*.zip" />
+				<include name="*.jar" />
+			</fileset>
+		</copy>
+	</target>
+</project>

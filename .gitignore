@@ -1,0 +1,11 @@
+
+bin
+
+build
+
+gen
+TServer/pkg
+
+TServer/TServer
+
+TServer/TServer.sublime-workspace

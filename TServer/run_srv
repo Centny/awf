@@ -1,0 +1,43 @@
+#!/bin/bash
+
+RETVAL=0
+rdir=`pwd`
+PIDFILE=$rdir/ts.pid
+lockfile=$rdir/ts.lock
+exec=$rdir/TServer
+start() {
+		[ -x $exec ] || exit 5
+		umask 077
+        echo -n $"Starting log server: "
+        daemonize -c $rdir -p $PIDFILE -l $lockfile $exec
+        RETVAL=$?
+		echo
+        [ $RETVAL -eq 0 ] && touch $lockfile
+		return $RETVAL
+}
+stop() {
+        echo -n $"Shutting down log server: "
+	  	kill `cat $PIDFILE`
+        RETVAL=$?
+        echo
+        [ $RETVAL -eq 0 ] && rm -f $lockfile
+        return $RETVAL
+}
+restart() {
+        stop
+        start
+}
+
+case "$1" in
+  start)
+        start
+        ;;
+  stop)
+        stop
+        ;;
+  restart)
+        restart
+        ;;
+esac
+
+exit $?
