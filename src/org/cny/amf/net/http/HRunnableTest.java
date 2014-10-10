@@ -8,7 +8,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.concurrent.CountDownLatch;
 
-import org.cny.amf.net.http.H.HDownCallback;
+import org.cny.amf.net.http.HCallback.HDownCallback;
 import org.cny.amf.net.http.HRunnable.HThreadTask;
 import org.cny.amf.test.MainActivity;
 
@@ -112,7 +112,7 @@ public class HRunnableTest extends
 					@Override
 					public OutputStream onBebin(HClient c, HResp r)
 							throws Exception {
-						return null;
+						throw new Exception("not open");
 					}
 
 					@Override
@@ -150,8 +150,7 @@ public class HRunnableTest extends
 			@Override
 			public void run() {
 				HThreadTask hr = new HThreadTask("http://" + ts_ip
-						+ ":8000/g_args?a=1&b=abc&c=这是中文",
-						new H.HDownCallback());
+						+ ":8000/g_args?a=1&b=abc&c=这是中文", new HDownCallback());
 				System.err.println(hr.getThr() == null);
 				try {
 					hr.join();

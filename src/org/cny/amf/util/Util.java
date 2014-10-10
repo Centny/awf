@@ -1,21 +1,30 @@
 package org.cny.amf.util;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
+import java.net.URI;
 import java.util.Enumeration;
+
+import org.apache.http.client.methods.HttpUriRequest;
 
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.graphics.Bitmap;
+import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.PorterDuff.Mode;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.RectF;
-import android.graphics.Bitmap.Config;
-import android.graphics.PorterDuff.Mode;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.util.Log;
@@ -139,5 +148,37 @@ public class Util {
 	public static int px2dip(Context context, float pxValue) {
 		final float scale = context.getResources().getDisplayMetrics().density;
 		return (int) (pxValue / scale + 0.5f);
+	}
+
+	public static String readAll(InputStream in) throws IOException {
+		StringBuffer sb = new StringBuffer();
+		BufferedReader br = new BufferedReader(new InputStreamReader(in));
+		String line = null;
+		while ((line = br.readLine()) != null) {
+			sb.append(line + "\n");
+		}
+		return sb.toString();
+	}
+
+	public static String readAll(File in) throws Exception {
+		FileInputStream fis = new FileInputStream(in);
+		try {
+			return readAll(fis);
+		} catch (Exception e) {
+			throw e;
+		} finally {
+			fis.close();
+		}
+
+	}
+
+	public static String uri(HttpUriRequest r) {
+		URI u = r.getURI();
+		if (u.getPort() < 0) {
+			return u.getScheme() + "://" + u.getHost() + u.getPath();
+		} else {
+			return u.getScheme() + "://" + u.getHost() + ":" + u.getPort()
+					+ u.getPath();
+		}
 	}
 }

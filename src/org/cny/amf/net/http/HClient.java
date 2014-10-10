@@ -26,6 +26,7 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpVersion;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.conn.scheme.PlainSocketFactory;
 import org.apache.http.conn.scheme.Scheme;
@@ -37,6 +38,7 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
+import org.cny.amf.util.Util;
 
 /**
  * the main class for GET/POST.<br/>
@@ -254,10 +256,48 @@ public abstract class HClient {
 	}
 
 	/**
+	 * the URI.
+	 * 
+	 * @return URI.
+	 */
+	public String uri() {
+		return Util.uri(this.request);
+	}
+
+	/**
+	 * the request method.
+	 * 
+	 * @return METHOD.
+	 */
+	public String method() {
+		return this.request.getMethod();
+	}
+
+	/**
+	 * the query string.
+	 * 
+	 * @return query.
+	 */
+	public String query() {
+		String qs = "";
+		if (this.request.getMethod() == "GET") {
+			qs = this.request.getURI().getQuery();
+		} else {
+			qs = URLEncodedUtils.format(this.args, this.rencoding);
+		}
+		if (qs == null) {
+			qs = "";
+		}
+		return qs;
+	}
+
+	/**
 	 * execute the HTTP request.
 	 */
-	public void exec() {
+	public void exec() throws Exception {
 		OutputStream out = null;
+		InputStream is = null;
+		long clen = 0;
 		try {
 			HttpClient hc = this.createClient();
 			this.running = true;
@@ -265,38 +305,46 @@ public abstract class HClient {
 			if (this.request == null) {
 				throw new Exception("the request is null");
 			}
-			this.cback.onRequest(this, this.request);
-			this.response = new HResp(hc.execute(request));
-			out = this.cback.onBebin(this, this.response);
-			if (out == null) {
-				throw new Exception("the OutputStream is null");
+			is = this.cback.onRequest(this, this.request);
+			if (is == null) {
+				this.response = new HResp(hc.execute(request));
+				is = this.cback.onResponse(this, this.response);
 			}
-			HttpEntity entity = response.getReponse().getEntity();
-			InputStream is;
-			long rsize = 0;
-			long clen = this.response.getContentLength();
-			is = entity.getContent();
-			byte[] buf = new byte[this.bsize];
-			int length = -1;
-			while ((length = is.read(buf)) != -1) {
-				out.write(buf, 0, length);
-				rsize += length;
-				this.onProcess(rsize, clen);
-				if (!this.running) {
-					throw new InterruptedException("Transfter file stopped");
+			if (is == null) {
+				HttpEntity entity = response.getReponse().getEntity();
+				clen = this.response.getContentLength();
+				is = entity.getContent();
+			}
+			clen = is.available();
+			out = this.cback.onBebin(this, this.response);
+			if (out != null) {
+				long rsize = 0;
+				byte[] buf = new byte[this.bsize];
+				int length = -1;
+				while ((length = is.read(buf)) != -1) {
+					out.write(buf, 0, length);
+					rsize += length;
+					this.onProcess(rsize, clen);
+					if (!this.running) {
+						throw new InterruptedException("Transfter file stopped");
+					}
 				}
 			}
 			this.error = null;
-			this.cback.onEnd(this, out);
+			this.cback.onEnd(this, is, out);
 			this.cback.onSuccess(this);
 		} catch (Exception e) {
 			this.error = e;
 			try {
-				this.cback.onEnd(this, out);
+				this.cback.onEnd(this, is, out);
 			} catch (Exception e1) {
 				e1.printStackTrace();
 			}
-			this.cback.onError(this, e);
+			try {
+				this.cback.onError(this, e);
+			} catch (Exception e1) {
+				e1.printStackTrace();
+			}
 		}
 		this.running = false;
 	}

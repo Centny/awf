@@ -34,7 +34,11 @@ public class HAsyncTask extends HClientM {
 
 		@Override
 		protected HAsyncTask doInBackground(HAsyncTask... params) {
-			params[0].exec();
+			try {
+				params[0].exec();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 			return params[0];
 		}
 

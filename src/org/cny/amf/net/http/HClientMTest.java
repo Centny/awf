@@ -7,12 +7,15 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
+import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.message.BasicNameValuePair;
-import org.cny.amf.net.http.H.HDownCallback;
-import org.cny.amf.net.http.H.HNameDlCallback;
+import org.cny.amf.net.http.HCallback.HDownCallback;
+import org.cny.amf.net.http.HCallback.HMCallback;
+import org.cny.amf.net.http.HCallback.HNameDlCallback;
 import org.cny.amf.net.http.HClient.FullSSLSocketFactory;
 import org.cny.amf.net.http.HClient.FullX509TrustManager;
 import org.cny.amf.test.MainActivity;
@@ -48,7 +51,7 @@ public class HClientMTest extends
 		}
 	}
 
-	public class Abc extends H.HMCallback {
+	public class Abc extends HMCallback {
 		private CountDownLatch cdl;
 		private String name;
 
@@ -109,16 +112,16 @@ public class HClientMTest extends
 				List<BasicNameValuePair> args = new ArrayList<BasicNameValuePair>();
 				args.add(new BasicNameValuePair("a", "1"));
 				// 2
-				H.doGet("http://" + ts_ip + ":8000/g_args?b=abc&c=这是中文",
-						args, new Abc(cdl, "2"));
+				H.doGet("http://" + ts_ip + ":8000/g_args?b=abc&c=这是中文", args,
+						new Abc(cdl, "2"));
 				args.add(new BasicNameValuePair("b", "abc"));
 				// 3
 				H.doGet("http://" + ts_ip + ":8000/g_args?c=这是中文", args,
 						new Abc(cdl, "3"));
 				args.add(new BasicNameValuePair("c", "这是中文"));
 				// 4
-				H.doGet("http://" + ts_ip + ":8000/g_args", args, new Abc(
-						cdl, "4"));
+				H.doGet("http://" + ts_ip + ":8000/g_args", args, new Abc(cdl,
+						"4"));
 				// 5
 				H.doPost("http://" + ts_ip + ":8000/g_args?c=这是中文", args,
 						new Abc(cdl, "5"));
@@ -166,7 +169,7 @@ public class HClientMTest extends
 	public void testNotSupport() throws Throwable {
 		this.rerr = null;
 		final CountDownLatch cdl = new CountDownLatch(1);
-		final HCallback eback = new H.HMCallback() {
+		final HCallback eback = new HMCallback() {
 
 			@Override
 			public void onError(HClient c, Throwable err) {
@@ -186,8 +189,7 @@ public class HClientMTest extends
 			public void run() {
 				HAsyncTask dc;
 				//
-				dc = new HAsyncTask("http://" + ts_ip + ":8000/g_args",
-						eback);
+				dc = new HAsyncTask("http://" + ts_ip + ":8000/g_args", eback);
 				dc.setMethod("NO SUPPPORTED");
 				dc.asyncExec();
 			}
@@ -214,7 +216,7 @@ public class HClientMTest extends
 	public void testOutputError() throws Throwable {
 		this.rerr = null;
 		final CountDownLatch cdl = new CountDownLatch(1);
-		final HCallback eback = new H.HMCallback() {
+		final HCallback eback = new HMCallback() {
 
 			@Override
 			public OutputStream onBebin(HClient c, HResp r) {
@@ -239,8 +241,7 @@ public class HClientMTest extends
 			public void run() {
 				HAsyncTask dc;
 				//
-				dc = new HAsyncTask("http://" + ts_ip + ":8000/g_args",
-						eback);
+				dc = new HAsyncTask("http://" + ts_ip + ":8000/g_args", eback);
 				dc.setMethod("GET");
 				dc.asyncExec();
 			}
@@ -254,7 +255,7 @@ public class HClientMTest extends
 	public void testDoPost() throws Throwable {
 		this.rerr = null;
 		final CountDownLatch cdl = new CountDownLatch(1);
-		final HCallback cback = new H.HMCallback() {
+		final HCallback cback = new HMCallback() {
 
 			@Override
 			public void onError(HClient c, Throwable err) {
@@ -277,8 +278,7 @@ public class HClientMTest extends
 				List<BasicNameValuePair> args = new ArrayList<BasicNameValuePair>();
 				args.add(new BasicNameValuePair("a", "1"));
 				args.add(new BasicNameValuePair("b", "abc"));
-				H.doPost("http://" + ts_ip + ":8000/g_args?c=这是中文", args,
-						cback);
+				H.doPost("http://" + ts_ip + ":8000/g_args?c=这是中文", args, cback);
 				args.add(new BasicNameValuePair("c", "这是中文"));
 				//
 			}
@@ -297,8 +297,8 @@ public class HClientMTest extends
 
 			@Override
 			public void run() {
-				H.doGetDown("http://" + ts_ip
-						+ ":8000/g_args?a=1&b=abc&c=这是中文",
+				H.doGetDown(
+						"http://" + ts_ip + ":8000/g_args?a=1&b=abc&c=这是中文",
 						new HDownCallback(p.getAbsolutePath()) {
 
 							@Override
@@ -413,8 +413,7 @@ public class HClientMTest extends
 	public void testDoGetDown5() throws Throwable {
 		this.rerr = null;
 		final CountDownLatch cdl = new CountDownLatch(1);
-		final H.HNameDlCallback cback = new HNameDlCallback(
-				dl.getAbsolutePath()) {
+		final HNameDlCallback cback = new HNameDlCallback(dl.getAbsolutePath()) {
 
 			@Override
 			public void onSuccess(HClient c) {
@@ -497,9 +496,9 @@ public class HClientMTest extends
 						new HNameDlCallback(dl.getAbsolutePath()) {
 
 							@Override
-							public void onEnd(HClient c, OutputStream out)
-									throws Exception {
-								throw new Exception("make exception");
+							public void onEnd(HClient c, InputStream in,
+									OutputStream out) {
+								throw new RuntimeException("make exception");
 							}
 
 							@Override
@@ -564,8 +563,7 @@ public class HClientMTest extends
 	}
 
 	public void testBufferSize() {
-		HClient hc = new HRunnable("http://www.baidu.com",
-				new H.HDownCallback());
+		HClient hc = new HRunnable("http://www.baidu.com", new HDownCallback());
 		hc.setBsize(1024000);
 		System.out.println(hc.getBsize());
 		try {
@@ -586,8 +584,8 @@ public class HClientMTest extends
 						new HNameDlCallback(dl.getAbsolutePath()) {
 
 							@Override
-							public OutputStream onBebin(HClient c,
-									HResp r) throws Exception {
+							public OutputStream onBebin(HClient c, HResp r)
+									throws Exception {
 								c.stop();
 								return super.onBebin(c, r);
 							}
@@ -680,5 +678,203 @@ public class HClientMTest extends
 		assertEquals(33, HClient.httpsPort("https://www.google.com:33"));
 		assertEquals(33, HClient.httpsPort("https://www.google.com:33a"));
 		assertEquals(443, HClient.httpsPort("h://www.google.com:33"));
+	}
+
+	public void testUri() throws InterruptedException {
+		final CountDownLatch cdl = new CountDownLatch(3);
+		H.doGet("http://192.168.1.1/", new HCallback() {
+
+			@Override
+			public void onSuccess(HClient c) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public InputStream onRequest(HClient c, HttpUriRequest r) {
+				System.out.println(c.uri() + "--->");
+				System.out.println(c.query() + "--->");
+				System.out.println("doGet");
+				cdl.countDown();
+				return null;
+			}
+
+			@Override
+			public void onProcess(HClient c, float rate) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void onError(HClient c, Throwable err) {
+				// TODO Auto-generated method stub
+				System.out.println(err.getMessage());
+			}
+
+			@Override
+			public void onEnd(HClient c, InputStream in, OutputStream out) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public OutputStream onBebin(HClient c, HResp r) throws Exception {
+
+				return null;
+			}
+
+			@Override
+			public InputStream onResponse(HClient c, HResp r) throws Exception {
+				// TODO Auto-generated method stub
+				return null;
+			}
+		});
+		H.doGet("http://" + ts_ip + ":8000/dl?sw=1", new HCallback() {
+
+			@Override
+			public void onSuccess(HClient c) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public InputStream onRequest(HClient c, HttpUriRequest r) {
+				System.out.println(c.uri() + "--->");
+				System.out.println(c.query() + "--->");
+				System.out.println("doGet");
+				cdl.countDown();
+				return null;
+			}
+
+			@Override
+			public void onProcess(HClient c, float rate) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void onError(HClient c, Throwable err) {
+				// TODO Auto-generated method stub
+			}
+
+			@Override
+			public void onEnd(HClient c, InputStream in, OutputStream out) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public OutputStream onBebin(HClient c, HResp r) throws Exception {
+
+				return null;
+			}
+
+			@Override
+			public InputStream onResponse(HClient c, HResp r) throws Exception {
+				// TODO Auto-generated method stub
+				return null;
+			}
+		});
+		List<BasicNameValuePair> args = new ArrayList<BasicNameValuePair>();
+		args.add(new BasicNameValuePair("sw", "1"));
+		H.doPost("http://" + ts_ip + ":8000/dl", args, new HCallback() {
+
+			@Override
+			public void onSuccess(HClient c) {
+				// TODO Auto-generated method stub
+			}
+
+			@Override
+			public InputStream onRequest(HClient c, HttpUriRequest r) {
+				System.out.println(c.uri() + "--->");
+				System.out.println(c.query() + "--->");
+				System.out.println("doPost");
+				cdl.countDown();
+				return null;
+			}
+
+			@Override
+			public void onProcess(HClient c, float rate) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void onError(HClient c, Throwable err) {
+				// TODO Auto-generated method stub
+			}
+
+			@Override
+			public void onEnd(HClient c, InputStream in, OutputStream out) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public OutputStream onBebin(HClient c, HResp r) throws Exception {
+
+				return null;
+			}
+
+			@Override
+			public InputStream onResponse(HClient c, HResp r) throws Exception {
+				// TODO Auto-generated method stub
+				return null;
+			}
+		});
+		cdl.await();
+	}
+
+	public void testDate() throws Exception {
+		HResp.parseLmt(null);
+		HResp.parseLmt("");
+		HResp.parseLmt("Thu, 09 Oct 2014 14:12:07 GMT");
+		HResp.formatLmt(null);
+		HResp.formatLmt(new Date());
+		final CountDownLatch cdl = new CountDownLatch(1);
+		H.doGet("http://" + ts_ip + ":8000/dl?sw=1", new HCallback() {
+
+			@Override
+			public void onSuccess(HClient c) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public InputStream onRequest(HClient c, HttpUriRequest r) {
+				return null;
+			}
+
+			@Override
+			public void onProcess(HClient c, float rate) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void onError(HClient c, Throwable err) {
+				// TODO Auto-generated method stub
+			}
+
+			@Override
+			public void onEnd(HClient c, InputStream in, OutputStream out) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public OutputStream onBebin(HClient c, HResp r) throws Exception {
+				System.out.println("doGet:" + r.getLmt());
+				cdl.countDown();
+				return null;
+			}
+
+			@Override
+			public InputStream onResponse(HClient c, HResp r) throws Exception {
+				// TODO Auto-generated method stub
+				return null;
+			}
+		});
+		cdl.await();
 	}
 }

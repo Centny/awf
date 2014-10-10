@@ -46,7 +46,7 @@ public abstract class HClientM extends HClient {
 	 * @return the method
 	 */
 	public String getMethod() {
-		return method;
+		return this.method;
 	}
 
 	@Override

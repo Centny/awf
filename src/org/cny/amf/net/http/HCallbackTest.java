@@ -9,6 +9,10 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.cny.amf.net.http.HCallback.HDownCallback;
+import org.cny.amf.net.http.HCallback.HJsonCallback;
+import org.cny.amf.net.http.HCallback.HMCallback;
+import org.cny.amf.net.http.HCallback.HNameDlCallback;
 import org.cny.amf.test.MainActivity;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -48,7 +52,7 @@ public class HCallbackTest extends
 				+ ":8000/t_args?a=1&b=abc&c=这是中文");
 		HttpResponse rp = c.execute(get);
 		HResp resp = new HResp(rp, "kkk");
-		H.HMCallback cback = new H.HMCallback() {
+		HMCallback cback = new HMCallback() {
 
 			@Override
 			public void onError(HClient c, Throwable err) {
@@ -67,14 +71,14 @@ public class HCallbackTest extends
 	}
 
 	public void testHTTPDownCallback() throws Exception {
-		H.HDownCallback cback = new H.HDownCallback();
+		HDownCallback cback = new HDownCallback();
 		cback.onSuccess(null);
 		cback.onError(null, new Exception("testing..."));
 		System.err.println(cback.getFilepath() + "");
 	}
 
 	public void testHTTPNameDlCallback() throws Exception {
-		H.HNameDlCallback cback = new H.HNameDlCallback("/opt/");
+		HNameDlCallback cback = new HNameDlCallback("/opt/");
 		cback.setDefaultName("name");
 		cback.setFilepath("/opt/kkk");
 		cback.setSdir("/oprss/");
@@ -85,7 +89,7 @@ public class HCallbackTest extends
 	}
 
 	public void testHTTPJsonCallback() {
-		H.HJsonCallback cback = new H.HJsonCallback() {
+		HJsonCallback cback = new HJsonCallback() {
 
 			@Override
 			public void onSuccess(HClient c, JSONArray arg0) {

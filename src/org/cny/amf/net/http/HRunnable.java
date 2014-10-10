@@ -26,17 +26,21 @@ public class HRunnable extends HClientM implements Runnable {
 
 	@Override
 	public void run() {
-		this.exec();
-		if (this.error == null) {
-			Message msg = new Message();
-			msg.what = 2;
-			msg.obj = new Pair<HClient, Object>(this, null);
-			S_PROC.sendMessage(msg);
-		} else {
-			Message msg = new Message();
-			msg.what = 3;
-			msg.obj = new Pair<HClient, Throwable>(this, this.error);
-			S_PROC.sendMessage(msg);
+		try {
+			this.exec();
+			if (this.error == null) {
+				Message msg = new Message();
+				msg.what = 2;
+				msg.obj = new Pair<HClient, Object>(this, null);
+				S_PROC.sendMessage(msg);
+			} else {
+				Message msg = new Message();
+				msg.what = 3;
+				msg.obj = new Pair<HClient, Throwable>(this, this.error);
+				S_PROC.sendMessage(msg);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 

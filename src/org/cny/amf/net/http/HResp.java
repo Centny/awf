@@ -1,8 +1,13 @@
 package org.cny.amf.net.http;
 
 import java.io.UnsupportedEncodingException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
+import java.util.TimeZone;
 
 import org.apache.http.Header;
 import org.apache.http.HeaderElement;
@@ -82,11 +87,11 @@ public class HResp {
 			HeaderElement he = h.getElements()[0];
 			NameValuePair cnv = he.getParameterByName("filename");
 			if (cnv != null) {
-				this.filename = toUtf8(cnv.getValue());
+				this.filename = encoding(cnv.getValue());
 			}
 		}
 		for (Header hd : this.reponse.getAllHeaders()) {
-			String cval = toUtf8(hd.getValue());
+			String cval = encoding(hd.getValue());
 			if (cval == null) {
 				continue;
 			}
@@ -95,7 +100,7 @@ public class HResp {
 
 	}
 
-	private String toUtf8(String data) {
+	private String encoding(String data) {
 		try {
 			return new String(data.getBytes("ISO-8859-1"), this.encoding);
 		} catch (UnsupportedEncodingException e) {
@@ -166,5 +171,43 @@ public class HResp {
 	 */
 	public String getValue(String key) {
 		return this.headers.get(key);
+	}
+
+	/**
+	 * Get the last modified time.
+	 * 
+	 * @return LMT
+	 * @throws ParseException
+	 */
+	public long getLmt() {
+		try {
+			return parseLmt(this.getValue("Last-Modified"));
+		} catch (Exception e) {
+			return 0;
+		}
+	}
+
+	public static long parseLmt(String gmt) throws ParseException {
+		if (gmt == null) {
+			return 0;
+		}
+		gmt = gmt.trim();
+		if (gmt.isEmpty()) {
+			return 0;
+		}
+		SimpleDateFormat sdf = new SimpleDateFormat(
+				"EEE, d MMM yyyy HH:mm:ss 'GMT'", Locale.US);
+		sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
+		return sdf.parse(gmt).getTime();
+	}
+
+	public static String formatLmt(Date gmt) throws ParseException {
+		if (gmt == null) {
+			return "";
+		}
+		SimpleDateFormat sdf = new SimpleDateFormat(
+				"EEE, d MMM yyyy HH:mm:ss 'GMT'", Locale.US);
+		sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
+		return sdf.format(gmt);
 	}
 }
