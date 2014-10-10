@@ -10,6 +10,10 @@ public class MultiOutputStream extends OutputStream {
 		this.outs = outs;
 	}
 
+	public OutputStream at(int idx) {
+		return this.outs[idx];
+	}
+
 	@Override
 	public void write(int arg0) throws IOException {
 		for (OutputStream out : outs) {

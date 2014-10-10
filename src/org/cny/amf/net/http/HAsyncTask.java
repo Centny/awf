@@ -1,5 +1,6 @@
 package org.cny.amf.net.http;
 
+import android.app.Activity;
 import android.os.AsyncTask;
 
 /**
@@ -8,7 +9,7 @@ import android.os.AsyncTask;
  * @author cny
  * 
  */
-public class HAsyncTask extends HClientM {
+public class HAsyncTask extends C {
 	private ATask atsk;
 
 	/**
@@ -19,8 +20,13 @@ public class HAsyncTask extends HClientM {
 	 * @param cback
 	 *            the call back.
 	 */
-	public HAsyncTask(String url, HCallback cback) {
-		super(url, cback);
+	public HAsyncTask(HDb db, String url, HCallback cback) {
+		super(db, url, cback);
+		this.atsk = new ATask();
+	}
+
+	public HAsyncTask(Activity aty, String url, HCallback cback) {
+		super(aty, url, cback);
 		this.atsk = new ATask();
 	}
 
@@ -35,7 +41,7 @@ public class HAsyncTask extends HClientM {
 		@Override
 		protected HAsyncTask doInBackground(HAsyncTask... params) {
 			try {
-				params[0].exec();
+				params[0].run();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -44,11 +50,6 @@ public class HAsyncTask extends HClientM {
 
 		@Override
 		protected void onPostExecute(HAsyncTask result) {
-			if (error == null) {
-				cback.onSuccess(HAsyncTask.this);
-			} else {
-				cback.onError(HAsyncTask.this, error);
-			}
 		}
 
 		@Override
@@ -62,7 +63,7 @@ public class HAsyncTask extends HClientM {
 	};
 
 	@Override
-	public void onProcess(HClient c, float rate) {
+	public void onProcess(float rate) {
 		this.atsk.onProcess(rate);
 	}
 
@@ -70,6 +71,6 @@ public class HAsyncTask extends HClientM {
 	 * Start the asynchronous task.
 	 */
 	public void asyncExec() {
-		this.atsk.execute(this);
+		this.atsk.execute(new HAsyncTask[] { this });
 	}
 }

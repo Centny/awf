@@ -15,8 +15,16 @@ import android.database.Cursor;
 
 public class HDb {
 	public static final String DB_F_NAME = "_hcache_.dbf";
-
+	public static final String COLS = "TID,U,M,ARG,LMT,ETAG,TYPE,LEN,ENC,PATH,TIME";
 	private static HDb HDB_;
+
+	public static HDb loadDb_(Activity aty) {
+		try {
+			return loadDb(aty);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
 
 	public static HDb loadDb(Activity aty) throws IOException {
 		if (HDB_ == null) {
@@ -51,8 +59,24 @@ public class HDb {
 		}
 	}
 
-	public HCResp find(String url, String m, String args) {
-		List<HCResp> rs = this.findv(url, m, args);
+	public File newCacheF() {
+		File hc = new File(this.aty.getExternalCacheDir(), "_hc_");
+		if (!hc.exists()) {
+			hc.mkdirs();
+		}
+		return new File(hc, this.fname() + ".hc_");
+	}
+
+	public File openCacheF(String name) {
+		File hc = new File(this.aty.getExternalCacheDir(), "_hc_");
+		if (!hc.exists()) {
+			hc.mkdirs();
+		}
+		return new File(hc, name);
+	}
+
+	public HResp find(String url, String m, String args) {
+		List<HResp> rs = this.findv(url, m, args);
 		if (rs.isEmpty()) {
 			return null;
 		} else {
@@ -60,21 +84,21 @@ public class HDb {
 		}
 	}
 
-	public synchronized List<HCResp> findv(String url, String m, String args) {
+	public synchronized List<HResp> findv(String url, String m, String args) {
 		String sql = "SELECT * FROM _HC_R_ WHERE U=? AND M=? AND ARG=? "
 				+ " ORDER BY TIME DESC";
 		Cursor cur = this.db_.Db().rawQuery(sql, new String[] { url, m, args });
-		List<HCResp> rs = new ArrayList<HCResp>();
+		List<HResp> rs = new ArrayList<HResp>();
 		while (cur.moveToNext()) {
-			rs.add(new HCResp(cur));
+			rs.add(new HResp().init(cur));
 		}
 		cur.close();
 		return rs;
 	}
 
-	public synchronized void add(HCResp r) {
-		String sql = "INSERT INTO _HC_R_ (" + HCResp.COLS
-				+ ") VALUES(?,?,?,?,?,?,?,?,?,?)";
+	public synchronized void add(HResp r) {
+		String sql = "INSERT INTO _HC_R_ (" + COLS
+				+ ") VALUES(?,?,?,?,?,?,?,?,?,?,?)";
 		this.db_.exec(sql, r.toObjects(true));
 	}
 
@@ -88,14 +112,14 @@ public class HDb {
 		this.db_.exec(sql, new Object[] { u, m, arg });
 	}
 
-	public synchronized void update(HCResp r) {
+	public synchronized void update(HResp r) {
 		String sql = "UPDATE _HC_R_ SET U=?,M=?,ARG=?,LMT=?,"
 				+ "ETAG=?,TYPE=?,LEN=?,PATH=?,TIME=? WHERE TID=?";
 		this.db_.exec(sql, r.toObjects(false));
 	}
 
-	public synchronized void flush(HCResp r) {
-		r.setTime(new Date().getTime());
+	public synchronized void flush(HResp r) {
+		r.time = new Date().getTime();
 		this.update(r);
 	}
 
@@ -120,23 +144,10 @@ public class HDb {
 		return name;
 	}
 
-	public File newCacheF() {
-		File hc = new File(this.aty.getExternalCacheDir(), "_hc_");
-		if (!hc.exists()) {
-			hc.mkdirs();
+	public boolean CacheExist(HResp r) {
+		if (r == null || Util.isNullOrEmpty(r.path)) {
+			return false;
 		}
-		return new File(hc, this.fname() + ".hc_");
-	}
-
-	public File openCacheF(String name) {
-		File hc = new File(this.aty.getExternalCacheDir(), "_hc_");
-		if (!hc.exists()) {
-			hc.mkdirs();
-		}
-		return new File(hc, name);
-	}
-
-	public boolean CacheExist(HCResp r) {
-		return this.openCacheF(r.getPath()).exists();
+		return this.openCacheF(r.path).exists();
 	}
 }

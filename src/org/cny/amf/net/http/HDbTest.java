@@ -25,9 +25,10 @@ public class HDbTest extends ActivityInstrumentationTestCase2<MainActivity> {
 
 	public void testQuery() throws Exception {
 		HDb hdb = HDb.loadDb(this.getActivity());
-		HCResp r;
-		List<HCResp> rs;
-		r = new HCResp();
+		hdb.clearR();
+		HResp r;
+		List<HResp> rs;
+		r = new HResp();
 		r.u = "http://localhost";
 		r.m = "GET";
 		r.arg = "A=1";
