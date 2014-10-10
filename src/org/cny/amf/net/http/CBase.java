@@ -283,13 +283,16 @@ public abstract class CBase implements Runnable {
 		if (err != null) {
 			throw err;
 		}
-		res.time = new Date().getTime();
-		if (res.tid > 0) {
-			this.slog("adding cache for", this.parsePolicy());
-			this.db.update(res);
-		} else {
-			this.slog("adding cache for", this.parsePolicy());
-			this.db.add(res);
+		Policy pc = this.parsePolicy();
+		if (pc != Policy.NO) {
+			res.time = new Date().getTime();
+			if (res.tid > 0) {
+				this.slog("adding cache for", pc);
+				this.db.update(res);
+			} else {
+				this.slog("adding cache for", pc);
+				this.db.add(res);
+			}
 		}
 	}
 
