@@ -5,7 +5,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.apache.http.client.methods.HttpUriRequest;
@@ -23,9 +22,7 @@ public interface HCallback {
 	 * @param r
 	 *            the HttpUriRequest instance.
 	 */
-	public InputStream onRequest(HClient c, HttpUriRequest r) throws Exception;
-
-	public InputStream onResponse(HClient c, HResp r) throws Exception;
+	public void onRequest(HClient c, HttpUriRequest uri) throws Exception;
 
 	/**
 	 * called it before data transfer.return the OutputStream to store the HTTP
@@ -55,7 +52,7 @@ public interface HCallback {
 	 * @throws Exception
 	 *             all Exception.
 	 */
-	public void onEnd(HClient c, InputStream in, OutputStream out);
+	public void onEnd(HClient c, OutputStream out);
 
 	//
 	/**
@@ -106,12 +103,7 @@ public interface HCallback {
 		}
 
 		@Override
-		public InputStream onResponse(HClient c, HResp r) throws Exception {
-			return null;
-		}
-
-		@Override
-		public void onEnd(HClient c, InputStream in, OutputStream out) {
+		public void onEnd(HClient c, OutputStream out) {
 		}
 
 		@Override
@@ -119,9 +111,7 @@ public interface HCallback {
 		}
 
 		@Override
-		public InputStream onRequest(HClient c, HttpUriRequest r)
-				throws Exception {
-			return null;
+		public void onRequest(HClient c, HttpUriRequest r) throws Exception {
 		}
 
 		@Override
@@ -266,7 +256,7 @@ public interface HCallback {
 		}
 
 		@Override
-		public void onEnd(HClient c, InputStream in, OutputStream out) {
+		public void onEnd(HClient c, OutputStream out) {
 			try {
 				out.close();
 			} catch (IOException e) {
@@ -298,9 +288,7 @@ public interface HCallback {
 		}
 
 		@Override
-		public InputStream onRequest(HClient c, HttpUriRequest r)
-				throws Exception {
-			return null;
+		public void onRequest(HClient c, HttpUriRequest r) throws Exception {
 		}
 
 		/**
@@ -320,11 +308,6 @@ public interface HCallback {
 		 */
 		public void setFilepath(String filepath) {
 			this.filepath = filepath;
-		}
-
-		@Override
-		public InputStream onResponse(HClient c, HResp r) throws Exception {
-			return null;
 		}
 
 	}

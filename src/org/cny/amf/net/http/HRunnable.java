@@ -33,11 +33,13 @@ public class HRunnable extends HClientM implements Runnable {
 				msg.what = 2;
 				msg.obj = new Pair<HClient, Object>(this, null);
 				S_PROC.sendMessage(msg);
+				this.cback.onSuccess(this);
 			} else {
 				Message msg = new Message();
 				msg.what = 3;
 				msg.obj = new Pair<HClient, Throwable>(this, this.error);
 				S_PROC.sendMessage(msg);
+				this.cback.onError(this, this.error);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -45,7 +47,7 @@ public class HRunnable extends HClientM implements Runnable {
 	}
 
 	@Override
-	protected void onProcess(float rate) {
+	public void onProcess(HClient c, float rate) {
 		Message msg = new Message();
 		msg.what = 1;
 		msg.obj = new Pair<HClient, Float>(this, rate);

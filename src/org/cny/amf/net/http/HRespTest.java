@@ -12,8 +12,7 @@ import org.cny.amf.test.MainActivity;
 
 import android.test.ActivityInstrumentationTestCase2;
 
-public class HRespTest extends
-		ActivityInstrumentationTestCase2<MainActivity> {
+public class HRespTest extends ActivityInstrumentationTestCase2<MainActivity> {
 	public HRespTest() {
 		super(MainActivity.class);
 	}
@@ -36,14 +35,14 @@ public class HRespTest extends
 		HttpClient c = new DefaultHttpClient();
 		HttpGet get = new HttpGet("http://" + ts_ip
 				+ ":8000/g_args?a=1&b=abc&c=这是中文");
-		HResp resp = new HResp(c.execute(get));
+		HResp resp = new HMResp(c.execute(get));
 		System.out.println(resp.getContentLength() + "");
 		System.out.println(resp.getContentType() + "");
 		System.out.println(resp.getEncoding() + "");
 		System.out.println(resp.getFilename() + "");
 		System.out.println(resp.getStatusCode() + "");
 		System.out.println(resp.getValue("Content-Type") + "");
-		System.out.println(resp.getReponse() + "");
+		// System.out.println(resp.getReponse() + "");
 	}
 
 	public void testNormal2() throws Exception {
@@ -52,14 +51,14 @@ public class HRespTest extends
 				+ ":8000/g_args?a=1&b=abc&c=这是中文");
 		HttpResponse rp = c.execute(get);
 		rp.removeHeaders("Content-Type");
-		HResp resp = new HResp(rp);
+		HResp resp = new HMResp(rp);
 		System.out.println(resp.getContentLength() + "");
 		System.out.println(resp.getContentType() + "");
 		System.out.println(resp.getEncoding() + "");
 		System.out.println(resp.getFilename() + "");
 		System.out.println(resp.getStatusCode() + "");
 		System.out.println(resp.getValue("Content-Type") + "");
-		System.out.println(resp.getReponse() + "");
+		// System.out.println(resp.getReponse() + "");
 	}
 
 	public void testNormal3() throws Exception {
@@ -67,7 +66,7 @@ public class HRespTest extends
 		HttpGet get = new HttpGet("http://" + ts_ip
 				+ ":8000/t_args?a=1&b=abc&c=这是中文");
 		HttpResponse rp = c.execute(get);
-		HResp resp = new HResp(rp, "kkk");
+		HResp resp = new HMResp(rp, "kkk");
 		System.out.println(resp.getContentLength() + "");
 		System.out.println(resp.getContentType() + "");
 		System.out.println(resp.getEncoding() + "");
@@ -75,7 +74,7 @@ public class HRespTest extends
 		System.out.println(resp.getStatusCode() + "");
 		System.out.println(resp.getValue("Content-Type") + "");
 		System.out.println(resp.getValue("ABB") + "");
-		System.out.println(resp.getReponse() + "");
+		// System.out.println(resp.getReponse() + "");
 	}
 
 	public void testNewErr() throws Exception {
@@ -83,12 +82,12 @@ public class HRespTest extends
 		HttpGet get = new HttpGet("http://" + ts_ip
 				+ ":8000/g_args?a=1&b=abc&c=这是中文");
 		try {
-			new HResp(c.execute(get), null);
+			new HMResp(c.execute(get), null);
 		} catch (RuntimeException e) {
 
 		}
 		try {
-			new HResp(null, null);
+			new HMResp(null, null);
 		} catch (RuntimeException e) {
 
 		}

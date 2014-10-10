@@ -69,6 +69,7 @@ public class HClientMTest extends
 
 		@Override
 		public void onSuccess(HClient c, String data) {
+
 			cdl.countDown();
 			if (c.getRequest() == null) {
 				rerr = new Exception("rquest is null");
@@ -83,10 +84,10 @@ public class HClientMTest extends
 						+ c.getResponse().getStatusCode());
 				return;
 			}
-			if (c.getCback() != this) {
-				rerr = new Exception("call back error");
-				return;
-			}
+			// if (c.getCback() != this) {
+			// rerr = new Exception("call back error");
+			// return;
+			// }
 			System.out.println(c.getRencoding());
 			if (!"OK".equals(data)) {
 				String msg = "response:" + data + "," + this.name;
@@ -496,8 +497,7 @@ public class HClientMTest extends
 						new HNameDlCallback(dl.getAbsolutePath()) {
 
 							@Override
-							public void onEnd(HClient c, InputStream in,
-									OutputStream out) {
+							public void onEnd(HClient c, OutputStream out) {
 								throw new RuntimeException("make exception");
 							}
 
@@ -691,12 +691,11 @@ public class HClientMTest extends
 			}
 
 			@Override
-			public InputStream onRequest(HClient c, HttpUriRequest r) {
+			public void onRequest(HClient c, HttpUriRequest r) {
 				System.out.println(c.uri() + "--->");
 				System.out.println(c.query() + "--->");
 				System.out.println("doGet");
 				cdl.countDown();
-				return null;
 			}
 
 			@Override
@@ -712,7 +711,7 @@ public class HClientMTest extends
 			}
 
 			@Override
-			public void onEnd(HClient c, InputStream in, OutputStream out) {
+			public void onEnd(HClient c, OutputStream out) {
 				// TODO Auto-generated method stub
 
 			}
@@ -720,12 +719,6 @@ public class HClientMTest extends
 			@Override
 			public OutputStream onBebin(HClient c, HResp r) throws Exception {
 
-				return null;
-			}
-
-			@Override
-			public InputStream onResponse(HClient c, HResp r) throws Exception {
-				// TODO Auto-generated method stub
 				return null;
 			}
 		});
@@ -738,12 +731,11 @@ public class HClientMTest extends
 			}
 
 			@Override
-			public InputStream onRequest(HClient c, HttpUriRequest r) {
+			public void onRequest(HClient c, HttpUriRequest r) {
 				System.out.println(c.uri() + "--->");
 				System.out.println(c.query() + "--->");
 				System.out.println("doGet");
 				cdl.countDown();
-				return null;
 			}
 
 			@Override
@@ -758,7 +750,7 @@ public class HClientMTest extends
 			}
 
 			@Override
-			public void onEnd(HClient c, InputStream in, OutputStream out) {
+			public void onEnd(HClient c, OutputStream out) {
 				// TODO Auto-generated method stub
 
 			}
@@ -769,11 +761,6 @@ public class HClientMTest extends
 				return null;
 			}
 
-			@Override
-			public InputStream onResponse(HClient c, HResp r) throws Exception {
-				// TODO Auto-generated method stub
-				return null;
-			}
 		});
 		List<BasicNameValuePair> args = new ArrayList<BasicNameValuePair>();
 		args.add(new BasicNameValuePair("sw", "1"));
@@ -785,12 +772,11 @@ public class HClientMTest extends
 			}
 
 			@Override
-			public InputStream onRequest(HClient c, HttpUriRequest r) {
+			public void onRequest(HClient c, HttpUriRequest r) {
 				System.out.println(c.uri() + "--->");
 				System.out.println(c.query() + "--->");
 				System.out.println("doPost");
 				cdl.countDown();
-				return null;
 			}
 
 			@Override
@@ -805,7 +791,7 @@ public class HClientMTest extends
 			}
 
 			@Override
-			public void onEnd(HClient c, InputStream in, OutputStream out) {
+			public void onEnd(HClient c, OutputStream out) {
 				// TODO Auto-generated method stub
 
 			}
@@ -816,11 +802,6 @@ public class HClientMTest extends
 				return null;
 			}
 
-			@Override
-			public InputStream onResponse(HClient c, HResp r) throws Exception {
-				// TODO Auto-generated method stub
-				return null;
-			}
 		});
 		cdl.await();
 	}
@@ -841,8 +822,7 @@ public class HClientMTest extends
 			}
 
 			@Override
-			public InputStream onRequest(HClient c, HttpUriRequest r) {
-				return null;
+			public void onRequest(HClient c, HttpUriRequest r) {
 			}
 
 			@Override
@@ -857,7 +837,7 @@ public class HClientMTest extends
 			}
 
 			@Override
-			public void onEnd(HClient c, InputStream in, OutputStream out) {
+			public void onEnd(HClient c, OutputStream out) {
 				// TODO Auto-generated method stub
 
 			}
@@ -869,11 +849,6 @@ public class HClientMTest extends
 				return null;
 			}
 
-			@Override
-			public InputStream onResponse(HClient c, HResp r) throws Exception {
-				// TODO Auto-generated method stub
-				return null;
-			}
 		});
 		cdl.await();
 	}

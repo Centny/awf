@@ -62,7 +62,7 @@ public class HAsyncTask extends HClientM {
 	};
 
 	@Override
-	protected void onProcess(float rate) {
+	public void onProcess(HClient c, float rate) {
 		this.atsk.onProcess(rate);
 	}
 

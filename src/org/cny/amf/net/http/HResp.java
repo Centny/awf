@@ -1,5 +1,6 @@
 package org.cny.amf.net.http;
 
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -20,87 +21,22 @@ import org.apache.http.NameValuePair;
  * @author cny
  * 
  */
-public class HResp {
-	private HttpResponse reponse;
-	private long contentLength;
-	private String contentType;
-	private String encoding = "UTF-8";
-	private int statusCode;
-	private String filename;
-	private Map<String, String> headers = new HashMap<String, String>();
+public abstract class HResp {
+	HttpResponse reponse;
+	long contentLength;
+	String contentType;
+	String encoding = "UTF-8";
+	int statusCode;
+	String filename;
+	long lmt;
+	String etag;
+	Map<String, String> headers = new HashMap<String, String>();
 
-	/**
-	 * the constructor by HttpResponse.
-	 * 
-	 * @param reponse
-	 *            the HttpResponse.
-	 */
-	public HResp(HttpResponse reponse) {
-		this.init(reponse, "UTF-8");
-	}
-
-	/**
-	 * the constructor by HttpResponse and encoding.
-	 * 
-	 * @param reponse
-	 *            the HttpResponse.
-	 * @param encoding
-	 *            the encoding.
-	 */
-	public HResp(HttpResponse reponse, String encoding) {
-		this.init(reponse, encoding);
-	}
-
-	private void init(HttpResponse reponse, String encoding) {
-		if (reponse == null) {
-			throw new RuntimeException("response is null");
-		}
-		if (encoding == null) {
-			throw new RuntimeException("encoding is null");
-		}
-		this.reponse = reponse;
-		this.encoding = encoding;
-		this.statusCode = this.reponse.getStatusLine().getStatusCode();
-		Header h;
-		h = this.reponse.getFirstHeader("Content-Length");
-		if (h == null) {
-			this.contentLength = 0;
-		} else {
-			this.contentLength = Long.parseLong(h.getValue());
-		}
-		h = this.reponse.getFirstHeader("Content-Type");
-		if (h == null) {
-			this.contentType = null;
-		} else {
-			HeaderElement he = h.getElements()[0];
-			this.contentType = he.getName();
-			NameValuePair cnv = he.getParameterByName("charset");
-			if (cnv != null) {
-				this.encoding = cnv.getValue();
-			}
-
-		}
-		h = this.reponse.getFirstHeader("Content-Disposition");
-		if (h == null) {
-			this.filename = null;
-		} else {
-			HeaderElement he = h.getElements()[0];
-			NameValuePair cnv = he.getParameterByName("filename");
-			if (cnv != null) {
-				this.filename = encoding(cnv.getValue());
-			}
-		}
-		for (Header hd : this.reponse.getAllHeaders()) {
-			String cval = encoding(hd.getValue());
-			if (cval == null) {
-				continue;
-			}
-			this.headers.put(hd.getName(), cval);
-		}
+	public HResp() {
 
 	}
 
-	private String encoding(String data) {
+	protected String encoding(String data) {
 		try {
 			return new String(data.getBytes("ISO-8859-1"), this.encoding);
 		} catch (UnsupportedEncodingException e) {
@@ -108,83 +44,12 @@ public class HResp {
 		}
 	}
 
-	/**
-	 * Get HttpResponse.
-	 * 
-	 * @return the HttpResponse.
-	 */
-	public HttpResponse getReponse() {
-		return reponse;
+	public Map<String, String> getHeaders() {
+		return headers;
 	}
 
-	/**
-	 * Get the content length.
-	 * 
-	 * @return the content length.
-	 */
-	public long getContentLength() {
-		return contentLength;
-	}
-
-	/**
-	 * Get the content type.
-	 * 
-	 * @return the content type.
-	 */
-	public String getContentType() {
-		return contentType;
-	}
-
-	/**
-	 * Get the encoding.
-	 * 
-	 * @return the encoding.
-	 */
-	public String getEncoding() {
-		return encoding;
-	}
-
-	/**
-	 * Get the status code.
-	 * 
-	 * @return the status code.
-	 */
-	public int getStatusCode() {
-		return statusCode;
-	}
-
-	/**
-	 * Get the file name.
-	 * 
-	 * @return the file name.
-	 */
-	public String getFilename() {
-		return filename;
-	}
-
-	/**
-	 * Get the header value by key.
-	 * 
-	 * @param key
-	 *            the key.
-	 * @return the header value.
-	 */
 	public String getValue(String key) {
 		return this.headers.get(key);
-	}
-
-	/**
-	 * Get the last modified time.
-	 * 
-	 * @return LMT
-	 * @throws ParseException
-	 */
-	public long getLmt() {
-		try {
-			return parseLmt(this.getValue("Last-Modified"));
-		} catch (Exception e) {
-			return 0;
-		}
 	}
 
 	public static long parseLmt(String gmt) throws ParseException {
@@ -210,4 +75,126 @@ public class HResp {
 		sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
 		return sdf.format(gmt);
 	}
+
+	public long getContentLength() {
+		return contentLength;
+	}
+
+	public void setContentLength(long contentLength) {
+		this.contentLength = contentLength;
+	}
+
+	public String getContentType() {
+		return contentType;
+	}
+
+	public void setContentType(String contentType) {
+		this.contentType = contentType;
+	}
+
+	public String getEncoding() {
+		return encoding;
+	}
+
+	public void setEncoding(String encoding) {
+		this.encoding = encoding;
+	}
+
+	public int getStatusCode() {
+		return statusCode;
+	}
+
+	public void setStatusCode(int statusCode) {
+		this.statusCode = statusCode;
+	}
+
+	public long getLmt() {
+		return lmt;
+	}
+
+	public void setLmt(long lmt) {
+		this.lmt = lmt;
+	}
+
+	public String getEtag() {
+		return etag;
+	}
+
+	public void setEtag(String etag) {
+		this.etag = etag;
+	}
+
+	public String getFilename() {
+		return filename;
+	}
+
+	public HttpResponse getReponse() {
+		return reponse;
+	}
+
+	public void init(HttpResponse reponse, String encoding) {
+		if (reponse == null) {
+			throw new RuntimeException("response is null");
+		}
+		if (encoding == null) {
+			throw new RuntimeException("encoding is null");
+		}
+		this.reponse = reponse;
+		this.encoding = encoding;
+		this.statusCode = reponse.getStatusLine().getStatusCode();
+		Header h;
+		h = reponse.getFirstHeader("Content-Length");
+		if (h == null) {
+			this.contentLength = 0;
+		} else {
+			this.contentLength = Long.parseLong(h.getValue());
+		}
+		h = reponse.getFirstHeader("Content-Type");
+		if (h == null) {
+			this.contentType = null;
+		} else {
+			HeaderElement he = h.getElements()[0];
+			this.contentType = he.getName();
+			NameValuePair cnv = he.getParameterByName("charset");
+			if (cnv != null) {
+				this.encoding = cnv.getValue();
+			}
+
+		}
+		h = reponse.getFirstHeader("ETag");
+		if (h == null) {
+			this.etag = null;
+		} else {
+			this.etag = h.getValue();
+		}
+		h = reponse.getFirstHeader("Last-Modified");
+		try {
+			this.lmt = parseLmt(h.getValue());
+		} catch (Exception e) {
+			this.lmt = 0;
+		}
+		h = reponse.getFirstHeader("Content-Disposition");
+		if (h == null) {
+			this.filename = null;
+		} else {
+			HeaderElement he = h.getElements()[0];
+			NameValuePair cnv = he.getParameterByName("filename");
+			if (cnv != null) {
+				this.filename = encoding(cnv.getValue());
+			}
+		}
+
+		for (Header hd : reponse.getAllHeaders()) {
+			String cval = encoding(hd.getValue());
+			if (cval == null) {
+				continue;
+			}
+			this.headers.put(hd.getName(), cval);
+		}
+
+	}
+
+	public abstract InputStream getInput() throws Exception;
+
+	// //
 }

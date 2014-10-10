@@ -1,4 +1,4 @@
-package org.cny.amf.net.http.hdb;
+package org.cny.amf.net.http;
 
 import java.util.Date;
 import java.util.List;
@@ -25,9 +25,9 @@ public class HDbTest extends ActivityInstrumentationTestCase2<MainActivity> {
 
 	public void testQuery() throws Exception {
 		HDb hdb = HDb.loadDb(this.getActivity());
-		R r;
-		List<R> rs;
-		r = new R();
+		HCResp r;
+		List<HCResp> rs;
+		r = new HCResp();
 		r.u = "http://localhost";
 		r.m = "GET";
 		r.arg = "A=1";

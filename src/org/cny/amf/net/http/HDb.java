@@ -1,4 +1,4 @@
-package org.cny.amf.net.http.hdb;
+package org.cny.amf.net.http;
 
 import java.io.File;
 import java.io.IOException;
@@ -51,8 +51,8 @@ public class HDb {
 		}
 	}
 
-	public R find(String url, String m, String args) {
-		List<R> rs = this.findv(url, m, args);
+	public HCResp find(String url, String m, String args) {
+		List<HCResp> rs = this.findv(url, m, args);
 		if (rs.isEmpty()) {
 			return null;
 		} else {
@@ -60,23 +60,22 @@ public class HDb {
 		}
 	}
 
-	public synchronized List<R> findv(String url, String m, String args) {
+	public synchronized List<HCResp> findv(String url, String m, String args) {
 		String sql = "SELECT * FROM _HC_R_ WHERE U=? AND M=? AND ARG=? "
 				+ " ORDER BY TIME DESC";
 		Cursor cur = this.db_.Db().rawQuery(sql, new String[] { url, m, args });
-		List<R> rs = new ArrayList<R>();
+		List<HCResp> rs = new ArrayList<HCResp>();
 		while (cur.moveToNext()) {
-			rs.add(new R(cur));
+			rs.add(new HCResp(cur));
 		}
 		cur.close();
 		return rs;
 	}
 
-	public synchronized void add(R r) {
-		String sql = "INSERT INTO _HC_R_ (" + R.COLS
+	public synchronized void add(HCResp r) {
+		String sql = "INSERT INTO _HC_R_ (" + HCResp.COLS
 				+ ") VALUES(?,?,?,?,?,?,?,?,?,?)";
-		this.db_.exec(sql, new Object[] { null, r.u, r.m, r.arg, r.lmt, r.etag,
-				r.type, r.len, r.path, r.time });
+		this.db_.exec(sql, r.toObjects(true));
 	}
 
 	public synchronized void del(long tid) {
@@ -89,16 +88,20 @@ public class HDb {
 		this.db_.exec(sql, new Object[] { u, m, arg });
 	}
 
-	public synchronized void update(R r) {
+	public synchronized void update(HCResp r) {
 		String sql = "UPDATE _HC_R_ SET U=?,M=?,ARG=?,LMT=?,"
 				+ "ETAG=?,TYPE=?,LEN=?,PATH=?,TIME=? WHERE TID=?";
-		this.db_.exec(sql, new Object[] { r.u, r.m, r.arg, r.lmt, r.etag,
-				r.type, r.len, r.path, r.time, r.tid });
+		this.db_.exec(sql, r.toObjects(false));
 	}
 
-	public synchronized void flush(R r) {
-		r.time = new Date().getTime();
+	public synchronized void flush(HCResp r) {
+		r.setTime(new Date().getTime());
 		this.update(r);
+	}
+
+	public synchronized void clearR() {
+		String sql = "DELETE FROM _HC_R_";
+		this.db_.exec(sql, new Object[] {});
 	}
 
 	public synchronized String fname() {
@@ -131,5 +134,9 @@ public class HDb {
 			hc.mkdirs();
 		}
 		return new File(hc, name);
+	}
+
+	public boolean CacheExist(HCResp r) {
+		return this.openCacheF(r.getPath()).exists();
 	}
 }

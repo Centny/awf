@@ -1,11 +1,16 @@
 package org.cny.amf.net.http;
 
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.http.NameValuePair;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.utils.URLEncodedUtils;
-import org.apache.http.message.BasicNameValuePair;
 
 /**
  * the normal HTTP client extends HTTPClient for GET/POST.
@@ -14,6 +19,7 @@ import org.apache.http.message.BasicNameValuePair;
  * 
  */
 public abstract class HClientM extends HClient {
+
 	private String method = "GET";
 
 	/**
@@ -49,30 +55,33 @@ public abstract class HClientM extends HClient {
 		return this.method;
 	}
 
+	private String gurl() {
+		String params = URLEncodedUtils.format(this.args, this.rencoding);
+		if (params.length() > 0) {
+			if (this.url.indexOf("?") > 0) {
+				return this.url + "&" + params;
+			} else {
+				return this.url + "?" + params;
+			}
+		} else {
+			return this.url;
+		}
+	}
+
 	@Override
 	public HttpUriRequest createRequest() throws Exception {
-		if ("GET".equals(method)) {
-			String params = URLEncodedUtils.format(this.args, this.rencoding);
-			HttpGet get;
-			if (params.length() > 0) {
-				if (this.url.indexOf("?") > 0) {
-					get = new HttpGet(this.url + "&" + params);
-				} else {
-					get = new HttpGet(this.url + "?" + params);
-				}
-			} else {
-				get = new HttpGet(this.url);
-			}
-			for (BasicNameValuePair nv : this.headers) {
+		if ("GET".equals(this.method)) {
+			HttpGet get = new HttpGet(this.gurl());
+			for (NameValuePair nv : this.headers) {
 				get.addHeader(nv.getName(), new String(
 						nv.getValue().getBytes(), "ISO-8859-1"));
 			}
 			return get;
-		} else if ("POST".equals(method)) {
+		} else if ("POST".equals(this.method)) {
 			HttpPost post = new HttpPost(this.url);
 			post.setEntity(new UrlEncodedFormEntity(this.args, this
 					.getRencoding()));
-			for (BasicNameValuePair nv : this.headers) {
+			for (NameValuePair nv : this.headers) {
 				post.addHeader(nv.getName(), new String(nv.getValue()
 						.getBytes(), "ISO-8859-1"));
 			}
@@ -82,4 +91,64 @@ public abstract class HClientM extends HClient {
 		}
 	}
 
+	public String query(String inc) {
+		try {
+			List<NameValuePair> args_ = new ArrayList<NameValuePair>();
+			if ("GET".equals(method)) {
+				for (NameValuePair nvp : URLEncodedUtils.parse(
+						new URI(this.gurl()), this.rencoding)) {
+					if (inc != null && nvp.getName().matches(inc)) {
+						continue;
+					} else {
+						args_.add(nvp);
+					}
+				}
+			} else if ("POST".equals(this.method)) {
+				for (NameValuePair nvp : this.args) {
+					if (inc != null && nvp.getName().matches(inc)) {
+						continue;
+					} else {
+						args_.add(nvp);
+					}
+				}
+			}
+			return URLEncodedUtils.format(args_, this.rencoding);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return "";
+	}
+
+	public String findParameter(String key) {
+		try {
+			if ("GET".equals(method)) {
+				for (NameValuePair nvp : URLEncodedUtils.parse(
+						new URI(this.gurl()), this.rencoding)) {
+					if (key.equals(nvp.getName())) {
+						return nvp.getValue();
+					}
+				}
+			} else if ("POST".equals(this.method)) {
+				for (NameValuePair nvp : this.args) {
+					if (key.equals(nvp.getName())) {
+						return nvp.getValue();
+					}
+				}
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return "";
+	}
+
+	@Override
+	public HResp doRequest(HttpClient hc, HttpUriRequest uri) throws Exception {
+		return new HMResp(hc.execute(uri));
+	}
+
+	@Override
+	public void doneRequest(HClient c, HResp r) throws Exception {
+
+	}
 }

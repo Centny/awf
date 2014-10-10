@@ -5,20 +5,19 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Date;
 
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpUriRequest;
-import org.cny.amf.net.http.HCallback.HMCallback;
-import org.cny.amf.net.http.hdb.HDb;
-import org.cny.amf.net.http.hdb.R;
 import org.cny.amf.util.MultiOutputStream;
 import org.cny.amf.util.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class HCache extends HMCallback {
+import android.app.Activity;
+
+public abstract class HCache extends HClientM {
 	public static enum Policy {
 		C, // cache only.
 		N, // normal HTTP cache.
@@ -27,80 +26,126 @@ public abstract class HCache extends HMCallback {
 
 	HDb db;
 	Policy policy;
-	R req;
 	private static Logger log = LoggerFactory.getLogger(HCache.class);
 
-	public HCache(HDb db) {
+	public HCache(HDb db, String url, HCallback cback) {
+		super(url, cback);
 		this.db = db;
 	}
 
-	public static Policy parsePolicy(HttpUriRequest r) {
-		Object hc = r.getParams().getParameter("_hc_");
+	public HCache(Activity aty, String url, HCallback cback) throws IOException {
+		super(url, cback);
+		this.db = HDb.loadDb(aty);
+	}
+
+	public Policy parsePolicy() {
+		String hc = this.findParameter("_hc_");
 		if (hc == null) {
 			return Policy.N;
 		}
 		try {
-			return Policy.valueOf(hc.toString());
+			return Policy.valueOf(hc);
 		} catch (Exception e) {
 			return Policy.N;
 		}
 	}
 
+	public String query() {
+		return this.query("_hc_");
+	}
+
+	public HCResp findR() {
+		return this.db.find(this.uri(), this.method(), this.query());
+	}
+
 	@Override
-	public InputStream onRequest(HClient c, HttpUriRequest r) throws Exception {
-		this.policy = parsePolicy(r);
-		this.req = this.db.find(c.uri(), c.method(), c.query());
-		log.debug(
-				"onRequest by uri(%s),method(%s),query(%s),policy(%s),cache(%s)",
-				c.uri(), c.method(), c.query(), this.policy,
-				(this.req != null && this.req.CacheExist()));
-		if (this.req == null || !this.req.CacheExist()) {// cache not found.
+	public HResp doRequest(HttpClient hc, HttpUriRequest uri) throws Exception {
+		this.policy = this.parsePolicy();
+		HCResp creq = this.findR();
+		if (creq == null || !this.db.CacheExist(creq)) {
+
 			if (this.policy == Policy.C) {// cache only policy.
-				throw new HCacheException(c.uri(), c.method(), c.query());
+				throw new HCacheException(this.uri(), this.method(),
+						this.query());
 			} else {// image policy.
+				log.info(
+						"onRequest by uri({}),method({}),query({}),policy({}),cache({})",
+						this.uri(), this.method(), this.query(), this.policy,
+						"not found");
 				// return null(network).
-				return null;
+				return new HCResp(this, super.doRequest(hc, uri));
 			}
 		} else {
 			switch (this.policy) {
 			case C:// cache only policy.
 					// open file.
-				return new FileInputStream(this.db.openCacheF(this.req.path));
+				log.info(
+						"onRequest by uri({}),method({}),query({}),policy({}),cache({})",
+						this.uri(), this.method(), this.query(), this.policy,
+						true);
+				creq.setIn(new FileInputStream(this.db.openCacheF(creq
+						.getPath())));
+				return creq;
 			case I:// image policy.
 					// return image file path.
-				return new ByteArrayInputStream(this.db
-						.openCacheF(this.req.path).getAbsolutePath().getBytes());
+				log.info(
+						"onRequest by uri({}),method({}),query({}),policy({}),cache({})",
+						this.uri(), this.method(), this.query(), this.policy,
+						true);
+				creq.setIn(new ByteArrayInputStream(this.db
+						.openCacheF(creq.getPath()).getAbsolutePath()
+						.getBytes()));
+				return creq;
 			default:
-				if (req.lmt > 0) {
-					r.addHeader("If-Modified-Since",
-							HResp.formatLmt(new Date(req.lmt)));
+				if (creq.getLmt() > 0) {
+					uri.addHeader("If-Modified-Since",
+							HResp.formatLmt(new Date(creq.getLmt())));
 				}
-				if (req.etag.length() > 0) {
-					r.addHeader("If-None-Match", req.etag);
+				if (Util.isNullOrEmpty(creq.getEtag())) {
+					uri.addHeader("If-None-Match", creq.getEtag());
 				}
-				return null;
+				log.info(
+						"onRequest by uri({}),method({}),query({}),policy({}),cache({})",
+						this.uri(), this.method(), this.query(), this.policy,
+						"Network");
+				HResp res = super.doRequest(hc, uri);
+				if (res.getStatusCode() == 304) {
+					creq.setIn(new FileInputStream(this.db.openCacheF(creq
+							.getPath())));
+					creq.setStatusCode(304);
+					return creq;
+				}else{
+					creq.init(reponse, encoding)
+				}
 			}
 		}
-
 	}
 
-	@Override
-	public InputStream onResponse(HClient c, HResp r) throws Exception {
-		log.debug(
-				"onResponse(%s) by uri(%s),method(%s),query(%s),policy(%s),cache(%s)",
-				r.getStatusCode(), c.uri(), c.method(), c.query(), this.policy,
-				(this.req != null && this.req.CacheExist()));
-		if (r.getStatusCode() == 304) {
-			// open file.
-			return new FileInputStream(this.db.openCacheF(this.req.path));
-		}
-		if (this.req == null) {
-			this.req = new R(c, r);
-		} else {
-			this.req.update(c, r);
-		}
-		return null;
-	}
+	// @Override
+	// public InputStream onResponse(HClient c, HResp r) throws Exception {
+	// if (r.getStatusCode() == 304) {
+	// // open file.
+	// log.info(
+	// "onResponse({}) by uri({}),method({}),query({}),policy({}),cache({})",
+	// r.getStatusCode(), c.uri(), c.method(), this.query(c),
+	// this.policy, "304");
+	// return new FileInputStream(this.db.openCacheF(this.req.path));
+	// }
+	// if (this.req == null) {
+	// this.req = new R(c, r);
+	// log.info(
+	// "onResponse({}) by uri({}),method({}),query({}),policy({}),cache({})",
+	// r.getStatusCode(), c.uri(), c.method(), this.query(c),
+	// this.policy, "N");
+	// } else {
+	// log.info(
+	// "onResponse({}) by uri({}),method({}),query({}),policy({}),cache({})",
+	// r.getStatusCode(), c.uri(), c.method(), this.query(c),
+	// this.policy, "U");
+	// this.req.update(c, r);
+	// }
+	// return null;
+	// }
 
 	@Override
 	public OutputStream onBebin(HClient c, HResp r) throws Exception {
@@ -115,36 +160,42 @@ public abstract class HCache extends HMCallback {
 	}
 
 	@Override
-	public void onEnd(HClient c, InputStream in, OutputStream out) {
+	public void onEnd(HClient c, OutputStream out) {
 		try {
-			in.close();
+			if (out != null) {
+				out.close();
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		try {
-			out.close();
-		} catch (IOException e) {
-			e.printStackTrace();
+		if (this.req == null) {
+			return;
 		}
-		this.req.time = new Date().getTime();
-		if (this.req.tid > 0) {
+		this.req.setTime(new Date().getTime());
+		if (this.req.getTid() > 0) {
 			this.db.update(this.req);
+			log.info("update cache {}", this.req);
 		} else {
 			this.db.add(this.req);
+			log.info("add cache {}", this.req);
 		}
 	}
 
 	@Override
 	public void onError(HClient c, Throwable err) {
-		log.debug(
-				"onError(%s) by uri(%s),method(%s),query(%s),policy(%s),cache(%s)",
-				err.getMessage(), c.uri(), c.method(), c.query(), this.policy,
-				(this.req != null && this.req.CacheExist()));
-		if (this.req == null || !this.req.CacheExist()) {
+		if (this.req == null || !this.db.CacheExist(this.req)) {
+			log.info(
+					"onError({}) by uri({}),method({}),query({}),policy({}),cache({})",
+					err.getMessage(), c.uri(), c.method(), this.query(),
+					this.policy, "not found");
 			this.onError(c, null, err);
 			return;
 		}
 		File cf = this.db.openCacheF(this.req.path);
+		log.info(
+				"onError({}) by uri({}),method({}),query({}),policy({}),cache({})",
+				err.getMessage(), c.uri(), c.method(), this.query(),
+				this.policy, true);
 		if (this.policy == Policy.I) {
 			this.onError(c, cf.getAbsolutePath(), err);
 		} else {
@@ -156,7 +207,7 @@ public abstract class HCache extends HMCallback {
 		try {
 			return Util.readAll(cf);
 		} catch (Exception e) {
-			log.error("read cache file error(%s)", e.getMessage());
+			log.error("read cache file error({})", e.getMessage());
 			return "";
 		}
 	}

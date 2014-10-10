@@ -22,11 +22,10 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
-import org.apache.http.HttpEntity;
 import org.apache.http.HttpVersion;
+import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.conn.scheme.PlainSocketFactory;
 import org.apache.http.conn.scheme.Scheme;
@@ -48,12 +47,12 @@ import org.cny.amf.util.Util;
  * @author cny
  * 
  */
-public abstract class HClient {
+public abstract class HClient implements HCallback {
 	public static final int BUF_SIZE = 102400;
 	//
 	protected String url;
-	protected List<BasicNameValuePair> headers = new ArrayList<BasicNameValuePair>();
-	protected List<BasicNameValuePair> args = new ArrayList<BasicNameValuePair>();
+	protected List<NameValuePair> headers = new ArrayList<NameValuePair>();
+	protected List<NameValuePair> args = new ArrayList<NameValuePair>();
 	protected String rencoding = "UTF-8";
 	protected static HttpClient CLIENT;
 	protected Throwable error;
@@ -108,7 +107,7 @@ public abstract class HClient {
 	 * 
 	 * @return the arguments.
 	 */
-	public List<BasicNameValuePair> getArgs() {
+	public List<NameValuePair> getArgs() {
 		return args;
 	}
 
@@ -117,7 +116,7 @@ public abstract class HClient {
 	 * 
 	 * @return the headers.
 	 */
-	public List<BasicNameValuePair> getHeaders() {
+	public List<NameValuePair> getHeaders() {
 		return headers;
 	}
 
@@ -279,16 +278,7 @@ public abstract class HClient {
 	 * @return query.
 	 */
 	public String query() {
-		String qs = "";
-		if (this.request.getMethod() == "GET") {
-			qs = this.request.getURI().getQuery();
-		} else {
-			qs = URLEncodedUtils.format(this.args, this.rencoding);
-		}
-		if (qs == null) {
-			qs = "";
-		}
-		return qs;
+		return this.query(null);
 	}
 
 	/**
@@ -305,18 +295,11 @@ public abstract class HClient {
 			if (this.request == null) {
 				throw new Exception("the request is null");
 			}
-			is = this.cback.onRequest(this, this.request);
-			if (is == null) {
-				this.response = new HResp(hc.execute(request));
-				is = this.cback.onResponse(this, this.response);
-			}
-			if (is == null) {
-				HttpEntity entity = response.getReponse().getEntity();
-				clen = this.response.getContentLength();
-				is = entity.getContent();
-			}
-			clen = is.available();
-			out = this.cback.onBebin(this, this.response);
+			this.onRequest(this, this.request);
+			this.response = this.doRequest(hc, this.request);
+			is = this.response.getInput();
+			clen = this.response.getContentLength();
+			out = this.onBebin(this, this.response);
 			if (out != null) {
 				long rsize = 0;
 				byte[] buf = new byte[this.bsize];
@@ -331,20 +314,12 @@ public abstract class HClient {
 				}
 			}
 			this.error = null;
-			this.cback.onEnd(this, is, out);
-			this.cback.onSuccess(this);
+			this.onEnd(this, out);
+			this.doneRequest(this, this.response);
+			this.onSuccess(this);
 		} catch (Exception e) {
 			this.error = e;
-			try {
-				this.cback.onEnd(this, is, out);
-			} catch (Exception e1) {
-				e1.printStackTrace();
-			}
-			try {
-				this.cback.onError(this, e);
-			} catch (Exception e1) {
-				e1.printStackTrace();
-			}
+			this.onError(this, e);
 		}
 		this.running = false;
 	}
@@ -487,20 +462,10 @@ public abstract class HClient {
 	 */
 	protected void onProcess(long rsize, long clen) {
 		if (clen > 0) {
-			this.onProcess((float) (((double) rsize) / ((double) clen)));
+			this.onProcess(this, (float) (((double) rsize) / ((double) clen)));
 		} else {
-			this.onProcess((float) 0);
+			this.onProcess(this, (float) 0);
 		}
-	}
-
-	/**
-	 * The on process method when transfer data.
-	 * 
-	 * @param rate
-	 *            the transfered rate.
-	 */
-	protected void onProcess(float rate) {
-		this.cback.onProcess(this, rate);
 	}
 
 	/**
@@ -512,4 +477,37 @@ public abstract class HClient {
 	 */
 	public abstract HttpUriRequest createRequest() throws Exception;
 
+	public abstract HResp doRequest(HttpClient hc, HttpUriRequest uri)
+			throws Exception;
+
+	public abstract void doneRequest(HClient c, HResp r) throws Exception;
+
+	public abstract String query(String inc);
+
+	public abstract String findParameter(String key);
+
+	@Override
+	public void onRequest(HClient c, HttpUriRequest uri) throws Exception {
+		this.cback.onRequest(c, uri);
+	}
+
+	@Override
+	public OutputStream onBebin(HClient c, HResp r) throws Exception {
+		return this.cback.onBebin(c, r);
+	}
+
+	@Override
+	public void onEnd(HClient c, OutputStream out) {
+		this.cback.onEnd(c, out);
+	}
+
+	@Override
+	public void onSuccess(HClient c) {
+		this.cback.onSuccess(c);
+	}
+
+	@Override
+	public void onError(HClient c, Throwable err) {
+		this.cback.onError(c, err);
+	}
 }

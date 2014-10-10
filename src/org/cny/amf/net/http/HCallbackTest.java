@@ -51,7 +51,7 @@ public class HCallbackTest extends
 		HttpGet get = new HttpGet("http://" + ts_ip
 				+ ":8000/t_args?a=1&b=abc&c=这是中文");
 		HttpResponse rp = c.execute(get);
-		HResp resp = new HResp(rp, "kkk");
+		HResp resp = new HMResp(rp, "kkk");
 		HMCallback cback = new HMCallback() {
 
 			@Override
