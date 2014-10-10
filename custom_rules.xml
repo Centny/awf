@@ -2,8 +2,8 @@
 <project name="custom_rules" default="stop_ts">
 	<property file="ant.properties" />
 	<property file="project.properties" />
-	<property name="lib.name" value="libcny4a-${jar.ver}" />
-	<property name="lib.dir" value="${out.dir}/libcny4a" />
+	<property name="lib.name" value="amf-${jar.ver}" />
+	<property name="lib.dir" value="${out.dir}/amf" />
 	<property name="lib.cls" value="${out.dir}/pub.cls" />
 	<target name="start_ts">
 		<exec executable="/bin/bash" dir="./TServer" failonerror="true">
@@ -62,14 +62,16 @@
 		</javac>
 		<copy todir="${lib.cls}">
 			<fileset dir="src">
-				<exclude name="org/cny/cny4a/net/http/Test*" />
-				<include name="org/cny/cny4a/net/http/*" />
+			    <exclude name="**/*Test*" />
+				<exclude name="org/cny/amf/test*/**/*" />
+				<exclude name="org/cny/amf/*" />
 			</fileset>
 		</copy>
 		<jar destfile="${lib.dir}/${lib.name}.jar">
 			<fileset dir="${lib.cls}">
-				<exclude name="org/cny/cny4a/net/http/Test*" />
-				<include name="org/cny/cny4a/net/http/*" />
+				<exclude name="**/*Test*" />
+				<exclude name="org/cny/amf/test*/**/*" />
+				<exclude name="org/cny/amf/*" />
 			</fileset>
 		</jar>
 		<javadoc destdir="${lib.dir}/${lib.name}" windowtitle="Cny4a Project Class Library" use="yes" linksource="no" splitindex="yes" encoding="UTF-8" docencoding="UTF-8">
@@ -78,9 +80,14 @@
 					<include name="*.jar" />
 				</fileset>
 				<path path="${lib.cls}" />
+				<fileset dir="libs">
+					<include name="*.jar" />
+				</fileset>
 			</classpath>
-			<packageset dir="src" defaultexcludes="yes">
-				<include name="org/cny/amf/net/**" />
+			<packageset dir="${lib.cls}" defaultexcludes="yes">
+				<exclude name="org/cny/amf/net/http/HTest"/>
+				<exclude name="org/cny/amf/net/http/HDbTest"/>
+				<exclude name="org/cny/amf/test*/**"/>
 			</packageset>
 		</javadoc>
 		<jar destfile="${lib.dir}/${lib.name}.doc.zip">

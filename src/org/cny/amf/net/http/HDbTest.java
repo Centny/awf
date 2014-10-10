@@ -21,6 +21,7 @@ public class HDbTest extends ActivityInstrumentationTestCase2<MainActivity> {
 	@Override
 	protected void tearDown() throws Exception {
 		HDb.free();
+		super.tearDown();
 	}
 
 	public void testQuery() throws Exception {

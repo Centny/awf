@@ -27,6 +27,8 @@ public class HTest extends ActivityInstrumentationTestCase2<MainActivity> {
 
 	@Override
 	protected void setUp() throws Exception {
+		System.out.println("-------------->");
+		System.out.println("-------------->");
 		super.setUp();
 		InputStream in = this.getActivity().getAssets().open("ts_ip.dat");
 		assertNotNull("the TServer ip config file is not found", in);
@@ -42,11 +44,16 @@ public class HTest extends ActivityInstrumentationTestCase2<MainActivity> {
 		}
 		H.ATY = this.getActivity();
 		HDb.loadDb(this.getActivity()).clearR();
+		System.out.println("test ip:" + ts_ip);
+		System.out.println("test ip:" + ts_ip);
+		System.out.println("test ip:" + ts_ip);
+		System.out.println("test ip:" + ts_ip);
 	}
 
 	@Override
 	protected void tearDown() throws Exception {
 		HDb.free();
+		super.tearDown();
 	}
 
 	public class Abc extends HCacheCallback {
@@ -68,8 +75,7 @@ public class HTest extends ActivityInstrumentationTestCase2<MainActivity> {
 		}
 
 		@Override
-		public void onSuccess(CBase c, HResp res, String data)
-				throws Exception {
+		public void onSuccess(CBase c, HResp res, String data) throws Exception {
 
 			cdl.countDown();
 			System.out.println(res.getEnc());
@@ -91,14 +97,17 @@ public class HTest extends ActivityInstrumentationTestCase2<MainActivity> {
 		}
 
 		@Override
-		public void onSuccess(CBase c, HResp res, String data)
-				throws Exception {
+		public void onSuccess(CBase c, HResp res, String data) throws Exception {
 			cdl.countDown();
 			System.out.println(data + "--------->\n\n\n");
 		}
 	}
 
 	public void testC() throws InterruptedException {
+		System.out.println("test ip:" + ts_ip);
+		System.out.println("test ip:" + ts_ip);
+		System.out.println("test ip:" + ts_ip);
+		System.out.println("test ip:" + ts_ip);
 		this.rerr = null;
 		final CountDownLatch cdl = new CountDownLatch(17);
 
