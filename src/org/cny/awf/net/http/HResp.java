@@ -1,4 +1,4 @@
-package org.cny.amf.net.http;
+package org.cny.awf.net.http;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -19,7 +19,7 @@ import org.apache.http.Header;
 import org.apache.http.HeaderElement;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
-import org.cny.amf.util.Util;
+import org.cny.awf.util.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

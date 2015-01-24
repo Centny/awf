@@ -1,4 +1,4 @@
-package org.cny.amf.util;
+package org.cny.awf.util;
 
 import java.io.BufferedReader;
 import java.io.File;

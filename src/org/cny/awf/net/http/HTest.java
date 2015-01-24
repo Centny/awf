@@ -1,4 +1,4 @@
-package org.cny.amf.net.http;
+package org.cny.awf.net.http;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -9,8 +9,8 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 import org.apache.http.message.BasicNameValuePair;
-import org.cny.amf.net.http.HCallback.HCacheCallback;
-import org.cny.amf.test.MainActivity;
+import org.cny.awf.net.http.HCallback.HCacheCallback;
+import org.cny.awf.test.MainActivity;
 
 import android.os.Environment;
 import android.test.ActivityInstrumentationTestCase2;

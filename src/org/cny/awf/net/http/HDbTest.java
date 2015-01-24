@@ -1,9 +1,9 @@
-package org.cny.amf.net.http;
+package org.cny.awf.net.http;
 
 import java.util.Date;
 import java.util.List;
 
-import org.cny.amf.test.MainActivity;
+import org.cny.awf.test.MainActivity;
 
 import android.test.ActivityInstrumentationTestCase2;
 

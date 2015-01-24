@@ -1,4 +1,4 @@
-package org.cny.amf.net.http;
+package org.cny.awf.net.http;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -17,8 +17,8 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.message.BasicNameValuePair;
-import org.cny.amf.util.MultiOutputStream;
-import org.cny.amf.util.Util;
+import org.cny.awf.util.MultiOutputStream;
+import org.cny.awf.util.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

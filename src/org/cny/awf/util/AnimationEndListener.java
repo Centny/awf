@@ -1,4 +1,4 @@
-package org.cny.amf.util;
+package org.cny.awf.util;
 
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;

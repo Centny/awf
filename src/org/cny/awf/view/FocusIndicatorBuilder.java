@@ -1,6 +1,6 @@
-package org.cny.amf.view;
+package org.cny.awf.view;
 
-import org.cny.amf.view.FocusImages.FocusImagesAdapter;
+import org.cny.awf.view.FocusImages.FocusImagesAdapter;
 
 public abstract class FocusIndicatorBuilder extends FocusImagesAdapter {
 	private FocusImages fimg;

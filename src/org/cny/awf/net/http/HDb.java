@@ -1,4 +1,4 @@
-package org.cny.amf.net.http;
+package org.cny.awf.net.http;
 
 import java.io.File;
 import java.io.IOException;
@@ -7,8 +7,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.cny.amf.util.SQLite;
-import org.cny.amf.util.Util;
+import org.cny.awf.util.SQLite;
+import org.cny.awf.util.Util;
 
 import android.app.Activity;
 import android.database.Cursor;

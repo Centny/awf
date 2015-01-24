@@ -1,4 +1,4 @@
-package org.cny.amf.util;
+package org.cny.awf.util;
 
 import android.app.Activity;
 import android.content.Context;

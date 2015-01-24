@@ -1,4 +1,4 @@
-package org.cny.amf.net.http;
+package org.cny.awf.net.http;
 
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;

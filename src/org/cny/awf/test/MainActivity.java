@@ -1,4 +1,4 @@
-package org.cny.amf.test;
+package org.cny.awf.test;
 
 import org.cny.amf.R;
 

@@ -1,4 +1,4 @@
-package org.cny.amf.view;
+package org.cny.awf.view;
 
 import android.content.Context;
 import android.util.AttributeSet;

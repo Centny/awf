@@ -1,4 +1,4 @@
-package org.cny.amf.view;
+package org.cny.awf.view;
 
 import java.util.ArrayList;
 import java.util.List;
