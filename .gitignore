@@ -11,3 +11,5 @@ TServer/TServer
 TServer/TServer.sublime-workspace
 
 TServer/ts.pid
+
+libs/*.jar
