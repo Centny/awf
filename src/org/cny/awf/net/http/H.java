@@ -16,6 +16,25 @@ public class H {
 
 	public static Activity ATY;
 
+	public static HAsyncTask doPost(Activity aty, String url,
+			List<BasicNameValuePair> args, PIS pis, HCallback cb) {
+		HAsyncTask hc = new HAsyncTask(aty, url, cb);
+		if (args != null) {
+			hc.getArgs().addAll(args);
+		}
+		if (pis != null) {
+			hc.addBinary(pis);
+		}
+		hc.setMethod("POST");
+		hc.asyncExec();
+		return hc;
+	}
+
+	public static HAsyncTask doPost(String url, List<BasicNameValuePair> args,
+			PIS pis, HCallback cb) {
+		return doPost(ATY, url, args, pis, cb);
+	}
+
 	/**
 	 * Do a POST request.
 	 * 
@@ -31,13 +50,7 @@ public class H {
 	 */
 	public static HAsyncTask doPost(Activity aty, String url,
 			List<BasicNameValuePair> args, HCallback cb) {
-		HAsyncTask hc = new HAsyncTask(aty, url, cb);
-		if (args != null) {
-			hc.getArgs().addAll(args);
-		}
-		hc.setMethod("POST");
-		hc.asyncExec();
-		return hc;
+		return doPost(aty, url, args, null, cb);
 	}
 
 	public static HAsyncTask doPost(String url, List<BasicNameValuePair> args,
@@ -57,12 +70,21 @@ public class H {
 	 * @return the HTTPAsyncTask.
 	 */
 	public static HAsyncTask doPost(Activity aty, String url, HCallback cb) {
-		return doPost(aty, url, null, cb);
+		return doPost(aty, url, (PIS) null, cb);
+	}
+
+	public static HAsyncTask doPost(Activity aty, String url, PIS pis,
+			HCallback cb) {
+		return doPost(aty, url, null, pis, cb);
 
 	}
 
 	public static HAsyncTask doPost(String url, HCallback cb) {
-		return doPost(url, null, cb);
+		return doPost(url, (PIS) null, cb);
+	}
+
+	public static HAsyncTask doPost(String url, PIS pis, HCallback cb) {
+		return doPost(url, null, pis, cb);
 	}
 
 	/**

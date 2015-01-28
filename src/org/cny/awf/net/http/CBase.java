@@ -22,7 +22,7 @@ import org.cny.awf.util.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class CBase implements Runnable {
+public abstract class CBase implements Runnable, PIS.PisH {
 	public static enum Policy {
 		C, // cache only.
 		CN, // cache first.
@@ -35,6 +35,7 @@ public abstract class CBase implements Runnable {
 	private static Logger L = LoggerFactory.getLogger(CBase.class);
 	protected List<NameValuePair> headers = new ArrayList<NameValuePair>();
 	protected List<NameValuePair> args = new ArrayList<NameValuePair>();
+	protected List<PIS> files = new ArrayList<PIS>();
 	protected String cencoding = "UTF-8";
 	protected String sencoding = "UTF-8";
 	protected int bsize = BUF_SIZE;
@@ -56,6 +57,10 @@ public abstract class CBase implements Runnable {
 
 	public void addHead(String key, String val) {
 		this.headers.add(new BasicNameValuePair(key, val));
+	}
+
+	public void addBinary(PIS pis) {
+		this.files.add(pis);
 	}
 
 	public String findArg(String key) {
@@ -314,6 +319,11 @@ public abstract class CBase implements Runnable {
 
 	protected void onError(Throwable err) throws Exception {
 		this.cback.onError(this, err);
+	}
+
+	@Override
+	public void onProcess(PIS pis, float rate) {
+		this.cback.onProcess(this, pis, rate);
 	}
 
 	protected abstract String getMethod();

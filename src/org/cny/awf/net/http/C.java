@@ -29,6 +29,7 @@ import org.apache.http.conn.scheme.PlainSocketFactory;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.scheme.SchemeRegistry;
 import org.apache.http.conn.ssl.SSLSocketFactory;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 import org.apache.http.params.BasicHttpParams;
@@ -61,8 +62,19 @@ public class C extends CBase {
 			}
 			return get;
 		} else if ("POST".equals(this.method)) {
-			HttpPost post = new HttpPost(this.url);
-			post.setEntity(new UrlEncodedFormEntity(this.args, this.cencoding));
+			HttpPost post;
+			if (this.files.isEmpty()) {
+				post = new HttpPost(this.url);
+				post.setEntity(new UrlEncodedFormEntity(this.args,
+						this.cencoding));
+			} else {
+				post = new HttpPost(this.url + "?" + this.getQuery());
+				MultipartEntityBuilder meb = MultipartEntityBuilder.create();
+				for (PIS pis : this.files) {
+					meb.addBinaryBody(pis.name, pis, pis.ct, pis.filename);
+				}
+				post.setEntity(meb.build());
+			}
 			for (NameValuePair nv : this.headers) {
 				post.addHeader(nv.getName(), new String(nv.getValue()
 						.getBytes(), "ISO-8859-1"));

@@ -16,6 +16,7 @@ func Register() {
 	http.HandleFunc("/p_args", hdl_ps)
 	http.HandleFunc("/h_args", hdl_hs)
 	http.HandleFunc("/t_args", hdl_ts)
+	http.HandleFunc("/rec_f", rec_f)
 }
 func hdl_ts(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/plain;")
@@ -158,4 +159,30 @@ func tran_f(w http.ResponseWriter, r *http.Request, sw int) {
 	}
 	fmt.Println("transfter file ...")
 	io.Copy(w, f)
+}
+
+func rec_f(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+
+	fmt.Println(r.PostForm, r.Form)
+	// fmt.Println(r.FormFile("sw"))
+	rf, fi, err := r.FormFile("file")
+	if err != nil {
+		w.Write([]byte("get error:" + err.Error()))
+		return
+	}
+	fmt.Println(fi.Filename)
+	fpath := "data/www.txt"
+	tf, err := os.OpenFile(fpath, os.O_CREATE|os.O_RDWR, os.ModePerm)
+	if err != nil {
+		w.Write([]byte("open error:" + err.Error()))
+		return
+	}
+	defer tf.Close()
+	wl, err := io.Copy(tf, rf)
+	if err != nil {
+		w.Write([]byte("copy error:" + err.Error()))
+		return
+	}
+	fmt.Println("copy len:", wl)
 }

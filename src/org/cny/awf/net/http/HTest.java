@@ -1,6 +1,7 @@
 package org.cny.awf.net.http;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -190,5 +191,35 @@ public class HTest extends ActivityInstrumentationTestCase2<MainActivity> {
 		if (this.rerr != null) {
 			assertNull(this.rerr.getMessage(), this.rerr);
 		}
+	}
+
+	public class Abc3 extends Abc {
+
+		@Override
+		public void onProcess(CBase c, PIS pis, float rate) {
+			System.err.println("Pis:" + pis.filename + "->" + rate);
+		}
+
+		public Abc3(CountDownLatch cdl, String name) {
+			super(cdl, name);
+		}
+
+		@Override
+		public void onSuccess(CBase c, HResp res, String data) throws Exception {
+			cdl.countDown();
+			System.out.println(data + "--------->\n\n\n");
+		}
+	}
+
+	public void testUpload() throws Exception {
+		this.rerr = null;
+		final CountDownLatch cdl = new CountDownLatch(1);
+		ByteArrayInputStream bais = new ByteArrayInputStream(
+				"abc\n这是中文\n".getBytes());
+		H.doPost("http://" + ts_ip + ":8000/rec_f?sw=testing&abc=这是中文2&_hc_=NO",
+				PIS.create("file", "abc.txt", bais), new Abc3(cdl, "tu1"));
+		Thread.sleep(200);
+		cdl.await();
+		assertNull(this.rerr);
 	}
 }

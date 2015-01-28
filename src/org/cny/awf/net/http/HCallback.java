@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 
 public interface HCallback {
+	void onProcess(CBase c, PIS pis, float rate);
 
 	OutputStream createO(CBase c, HResp res) throws Exception;
 
@@ -17,6 +18,11 @@ public interface HCallback {
 
 	public static abstract class HDataCallback implements HCallback {
 		ByteArrayOutputStream buf = new ByteArrayOutputStream();
+
+		@Override
+		public void onProcess(CBase c, PIS pis, float rate) {
+
+		}
 
 		@Override
 		public OutputStream createO(CBase c, HResp res) throws Exception {
