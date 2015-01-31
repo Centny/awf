@@ -1,13 +1,20 @@
 package org.cny.awf.util;
 
-import android.app.Activity;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.cny.jwf.util.Orm;
+import org.cny.jwf.util.Orm.OrderBuilder;
+
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 public class SQLite {
-	public static SQLite loadDb(Activity aty, String name, String tname,
+	public static SQLite loadDb(Context ctx, String name, String tname,
 			String script) {
-		SQLite db = new SQLite(aty, name, Context.MODE_PRIVATE);
+		SQLite db = new SQLite(ctx, name, Context.MODE_PRIVATE);
 		if (!db.check(tname)) {
 			db.execS(script);
 		}
@@ -16,8 +23,8 @@ public class SQLite {
 
 	SQLiteDatabase db_;
 
-	public SQLite(Activity aty, String name, int mode) {
-		this.db_ = aty.openOrCreateDatabase(name, mode, null);
+	public SQLite(Context ctx, String name, int mode) {
+		this.db_ = ctx.openOrCreateDatabase(name, mode, null);
 	}
 
 	public SQLiteDatabase Db() {
@@ -62,13 +69,24 @@ public class SQLite {
 		}
 	}
 
-	// public Cursor rawQuery(String sql, String args) {
-	// if (args == null) {
-	// return this.db_.rawQuery(sql, null);
-	// } else {
-	// return this.db_.rawQuery(sql, args.split(","));
-	// }
-	// }
+	public <T> List<T> rawQuery(String sql, Class<T> cls) throws Exception {
+		return this.rawQuery(sql, (String) null, cls);
+	}
+
+	public <T> List<T> rawQuery(String sql, String args, Class<T> cls)
+			throws Exception {
+		if (args == null) {
+			return this.rawQuery(sql, (String[]) null, cls);
+		} else {
+			return this.rawQuery(sql, new String[] { args }, cls);
+		}
+	}
+
+	public <T> List<T> rawQuery(String sql, String[] args, Class<T> cls)
+			throws Exception {
+		return Orm.builds(new CursorOrmBuilder(this.db_.rawQuery(sql, args)),
+				cls);
+	}
 
 	public void close() {
 		if (this.db_ != null) {
@@ -76,4 +94,46 @@ public class SQLite {
 		}
 	}
 
+	public class CursorOrmBuilder extends OrderBuilder {
+		private final Cursor c;
+		private final Map<String, Integer> cidx = new HashMap<String, Integer>();
+
+		public CursorOrmBuilder(Cursor c) {
+			this.c = c;
+			for (String n : c.getColumnNames()) {
+				this.cidx.put(n, c.getColumnIndex(n));
+			}
+		}
+
+		@Override
+		public boolean next() {
+			return this.c.moveToNext();
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		public <T> T get(String name, Class<T> cls) {
+			if (!this.cidx.containsKey(name)) {
+				return null;
+			}
+			int idx = this.cidx.get(name);
+			if (cls == String.class) {
+				return (T) this.c.getString(idx);
+			} else if (cls == long.class || cls == Long.class) {
+				return (T) Long.valueOf(this.c.getLong(idx));
+			} else if (cls == short.class || cls == Short.class) {
+				return (T) Short.valueOf(this.c.getShort(idx));
+			} else if (cls == int.class || cls == Integer.class) {
+				return (T) Integer.valueOf(this.c.getInt(idx));
+			} else if (cls == double.class || cls == Double.class) {
+				return (T) Double.valueOf(this.c.getDouble(idx));
+			} else if (cls == float.class || cls == Float.class) {
+				return (T) Float.valueOf(this.c.getFloat(idx));
+			} else if (cls == byte[].class) {
+				return (T) this.c.getBlob(idx);
+			} else {
+				return null;
+			}
+		}
+	}
 }

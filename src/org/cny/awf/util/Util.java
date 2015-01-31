@@ -10,9 +10,13 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
+import java.util.List;
 
 import org.apache.http.client.methods.HttpUriRequest;
+import org.cny.jwf.util.Utils;
 
 import android.content.Context;
 import android.content.ContextWrapper;
@@ -36,6 +40,20 @@ import android.util.Log;
  * 
  */
 public class Util {
+	public static String listMac() throws SocketException {
+		List<String> macs = new ArrayList<String>();
+		for (Enumeration<NetworkInterface> en = NetworkInterface
+				.getNetworkInterfaces(); en.hasMoreElements();) {
+			NetworkInterface itf = en.nextElement();
+			byte[] mac = itf.getHardwareAddress();
+			if (mac == null) {
+				continue;
+			}
+			macs.add(Utils.byte2hex(mac));
+		}
+		Collections.sort(macs);
+		return Utils.join(macs);
+	}
 
 	/**
 	 * get the local IP address.<br/>
@@ -56,10 +74,10 @@ public class Util {
 	 *            only check wifi.
 	 * @return IP.
 	 */
-	public static String localIpAddress(ContextWrapper aty, boolean onlyWifi) {
+	public static String localIpAddress(Context ctx, boolean onlyWifi) {
 		try {
 			WifiManager wifi;
-			wifi = (WifiManager) aty.getSystemService(Context.WIFI_SERVICE);
+			wifi = (WifiManager) ctx.getSystemService(Context.WIFI_SERVICE);
 			if (wifi.isWifiEnabled()) {
 				WifiInfo winfo = wifi.getConnectionInfo();
 				return intToIp(winfo.getIpAddress());
