@@ -1,6 +1,8 @@
 package org.cny.awf.im;
 
+import java.io.IOException;
 import java.util.Date;
+import java.util.HashMap;
 
 import org.cny.awf.base.BaseSrv;
 import org.cny.awf.net.NetInfo;
@@ -8,7 +10,11 @@ import org.cny.jwf.im.IMC.MsgListener;
 import org.cny.jwf.im.Msg;
 import org.cny.jwf.im.PbSckIMC;
 import org.cny.jwf.im.SckIMC;
+import org.cny.jwf.netw.bean.Con;
+import org.cny.jwf.netw.r.Cmd;
+import org.cny.jwf.netw.r.Netw;
 import org.cny.jwf.netw.r.NetwRunnable;
+import org.cny.jwf.netw.r.NetwRunnable.CmdListener;
 import org.cny.jwf.netw.r.NetwRunnable.EvnListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 
 public abstract class ImSrv extends BaseSrv implements MsgListener,
@@ -24,10 +31,12 @@ public abstract class ImSrv extends BaseSrv implements MsgListener,
 	protected final Logger L = LoggerFactory.getLogger(this.getClass());
 	protected String host;
 	protected int port;
+	protected int retry;
 	protected SckIMC imc;
 	protected Thread thr;
 	protected boolean running = false;
 	protected ImDb db;
+	protected BroadcastReceiver con;
 
 	@Override
 	public void onCreate() {
@@ -42,24 +51,29 @@ public abstract class ImSrv extends BaseSrv implements MsgListener,
 	@Override
 	public void onDestroy() {
 		this.running = false;
+		try {
+			this.close();
+		} catch (Exception e) {
+		}
 	}
 
 	@Override
 	public void onStart(Intent intent, int startId) {
-		if (!this.running) {
-			this.start();
-		}
+		this.checkStart();
 	}
 
 	protected void doConAction(Context ctx, Intent it) {
-		if (!this.running) {
-			this.start();
-		}
+		this.checkStart();
 	}
 
 	@Override
 	public void onErr(NetwRunnable nr, Throwable e) {
 		L.warn("ImSrv exec err:", e);
+	}
+
+	@Override
+	public void onCon(NetwRunnable nr, Netw nw) throws Exception {
+		this.li(null);
 	}
 
 	@Override
@@ -71,24 +85,32 @@ public abstract class ImSrv extends BaseSrv implements MsgListener,
 
 	@Override
 	public void run() {
+		this.running = true;
 		while (this.running) {
 			try {
 				this.run_(new Date().getTime());
 			} catch (Exception e) {
 				L.debug("try running err:", e);
 			}
+			// this.running = false;
 		}
 		this.running = false;
 		L.warn("background thread is stopped");
 	}
 
+	protected void checkStart() {
+		if (!this.running) {
+			this.start();
+		}
+	}
+
 	protected void create() {
 		this.host = info.metaData.getString("host");
 		this.port = info.metaData.getInt("port");
+		this.retry = info.metaData.getInt("retry", 3000);
 		this.imc = new PbSckIMC(this, this, this.host, this.port);
 		this.db = ImDb.loadDb_(this);
-		this.running = true;
-		this.registerReceiver(new BroadcastReceiver() {
+		this.con = new BroadcastReceiver() {
 
 			@Override
 			public void onReceive(Context ctx, Intent it) {
@@ -97,7 +119,9 @@ public abstract class ImSrv extends BaseSrv implements MsgListener,
 					doConAction(ctx, it);
 				}
 			}
-		}, null);
+		};
+		this.registerReceiver(this.con, new IntentFilter(
+				ConnectivityManager.CONNECTIVITY_ACTION));
 	}
 
 	protected void start() {
@@ -116,21 +140,73 @@ public abstract class ImSrv extends BaseSrv implements MsgListener,
 		try {
 			NetInfo.net().update(this);
 			if (NetInfo.net().isAvailable()) {
-				this.imc.run();
+				this.imc.run_c();
 			} else {
 				L.debug("network is not available, thread will stop");
-				this.running = false;
-				return;
 			}
 		} catch (Throwable e) {
 			L.error("running err:", e);
+			this.imc.rcClear(new Exception(e));
 		}
+
 		long now = new Date().getTime();
-		if (now - last < 3000) {
-			L.debug("retry after 3 s");
-			Thread.sleep(3000);
+		if (now - last < this.retry) {
+			L.debug("retry after {} ms", this.retry);
+			Thread.sleep(this.retry);
 		}
 		last = now;
 	}
+
+	public void li(Object v) throws Exception {
+		this.imc.li(this.liArgs(v), new CmdListener() {
+
+			@Override
+			public void onCmd(NetwRunnable nr, Cmd m) {
+				onLi(nr, m.V(Con.Res.class));
+			}
+
+		});
+	}
+
+	public void lo(Object v) throws Exception {
+		this.imc.lo(this.loArgs(v), new CmdListener() {
+
+			@Override
+			public void onCmd(NetwRunnable nr, Cmd m) {
+				onLo(nr, m);
+			}
+
+		});
+	}
+
+	public void sms(String[] r, byte t, byte[] c) throws IOException {
+		this.imc.sms(r, t, c);
+	}
+
+	public void sms(String[] r, int t, byte[] c) throws IOException {
+		this.sms(r, (byte) t, c);
+	}
+
+	public void sms(String r, int t, byte[] c) throws IOException {
+		this.sms(new String[] { r }, t, c);
+	}
+
+	protected Object loArgs(Object v) {
+		if (v == null) {
+			return new HashMap<String, Object>();
+		} else {
+			return v;
+		}
+	}
+
+	protected void close() throws IOException {
+		this.imc.close();
+	}
+
+	protected abstract void onLi(NetwRunnable nr, Con.Res m);
+
+	protected abstract void onLo(NetwRunnable nr, Cmd m);
+
+	protected abstract Object liArgs(Object v);
 
 }

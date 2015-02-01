@@ -44,7 +44,7 @@ public class HTest extends ActivityInstrumentationTestCase2<MainActivity> {
 			this.dl.mkdirs();
 		}
 		H.ATY = this.getActivity();
-		HDb.loadDb(this.getActivity()).clearR();
+		HDb.loadDb_(this.getActivity()).clearR();
 		System.out.println("test ip:" + ts_ip);
 		System.out.println("test ip:" + ts_ip);
 		System.out.println("test ip:" + ts_ip);
@@ -216,7 +216,8 @@ public class HTest extends ActivityInstrumentationTestCase2<MainActivity> {
 		final CountDownLatch cdl = new CountDownLatch(1);
 		ByteArrayInputStream bais = new ByteArrayInputStream(
 				"abc\n这是中文\n".getBytes());
-		H.doPost("http://" + ts_ip + ":8000/rec_f?sw=testing&abc=这是中文2&_hc_=NO",
+		H.doPost(
+				"http://" + ts_ip + ":8000/rec_f?sw=testing&abc=这是中文2&_hc_=NO",
 				PIS.create("file", "abc.txt", bais), new Abc3(cdl, "tu1"));
 		Thread.sleep(200);
 		cdl.await();

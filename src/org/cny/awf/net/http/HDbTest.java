@@ -1,9 +1,11 @@
 package org.cny.awf.net.http;
 
+import java.io.File;
 import java.util.Date;
 import java.util.List;
 
 import org.cny.awf.test.MainActivity;
+import org.cny.jwf.util.Utils;
 
 import android.test.ActivityInstrumentationTestCase2;
 
@@ -25,8 +27,10 @@ public class HDbTest extends ActivityInstrumentationTestCase2<MainActivity> {
 	}
 
 	public void testQuery() throws Exception {
-		HDb hdb = HDb.loadDb(this.getActivity());
+		HDb hdb = HDb.loadDb_(this.getActivity());
 		hdb.clearR();
+		Utils.del(new File(this.getActivity().getExternalCacheDir(), "_hc_"));
+		hdb.newCacheF();
 		HResp r;
 		List<HResp> rs;
 		r = new HResp();
@@ -49,6 +53,14 @@ public class HDbTest extends ActivityInstrumentationTestCase2<MainActivity> {
 		for (int i = 0; i < 10; i++) {
 			System.out.println(hdb.fname());
 		}
-		System.out.println(this.getActivity().getExternalCacheDir().getAbsolutePath());
+		hdb.flush(r);
+		System.out.println(this.getActivity().getExternalCacheDir()
+				.getAbsolutePath());
+		try {
+			HDb.free();
+			HDb.loadDb_(this.getActivity(), "sssdfs");
+		} catch (Exception E) {
+
+		}
 	}
 }

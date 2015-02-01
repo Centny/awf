@@ -15,20 +15,25 @@ import android.database.Cursor;
 
 public class HDb {
 	public static final String DB_F_NAME = "_hcache_.dbf";
+	public static final String DB_SCRIPT_F = "_hc_.sql";
 	public static final String COLS = "TID,U,M,ARG,LMT,ETAG,TYPE,LEN,ENC,PATH,TIME";
 	private static HDb HDB_;
 
 	public static HDb loadDb_(Activity aty) {
+		return loadDb_(aty, DB_SCRIPT_F);
+	}
+
+	public static HDb loadDb_(Activity aty, String file) {
 		try {
-			return loadDb(aty);
+			return loadDb(aty, file);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 	}
 
-	public static HDb loadDb(Activity aty) throws IOException {
+	public static HDb loadDb(Activity aty, String file) throws IOException {
 		if (HDB_ == null) {
-			HDB_ = new HDb(aty);
+			HDB_ = new HDb(aty, file);
 		}
 		return HDB_;
 	}
@@ -43,8 +48,8 @@ public class HDb {
 	private SQLite db_;
 	private Activity aty;
 
-	public HDb(Activity aty) throws IOException {
-		InputStream ic = HDb.class.getResourceAsStream("_hc_.sql");
+	public HDb(Activity aty, String file) throws IOException {
+		InputStream ic = HDb.class.getResourceAsStream(file);
 		if (ic == null) {
 			throw new RuntimeException("_hc_.sql not found");
 		}
@@ -60,11 +65,7 @@ public class HDb {
 	}
 
 	public File newCacheF() {
-		File hc = new File(this.aty.getExternalCacheDir(), "_hc_");
-		if (!hc.exists()) {
-			hc.mkdirs();
-		}
-		return new File(hc, this.fname() + ".hc_");
+		return this.openCacheF(this.fname() + ".hc_");
 	}
 
 	public File openCacheF(String name) {

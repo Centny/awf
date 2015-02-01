@@ -98,4 +98,8 @@ public class NetInfo {
 		}
 		return NET_;
 	}
+
+	public static void setNet(NetInfo n) {
+		NET_ = n;
+	}
 }

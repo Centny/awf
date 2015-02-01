@@ -8,7 +8,7 @@
 	<target name="start_ts">
 		<exec executable="/bin/bash" dir="./TServer" failonerror="true">
 			<arg value="-xe" />
-			<arg value="build" />
+			<arg value="build.sh" />
 		</exec>
 		<exec executable="/bin/bash" dir="./TServer" failonerror="true">
 			<arg value="-xe" />

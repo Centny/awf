@@ -64,5 +64,11 @@ public class ImDbTest extends ActivityInstrumentationTestCase2<MainActivity> {
 		Assert.assertEquals(2, ms.size());
 		System.out.println(ms);
 		idb.close();
+		try {
+			ImDb.free();
+			ImDb.loadDb_(getActivity(), "sfsfs");
+		} catch (Exception E) {
+
+		}
 	}
 }

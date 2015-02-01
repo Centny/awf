@@ -12,20 +12,25 @@ import android.content.Context;
 
 public class ImDb {
 	public static final String DB_F_NAME = "_imdb_.dbf";
+	public static final String DB_SCRIPT_F = "_im_.sql";
 	public static final String COLS = "I,S,R,D,T,C,TIME";
 	private static ImDb IDB_;
 
 	public static ImDb loadDb_(Context ctx) {
+		return loadDb_(ctx, DB_SCRIPT_F);
+	}
+
+	public static ImDb loadDb_(Context ctx, String file) {
 		try {
-			return loadDb(ctx);
+			return loadDb(ctx, file);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 	}
 
-	public static ImDb loadDb(Context ctx) throws IOException {
+	public static ImDb loadDb(Context ctx, String file) throws IOException {
 		if (IDB_ == null) {
-			IDB_ = new ImDb(ctx);
+			IDB_ = new ImDb(ctx, file);
 		}
 		return IDB_;
 	}
@@ -40,8 +45,8 @@ public class ImDb {
 	private SQLite db_;
 	private Context ctx;
 
-	public ImDb(Context ctx) throws IOException {
-		InputStream ic = ImDb.class.getResourceAsStream("_im_.sql");
+	public ImDb(Context ctx, String file) throws IOException {
+		InputStream ic = ImDb.class.getResourceAsStream(file);
 		if (ic == null) {
 			throw new RuntimeException("_im_.sql not found");
 		}
