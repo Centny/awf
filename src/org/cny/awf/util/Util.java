@@ -13,13 +13,18 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.http.client.methods.HttpUriRequest;
 import org.cny.jwf.util.Utils;
 
 import android.content.Context;
 import android.content.ContextWrapper;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
@@ -31,6 +36,8 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
+import android.os.Build;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 
 /**
@@ -40,11 +47,15 @@ import android.util.Log;
  * 
  */
 public class Util {
+
 	public static String listMac() throws SocketException {
 		List<String> macs = new ArrayList<String>();
 		for (Enumeration<NetworkInterface> en = NetworkInterface
 				.getNetworkInterfaces(); en.hasMoreElements();) {
 			NetworkInterface itf = en.nextElement();
+			if (itf.isLoopback() || itf.isPointToPoint() || itf.isVirtual()) {
+				continue;
+			}
 			byte[] mac = itf.getHardwareAddress();
 			if (mac == null) {
 				continue;
@@ -53,6 +64,23 @@ public class Util {
 		}
 		Collections.sort(macs);
 		return Utils.join(macs);
+	}
+
+	public static Map<String, String> listMacv() throws SocketException {
+		Map<String, String> macs = new HashMap<String, String>();
+		for (Enumeration<NetworkInterface> en = NetworkInterface
+				.getNetworkInterfaces(); en.hasMoreElements();) {
+			NetworkInterface itf = en.nextElement();
+			if (itf.isLoopback() || itf.isPointToPoint() || itf.isVirtual()) {
+				continue;
+			}
+			byte[] mac = itf.getHardwareAddress();
+			if (mac == null) {
+				continue;
+			}
+			macs.put(itf.getDisplayName(), Utils.byte2hex(mac));
+		}
+		return macs;
 	}
 
 	/**
@@ -203,5 +231,81 @@ public class Util {
 	public static boolean isNullOrEmpty(String t) {
 		return t == null || t.trim().isEmpty();
 	}
-	
+
+	public static Map<String, String> DevInfo(Context ctx) {
+		TelephonyManager tm = (TelephonyManager) ctx
+				.getSystemService(Context.TELEPHONY_SERVICE);
+		Map<String, String> kvs = new HashMap<String, String>();
+		kvs.put("IMEI", tm.getDeviceId());
+		kvs.put("dver", tm.getDeviceSoftwareVersion());
+		kvs.put("phone", tm.getLine1Number());
+		kvs.put("ciso", tm.getNetworkCountryIso());
+		kvs.put("nopt", tm.getNetworkOperator());
+		kvs.put("nopn", tm.getNetworkOperatorName());
+		kvs.put("ntype", tm.getNetworkType() + "");
+		kvs.put("ptype", tm.getPhoneType() + "");
+		kvs.put("sciso", tm.getSimCountryIso());
+		kvs.put("sopt", tm.getSimOperator());
+		kvs.put("sopm", tm.getSimOperatorName());
+		kvs.put("serial", tm.getSimSerialNumber());
+		kvs.put("sims", tm.getSimState() + "");
+		kvs.put("IMSI", tm.getSubscriberId());
+		return kvs;
+	}
+
+	public static String AppVer(Context ctx) {
+		return AppVer(ctx, ctx.getPackageName());
+	}
+
+	public static String AppVer(Context ctx, String name) {
+		try {
+			return AppVer_(ctx, name);
+		} catch (NameNotFoundException e) {
+			return "";
+		}
+	}
+
+	public static String AppVer_(Context ctx, String name)
+			throws NameNotFoundException {
+		PackageManager pm = ctx.getPackageManager();
+		PackageInfo pi = pm.getPackageInfo(name, 0);
+		return pi.versionName;
+	}
+
+	@SuppressWarnings("deprecation")
+	public static Map<String, String> SysInfo(Context ctx) {
+		Map<String, String> kvs = new HashMap<String, String>();
+		kvs.put("appver", AppVer(ctx));
+		kvs.put("BOOTLOADER", Build.BOOTLOADER);
+		kvs.put("DEVICE", Build.DEVICE);
+		kvs.put("DISPLAY", Build.DISPLAY);
+		kvs.put("FINGERPRINT", Build.FINGERPRINT);
+		kvs.put("ID", Build.ID);
+		kvs.put("MANUFACTURER", Build.MANUFACTURER);
+		kvs.put("MODEL", Build.MODEL);
+		kvs.put("PRODUCT", Build.PRODUCT);
+		kvs.put("TAGS", Build.TAGS);
+		kvs.put("TIME", Build.TIME + "");
+		kvs.put("TAGS", Build.TAGS);
+		kvs.put("CODENAME", Build.VERSION.CODENAME);
+		kvs.put("RELEASE", Build.VERSION.RELEASE);
+		kvs.put("SDK", Build.VERSION.SDK);
+		kvs.put("SDK_INT", Build.VERSION.SDK_INT + "");
+		return kvs;
+	}
+
+	public static Map<String, Object> ListInfo(Context ctx) {
+		Map<String, Object> inf = new HashMap<String, Object>();
+		PutInfo_(ctx, inf);
+		return inf;
+	}
+
+	public static void PutInfo_(Context ctx, Map<String, Object> inf) {
+		try {
+			inf.put("dev", DevInfo(ctx));
+			inf.put("sys", SysInfo(ctx));
+			inf.put("mac", listMacv());
+		} catch (Exception e) {
+		}
+	}
 }

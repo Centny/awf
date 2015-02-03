@@ -3,6 +3,8 @@ package org.cny.awf.net.http;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 
+import com.google.gson.Gson;
+
 public interface HCallback {
 	void onProcess(CBase c, PIS pis, float rate);
 
@@ -59,4 +61,63 @@ public interface HCallback {
 		public abstract void onError(CBase c, String cache, Throwable err)
 				throws Exception;
 	}
+
+	public abstract class GDataCallback<T> extends HDataCallback {
+		protected Class<?> cls;
+		protected Gson gs = new Gson();
+
+		public GDataCallback(Class<?> cls) {
+			this.cls = cls;
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		public void onSuccess(CBase c, HResp res, String data) throws Exception {
+			if (data == null || data.isEmpty()) {
+				this.onSuccess(c, res, (T) null);
+			} else {
+				this.onSuccess(c, res, (T) this.gs.fromJson(data, this.cls));
+			}
+		}
+
+		public abstract void onSuccess(CBase c, HResp res, T data)
+				throws Exception;
+	}
+
+	public abstract class GCacheCallback<T> extends HCacheCallback {
+		protected Class<?> cls;
+		protected Gson gs = new Gson();
+
+		public GCacheCallback(Class<?> cls) {
+			this.cls = cls;
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		public void onError(CBase c, String cache, Throwable err)
+				throws Exception {
+			if (cache == null || cache.isEmpty()) {
+				this.onError(c, (T) null, err);
+			} else {
+				this.onError(c, (T) this.gs.fromJson(cache, this.cls), err);
+			}
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		public void onSuccess(CBase c, HResp res, String data) throws Exception {
+			if (data == null || data.isEmpty()) {
+				this.onSuccess(c, res, (T) null);
+			} else {
+				this.onSuccess(c, res, (T) this.gs.fromJson(data, this.cls));
+			}
+		}
+
+		public abstract void onError(CBase c, T cache, Throwable err)
+				throws Exception;
+
+		public abstract void onSuccess(CBase c, HResp res, T data)
+				throws Exception;
+	}
+
 }

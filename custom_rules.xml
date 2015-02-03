@@ -2,8 +2,8 @@
 <project name="custom_rules" default="stop_ts">
 	<property file="ant.properties" />
 	<property file="project.properties" />
-	<property name="lib.name" value="amf-${jar.ver}" />
-	<property name="lib.dir" value="${out.dir}/amf" />
+	<property name="lib.name" value="awf-${jar.ver}" />
+	<property name="lib.dir" value="${out.dir}/awf" />
 	<property name="lib.cls" value="${out.dir}/pub.cls" />
 	<target name="clear_cls">
 		<delete dir="build/classes"></delete>
@@ -66,15 +66,15 @@
 		<copy todir="${lib.cls}">
 			<fileset dir="src">
 			    <exclude name="**/*Test*" />
-				<exclude name="org/cny/amf/test*/**/*" />
-				<exclude name="org/cny/amf/*" />
+				<exclude name="org/cny/awf/test*/**/*" />
+				<exclude name="org/cny/awf/*" />
 			</fileset>
 		</copy>
 		<jar destfile="${lib.dir}/${lib.name}.jar">
 			<fileset dir="${lib.cls}">
 				<exclude name="**/*Test*" />
-				<exclude name="org/cny/amf/test*/**/*" />
-				<exclude name="org/cny/amf/*" />
+				<exclude name="org/cny/awf/test*/**/*" />
+				<exclude name="org/cny/awf/*" />
 			</fileset>
 		</jar>
 		<javadoc destdir="${lib.dir}/${lib.name}" windowtitle="Cny4a Project Class Library" use="yes" linksource="no" splitindex="yes" encoding="UTF-8" docencoding="UTF-8">
@@ -88,9 +88,9 @@
 				</fileset>
 			</classpath>
 			<packageset dir="${lib.cls}" defaultexcludes="yes">
-				<exclude name="org/cny/amf/net/http/HTest"/>
-				<exclude name="org/cny/amf/net/http/HDbTest"/>
-				<exclude name="org/cny/amf/test*/**"/>
+				<exclude name="org/cny/awf/net/http/HTest"/>
+				<exclude name="org/cny/awf/net/http/HDbTest"/>
+				<exclude name="org/cny/awf/test*/**"/>
 			</packageset>
 		</javadoc>
 		<jar destfile="${lib.dir}/${lib.name}.doc.zip">

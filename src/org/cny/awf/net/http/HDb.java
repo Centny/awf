@@ -10,7 +10,7 @@ import java.util.List;
 import org.cny.awf.util.SQLite;
 import org.cny.awf.util.Util;
 
-import android.app.Activity;
+import android.content.Context;
 import android.database.Cursor;
 
 public class HDb {
@@ -19,21 +19,21 @@ public class HDb {
 	public static final String COLS = "TID,U,M,ARG,LMT,ETAG,TYPE,LEN,ENC,PATH,TIME";
 	private static HDb HDB_;
 
-	public static HDb loadDb_(Activity aty) {
-		return loadDb_(aty, DB_SCRIPT_F);
+	public static HDb loadDb_(Context ctx) {
+		return loadDb_(ctx, DB_SCRIPT_F);
 	}
 
-	public static HDb loadDb_(Activity aty, String file) {
+	public static HDb loadDb_(Context ctx, String file) {
 		try {
-			return loadDb(aty, file);
+			return loadDb(ctx, file);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 	}
 
-	public static HDb loadDb(Activity aty, String file) throws IOException {
+	public static HDb loadDb(Context ctx, String file) throws IOException {
 		if (HDB_ == null) {
-			HDB_ = new HDb(aty, file);
+			HDB_ = new HDb(ctx, file);
 		}
 		return HDB_;
 	}
@@ -46,16 +46,16 @@ public class HDb {
 	}
 
 	private SQLite db_;
-	private Activity aty;
+	private Context ctx;
 
-	public HDb(Activity aty, String file) throws IOException {
+	public HDb(Context ctx, String file) throws IOException {
 		InputStream ic = HDb.class.getResourceAsStream(file);
 		if (ic == null) {
 			throw new RuntimeException("_hc_.sql not found");
 		}
 		String script = Util.readAll(ic);
-		this.db_ = SQLite.loadDb(aty, DB_F_NAME, "_HC_R_", script);
-		this.aty = aty;
+		this.db_ = SQLite.loadDb(ctx, DB_F_NAME, "_HC_R_", script);
+		this.ctx = ctx;
 	}
 
 	public synchronized void close() {
@@ -69,7 +69,7 @@ public class HDb {
 	}
 
 	public File openCacheF(String name) {
-		File hc = new File(this.aty.getExternalCacheDir(), "_hc_");
+		File hc = new File(this.ctx.getExternalCacheDir(), "_hc_");
 		if (!hc.exists()) {
 			hc.mkdirs();
 		}

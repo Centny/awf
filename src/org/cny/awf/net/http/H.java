@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.apache.http.message.BasicNameValuePair;
 
-import android.app.Activity;
+import android.content.Context;
 
 /**
  * Static class method to HTTP GET/POST.
@@ -14,11 +14,11 @@ import android.app.Activity;
  */
 public class H {
 
-	public static Activity ATY;
+	public static Context CTX;
 
-	public static HAsyncTask doPost(Activity aty, String url,
+	public static HAsyncTask doPost(Context ctx, String url,
 			List<BasicNameValuePair> args, PIS pis, HCallback cb) {
-		HAsyncTask hc = new HAsyncTask(aty, url, cb);
+		HAsyncTask hc = new HAsyncTask(ctx, url, cb);
 		if (args != null) {
 			hc.getArgs().addAll(args);
 		}
@@ -32,14 +32,14 @@ public class H {
 
 	public static HAsyncTask doPost(String url, List<BasicNameValuePair> args,
 			PIS pis, HCallback cb) {
-		return doPost(ATY, url, args, pis, cb);
+		return doPost(CTX, url, args, pis, cb);
 	}
 
 	/**
 	 * Do a POST request.
 	 * 
-	 * @param aty
-	 *            the Activity
+	 * @param ctx
+	 *            the Context
 	 * @param url
 	 *            the target URL.
 	 * @param args
@@ -48,34 +48,34 @@ public class H {
 	 *            HTTP call back instance.
 	 * @return the HTTPAsyncTask.
 	 */
-	public static HAsyncTask doPost(Activity aty, String url,
+	public static HAsyncTask doPost(Context ctx, String url,
 			List<BasicNameValuePair> args, HCallback cb) {
-		return doPost(aty, url, args, null, cb);
+		return doPost(ctx, url, args, null, cb);
 	}
 
 	public static HAsyncTask doPost(String url, List<BasicNameValuePair> args,
 			HCallback cb) {
-		return doPost(ATY, url, args, cb);
+		return doPost(CTX, url, args, cb);
 	}
 
 	/**
 	 * Do a POST request.
 	 * 
-	 * @param aty
-	 *            the Activity
+	 * @param ctx
+	 *            the Context
 	 * @param url
 	 *            the target URL.
 	 * @param cb
 	 *            HTTP call back instance.
 	 * @return the HTTPAsyncTask.
 	 */
-	public static HAsyncTask doPost(Activity aty, String url, HCallback cb) {
-		return doPost(aty, url, (PIS) null, cb);
+	public static HAsyncTask doPost(Context ctx, String url, HCallback cb) {
+		return doPost(ctx, url, (PIS) null, cb);
 	}
 
-	public static HAsyncTask doPost(Activity aty, String url, PIS pis,
+	public static HAsyncTask doPost(Context ctx, String url, PIS pis,
 			HCallback cb) {
-		return doPost(aty, url, null, pis, cb);
+		return doPost(ctx, url, null, pis, cb);
 
 	}
 
@@ -90,8 +90,8 @@ public class H {
 	/**
 	 * Do a GET request.
 	 * 
-	 * @param aty
-	 *            the Activity
+	 * @param ctx
+	 *            the Context
 	 * @param url
 	 *            the target URL
 	 * @param args
@@ -100,9 +100,9 @@ public class H {
 	 *            HTTP call back instance.
 	 * @return the HTTPAsyncTask.
 	 */
-	public static HAsyncTask doGet(Activity aty, String url,
+	public static HAsyncTask doGet(Context ctx, String url,
 			List<BasicNameValuePair> args, HCallback cb) {
-		HAsyncTask hc = new HAsyncTask(aty, url, cb);
+		HAsyncTask hc = new HAsyncTask(ctx, url, cb);
 		if (args != null) {
 			hc.getArgs().addAll(args);
 		}
@@ -112,22 +112,22 @@ public class H {
 
 	public static HAsyncTask doGet(String url, List<BasicNameValuePair> args,
 			HCallback cb) {
-		return doGet(ATY, url, args, cb);
+		return doGet(CTX, url, args, cb);
 	}
 
 	/**
 	 * Do a GET request.
 	 * 
-	 * @param aty
-	 *            the Activity
+	 * @param ctx
+	 *            the Context
 	 * @param url
 	 *            the target URL
 	 * @param cb
 	 *            HTTP call back instance.
 	 * @return the HTTPAsyncTask.
 	 */
-	public static HAsyncTask doGet(Activity aty, String url, HCallback cb) {
-		return doGet(aty, url, null, cb);
+	public static HAsyncTask doGet(Context ctx, String url, HCallback cb) {
+		return doGet(ctx, url, null, cb);
 	}
 
 	public static HAsyncTask doGet(String url, HCallback cb) {

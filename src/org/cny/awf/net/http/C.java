@@ -36,7 +36,7 @@ import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 
-import android.app.Activity;
+import android.content.Context;
 
 public class C extends CBase {
 	protected String method = "GET";
@@ -85,8 +85,8 @@ public class C extends CBase {
 		}
 	}
 
-	public C(Activity aty, String url, HCallback cback) {
-		super(url, HDb.loadDb_(aty), cback);
+	public C(Context ctx, String url, HCallback cback) {
+		super(url, HDb.loadDb_(ctx), cback);
 		this.initc(url);
 	}
 

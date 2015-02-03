@@ -43,7 +43,7 @@ public class HTest extends ActivityInstrumentationTestCase2<MainActivity> {
 		if (!this.dl.exists()) {
 			this.dl.mkdirs();
 		}
-		H.ATY = this.getActivity();
+		H.CTX = this.getActivity();
 		HDb.loadDb_(this.getActivity()).clearR();
 		System.out.println("test ip:" + ts_ip);
 		System.out.println("test ip:" + ts_ip);

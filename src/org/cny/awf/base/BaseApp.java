@@ -7,6 +7,7 @@ import java.util.Map;
 import org.cny.awf.er.ActType;
 import org.cny.awf.er.CrashHandler;
 import org.cny.awf.er.ER;
+import org.cny.awf.net.http.H;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,6 +27,7 @@ public class BaseApp extends Application {
 
 	@Override
 	public void onCreate() {
+		H.CTX = this;
 		L = LoggerFactory.getLogger(this.getClass());
 		super.onCreate();
 		L.debug("running application on thread:{},{}", Thread.currentThread()

@@ -1,6 +1,6 @@
 package org.cny.awf.net.http;
 
-import android.app.Activity;
+import android.content.Context;
 import android.os.AsyncTask;
 
 /**
@@ -25,7 +25,7 @@ public class HAsyncTask extends C {
 		this.atsk = new ATask();
 	}
 
-	public HAsyncTask(Activity aty, String url, HCallback cback) {
+	public HAsyncTask(Context aty, String url, HCallback cback) {
 		super(aty, url, cback);
 		this.atsk = new ATask();
 	}

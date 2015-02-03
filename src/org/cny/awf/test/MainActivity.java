@@ -1,6 +1,7 @@
 package org.cny.awf.test;
 
 import org.cny.awf.R;
+import org.cny.awf.util.Util;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -15,7 +16,9 @@ public class MainActivity extends Activity {
 		setContentView(R.layout.activity_main);
 		// Intent service = new Intent(this,ImSrv.class);
 		// this.startService(service);
-//		throw new RuntimeException();
+		// throw new RuntimeException();
+		System.err.println(Util.DevInfo(this));
+		System.err.println(Util.SysInfo(this));
 	}
 
 	@Override

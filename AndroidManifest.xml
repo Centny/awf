@@ -20,6 +20,7 @@
     <uses-permission android:name="adnroid.permission.CHANGE_WIFI_STATE" />
     <uses-permission android:name="adnroid.permission.MY_SERVICE_PERMISSION" />
     <uses-permission android:name="adnroid.permission.MANAGE_USERS" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
 
     <application
         android:name="org.cny.awf.test.MainApp"
@@ -54,7 +55,7 @@
             android:exported="false" >
             <meta-data
                 android:name="host"
-                android:value="192.168.2.87" />
+                android:value="192.168.1.102" />
             <meta-data
                 android:name="port"
                 android:value="9891" />

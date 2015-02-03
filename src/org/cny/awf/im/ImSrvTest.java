@@ -7,8 +7,8 @@ import java.util.Map;
 import org.cny.awf.im.ImSrvTest.TImSrv;
 import org.cny.awf.util.CDL;
 import org.cny.jwf.im.Msg;
+import org.cny.jwf.netw.bean.Con;
 import org.cny.jwf.netw.bean.Con.Res;
-import org.cny.jwf.netw.r.Cmd;
 import org.cny.jwf.netw.r.NetwRunnable;
 
 import android.content.Intent;
@@ -69,7 +69,7 @@ public class ImSrvTest extends ServiceTestCase<TImSrv> {
 		}
 
 		@Override
-		protected void onLo(NetwRunnable nr, Cmd m) {
+		protected void onLo(NetwRunnable nr, Con.Res m) {
 			this.cdl.countDown();
 			System.err.println("onLo-->");
 		}

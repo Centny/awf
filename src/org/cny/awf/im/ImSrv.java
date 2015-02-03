@@ -173,7 +173,7 @@ public abstract class ImSrv extends BaseSrv implements MsgListener,
 
 			@Override
 			public void onCmd(NetwRunnable nr, Cmd m) {
-				onLo(nr, m);
+				onLo(nr, m.V(Con.Res.class));
 			}
 
 		});
@@ -199,14 +199,20 @@ public abstract class ImSrv extends BaseSrv implements MsgListener,
 		}
 	}
 
+	protected Object liArgs(Object v) {
+		if (v == null) {
+			return new HashMap<String, Object>();
+		} else {
+			return v;
+		}
+	}
+
 	protected void close() throws IOException {
 		this.imc.close();
 	}
 
 	protected abstract void onLi(NetwRunnable nr, Con.Res m);
 
-	protected abstract void onLo(NetwRunnable nr, Cmd m);
-
-	protected abstract Object liArgs(Object v);
+	protected abstract void onLo(NetwRunnable nr, Con.Res m);
 
 }
