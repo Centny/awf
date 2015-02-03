@@ -5,6 +5,9 @@
 	<property name="lib.name" value="amf-${jar.ver}" />
 	<property name="lib.dir" value="${out.dir}/amf" />
 	<property name="lib.cls" value="${out.dir}/pub.cls" />
+	<target name="clear_cls">
+		<delete dir="build/classes"></delete>
+	</target>
 	<target name="start_ts">
 		<exec executable="/bin/bash" dir="./TServer" failonerror="true">
 			<arg value="-xe" />

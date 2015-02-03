@@ -14,6 +14,8 @@ public abstract class BaseSrv extends Service {
 
 	@Override
 	public void onCreate() {
+		L.debug("running service on thread:{},{}", Thread.currentThread()
+				.getId(), Thread.currentThread().getName());
 		try {
 			ComponentName cn = this.createComponentName();
 			this.info = this.getPackageManager().getServiceInfo(cn,

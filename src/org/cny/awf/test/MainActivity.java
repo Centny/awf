@@ -15,6 +15,7 @@ public class MainActivity extends Activity {
 		setContentView(R.layout.activity_main);
 		// Intent service = new Intent(this,ImSrv.class);
 		// this.startService(service);
+//		throw new RuntimeException();
 	}
 
 	@Override
