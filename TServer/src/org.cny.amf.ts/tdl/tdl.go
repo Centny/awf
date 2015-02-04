@@ -13,6 +13,7 @@ func Register() {
 	http.HandleFunc("/dl", hdl_n)
 	http.HandleFunc("/dl_p", hdl_p)
 	http.HandleFunc("/g_args", hdl_gs)
+	http.HandleFunc("/g_argsc", hdl_gsc)
 	http.HandleFunc("/p_args", hdl_ps)
 	http.HandleFunc("/h_args", hdl_hs)
 	http.HandleFunc("/t_args", hdl_ts)
@@ -22,6 +23,30 @@ func hdl_ts(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/plain;")
 	w.Header().Set("Abb", "中文数据")
 	w.Write([]byte("kkkkkk"))
+}
+
+var tccc = 0
+
+func hdl_gsc(w http.ResponseWriter, r *http.Request) {
+	if len(r.Header.Get("If-Modified-Since")) > 0 ||
+		len(r.Header.Get("If-None-Match")) > 0 {
+		w.WriteHeader(304)
+		// w.Write([]byte("OK"))
+	} else {
+		w.Header().Set("Last-Modified", "Wed, 04 Feb 2015 15:57:18 GMT")
+		w.Header().Set("ETag", "abbccc")
+		w.Write([]byte("OK"))
+	}
+	// if tccc < 1 {
+	// 	w.Header().Set("Last-Modified", "Wed, 04 Feb 2015 15:57:18 GMT")
+	// 	w.Header().Set("ETag", "abbccc")
+	// 	w.Write([]byte("OK"))
+	// 	tccc++
+	// } else {
+	// 	w.WriteHeader(304)
+	// 	w.Write([]byte("OK"))
+	// 	tccc++
+	// }
 }
 func hdl_gs(w http.ResponseWriter, r *http.Request) {
 	var v string
@@ -40,6 +65,7 @@ func hdl_gs(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("ERR"))
 		return
 	}
+	w.Header().Set("Last-Modified", "Wed, 04 Feb 2015 15:57:18 GMT")
 	w.Write([]byte("OK"))
 }
 func hdl_ps(w http.ResponseWriter, r *http.Request) {
@@ -89,6 +115,7 @@ func hdl_hs(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("ERR"))
 		return
 	}
+	w.Header().Set("Last-Modified", "Wed, 04 Feb 2015 15:57:18 GMT")
 	w.Write([]byte("OK"))
 }
 func hdl_n(w http.ResponseWriter, r *http.Request) {

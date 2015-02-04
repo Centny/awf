@@ -51,7 +51,7 @@
 	<target name="pub.jar">
 		<delete dir="${lib.cls}" />
 		<mkdir dir="${lib.cls}" />
-		<javac encoding="UTF-8" destdir="${lib.cls}" includeantruntime="false">
+		<javac encoding="UTF-8" destdir="${lib.cls}" source="6" target="6" debug="true" includeantruntime="false">
 			<classpath>
 				<fileset dir="${sdk.dir}/platforms/${target}">
 					<include name="*.jar" />

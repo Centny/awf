@@ -39,7 +39,7 @@ public abstract class CBase implements Runnable, PIS.PisH {
 	protected String cencoding = "UTF-8";
 	protected String sencoding = "UTF-8";
 	protected int bsize = BUF_SIZE;
-	private boolean running = false;
+	protected boolean running = false;
 	//
 	protected String url;
 	protected HDb db;
@@ -118,12 +118,12 @@ public abstract class CBase implements Runnable, PIS.PisH {
 	}
 
 	public Policy parsePolicy() {
-		String hc = this.findArg("_hc_");
-		if (hc == null) {
-			return Policy.N;
-		}
+		// String hc = this.findArg("_hc_");
+		// if (hc == null) {
+		// return Policy.N;
+		// }
 		try {
-			return Policy.valueOf(hc);
+			return Policy.valueOf(this.findArg("_hc_"));
 		} catch (Exception e) {
 			return Policy.N;
 		}
@@ -193,39 +193,37 @@ public abstract class CBase implements Runnable, PIS.PisH {
 			this.onProcEnd(res, in, out);
 			this.onSuccess(res);
 		} catch (Exception e) {
-			this.onError(e);
+			this.onError(new Exception(this.url + "," + this.getMethod() + "->"
+					+ e.getMessage(), e));
 		}
 	}
 
 	protected HResp createRes(HResp res, Policy pc) throws Exception {
 		HttpUriRequest uri;
-		if (this.db.CacheExist(res)) {
-			switch (pc) {
-			case C:
+		boolean exist = this.db.CacheExist(res);
+		if (exist) {
+			if (pc == Policy.C || pc == Policy.CN) {
 				res.code = 304;
 				this.slog("using cache", pc);
 				return res.initFileStream(this.db);
-			case CN:
-				res.code = 304;
-				this.slog("using cache", pc);
-				return res.initFileStream(this.db);
-			case I:
+			} else if (pc == Policy.I) {
 				res.code = 304;
 				this.slog("using cache", pc);
 				return res.initPathStream(this.db);
-			default:
 			}
 			uri = this.createR();
-			if (res.lmt > 0) {
-				uri.addHeader("If-Modified-Since",
-						HResp.formatLmt(new Date(res.lmt)));
+			if (pc == Policy.N) {
+				if (res.lmt > 0) {
+					uri.addHeader("If-Modified-Since",
+							HResp.formatLmt(new Date(res.lmt)));
+				}
+				if (!Util.isNullOrEmpty(res.etag)) {
+					uri.addHeader("If-None-Match", res.etag);
+				}
+				this.slog("check modified to server", pc);
 			}
-			if (!Util.isNullOrEmpty(res.etag)) {
-				uri.addHeader("If-None-Match", res.etag);
-			}
-			this.slog("check modified to server", pc);
 		} else {
-			if (pc == Policy.C) {
+			if (pc == Policy.C) { // if cache not found and only cache policy
 				throw new Exception("cache not found");
 			}
 			uri = this.createR();
@@ -233,16 +231,16 @@ public abstract class CBase implements Runnable, PIS.PisH {
 		}
 		HttpClient c = this.createC();
 		HttpResponse resp = c.execute(uri);
-		if (resp.getStatusLine().getStatusCode() == 304) {
+		if (resp.getStatusLine().getStatusCode() == 304 && exist) {
 			this.slog("using cache(304)", pc);
-			switch (pc) {
-			case I:
-				res.code = 304;
-				return res.initPathStream(this.db);
-			default:
-				res.code = 304;
-				return res.initFileStream(this.db);
-			}
+			// switch (pc) {
+			// case I:
+			// res.code = 304;
+			// return res.initPathStream(this.db);
+			// default:
+			res.code = 304;
+			return res.initFileStream(this.db);
+			// }
 		} else {
 			res.code = resp.getStatusLine().getStatusCode();
 			res.init(resp, this.sencoding);

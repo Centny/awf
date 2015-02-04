@@ -16,18 +16,25 @@ import org.cny.jwf.netw.r.Netw;
 import org.cny.jwf.netw.r.NetwRunnable;
 import org.cny.jwf.netw.r.NetwRunnable.CmdListener;
 import org.cny.jwf.netw.r.NetwRunnable.EvnListener;
+import org.cny.jwf.util.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.content.LocalBroadcastManager;
 
 public abstract class ImSrv extends BaseSrv implements MsgListener,
 		EvnListener, Runnable {
 	public static final String IMC_ACTION = "ON_IMC";
+	public static final String NOTIFY_TAG = "IMC";
+	public static final int NOTIFY_ID = 10;
 	protected final Logger L = LoggerFactory.getLogger(this.getClass());
 	protected String host;
 	protected int port;
@@ -78,9 +85,31 @@ public abstract class ImSrv extends BaseSrv implements MsgListener,
 
 	@Override
 	public void onMsg(Msg m) {
-		Intent it = new Intent(IMC_ACTION);
+		LocalBroadcastManager lbm = LocalBroadcastManager.getInstance(this);
+		Intent it;
+		boolean rec = false;
+		// broadcast to all.
+		it = new Intent(IMC_ACTION);
 		it.putExtra("msg", m);
-		this.sendBroadcast(it);
+		rec = lbm.sendBroadcast(it) || rec;
+		// broadcast by type.
+		it = new Intent(IMC_ACTION + "-" + m.t);
+		it.putExtra("msg", m);
+		rec = lbm.sendBroadcast(it) || rec;
+		// broadcast by sender.
+		it = new Intent(IMC_ACTION + "-" + m.s);
+		it.putExtra("msg", m);
+		rec = lbm.sendBroadcast(it) || rec;
+		// broadcast by R
+		it = new Intent(IMC_ACTION + "-" + Utils.join(m.r));
+		it.putExtra("msg", m);
+		rec = lbm.sendBroadcast(it) || rec;
+		if (rec) {// already received.
+			return;
+		}
+		NotificationManager nm = (NotificationManager) this
+				.getSystemService(NOTIFICATION_SERVICE);
+		nm.notify(NOTIFY_TAG, NOTIFY_ID, this.createNotify(m));
 	}
 
 	@Override
@@ -209,6 +238,18 @@ public abstract class ImSrv extends BaseSrv implements MsgListener,
 
 	protected void close() throws IOException {
 		this.imc.close();
+	}
+
+	/**
+	 * create the notify when the message not receiver.
+	 * 
+	 * @return notify
+	 */
+	protected Notification createNotify(Msg m) {
+		NotificationCompat.Builder ncb;
+		ncb = new NotificationCompat.Builder(this);
+		ncb.setTicker(new String(m.c));
+		return ncb.build();
 	}
 
 	protected abstract void onLi(NetwRunnable nr, Con.Res m);

@@ -13,7 +13,7 @@ import android.content.Context;
 public class ImDb {
 	public static final String DB_F_NAME = "_imdb_.dbf";
 	public static final String DB_SCRIPT_F = "_im_.sql";
-	public static final String COLS = "I,S,R,D,T,C,TIME";
+	public static final String COLS = "I,S,R,D,T,C,TIME,STATUS";
 	private static ImDb IDB_;
 
 	public static ImDb loadDb_(Context ctx) {
@@ -68,9 +68,8 @@ public class ImDb {
 	 *            the ImMsg.
 	 */
 	public void add(Msg m) {
-		this.db_.exec(
-				"INSERT INTO _IM_M_ (" + COLS + ") VALUES(?,?,?,?,?,?,?)",
-				m.toObjects());
+		this.db_.exec("INSERT INTO _IM_M_ (" + COLS
+				+ ") VALUES(?,?,?,?,?,?,?,?)", m.toObjects());
 	}
 
 	/**
@@ -94,8 +93,41 @@ public class ImDb {
 				+ "%", Msg.class);
 	}
 
+	/**
+	 * list message by type.
+	 * 
+	 * @param t
+	 *            target type.
+	 * @return message list.
+	 * @throws Exception
+	 */
 	public List<Msg> listMsgT(int t) throws Exception {
 		return this.db_.rawQuery("SELECT * FROM _IM_M_ WHERE T = ?", "" + t,
 				Msg.class);
+	}
+
+	/**
+	 * sum message by status.
+	 * 
+	 * @param t
+	 * @return
+	 * @throws Exception
+	 */
+	public Long sumMsgS(int s) throws Exception {
+		return this.db_.longQueryOne(
+				"SELECT COUNT(*) FROM _IM_M_ WHERE STATUS = ?",
+				new String[] { "" + s });
+	}
+
+	/**
+	 * sum message by status.
+	 * 
+	 * @return
+	 * @throws Exception
+	 */
+	public Long sumNoReadMsg() throws Exception {
+		return this.db_.longQueryOne(
+				"SELECT COUNT(*) FROM _IM_M_ WHERE STATUS <= ?",
+				new String[] { "" + Msg.MS_MARK });
 	}
 }

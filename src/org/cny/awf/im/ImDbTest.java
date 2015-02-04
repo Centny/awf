@@ -62,6 +62,8 @@ public class ImDbTest extends ActivityInstrumentationTestCase2<MainActivity> {
 		Assert.assertEquals(2, ms.size());
 		ms = idb.listMsgR("ss");
 		Assert.assertEquals(2, ms.size());
+		Assert.assertEquals(5, idb.sumNoReadMsg().longValue());
+		Assert.assertEquals(5, idb.sumMsgS(Msg.MS_REV).longValue());
 		System.out.println(ms);
 		idb.close();
 		try {

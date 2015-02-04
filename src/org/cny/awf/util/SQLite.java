@@ -1,5 +1,6 @@
 package org.cny.awf.util;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -86,6 +87,24 @@ public class SQLite {
 			throws Exception {
 		return Orm.builds(new CursorOrmBuilder(this.db_.rawQuery(sql, args)),
 				cls);
+	}
+
+	public List<Long> longQuery(String sql, String[] args) {
+		Cursor c = this.db_.rawQuery(sql, args);
+		List<Long> lv = new ArrayList<Long>();
+		while (c.moveToNext()) {
+			lv.add(c.getLong(0));
+		}
+		return lv;
+	}
+
+	public Long longQueryOne(String sql, String[] args) {
+		Cursor c = this.db_.rawQuery(sql, args);
+		if (c.moveToNext()) {
+			return c.getLong(0);
+		} else {
+			return null;
+		}
 	}
 
 	public void close() {

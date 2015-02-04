@@ -15,3 +15,5 @@ TServer/ts.pid
 libs/*.jar
 
 libs/*.properties
+
+TServer/main

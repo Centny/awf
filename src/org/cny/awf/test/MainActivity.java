@@ -4,7 +4,12 @@ import org.cny.awf.R;
 import org.cny.awf.util.Util;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -19,6 +24,16 @@ public class MainActivity extends Activity {
 		// throw new RuntimeException();
 		System.err.println(Util.DevInfo(this));
 		System.err.println(Util.SysInfo(this));
+		LocalBroadcastManager.getInstance(this).registerReceiver(
+				new BroadcastReceiver() {
+
+					@Override
+					public void onReceive(Context arg0, Intent arg1) {
+						System.err.println("----->");
+					}
+				}, new IntentFilter("sss"));
+		System.out.println(LocalBroadcastManager.getInstance(this)
+				.sendBroadcast(new Intent("sss")));
 	}
 
 	@Override
