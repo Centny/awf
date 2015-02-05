@@ -11,9 +11,12 @@ import org.cny.jwf.netw.bean.Con;
 import org.cny.jwf.netw.bean.Con.Res;
 import org.cny.jwf.netw.r.NetwRunnable;
 
-import android.app.Notification;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.IBinder;
+import android.support.v4.content.LocalBroadcastManager;
 import android.test.ServiceTestCase;
 import android.util.Log;
 
@@ -79,18 +82,15 @@ public class ImSrvTest extends ServiceTestCase<TImSrv> {
 		protected Object liArgs(Object v) {
 			Map<String, Object> args = new HashMap<String, Object>();
 			args.put("token", "abc");
-			return args;
+			super.liArgs(null);// for test.
+			super.loArgs(args);// for test.
+			return super.liArgs(args);
 		}
 
 		@Override
 		public void run() {
 			super.run();
 			this.cdl.countDown();
-		}
-
-		@Override
-		protected Notification createNotify(Msg m) {
-			return null;
 		}
 
 	}
@@ -100,26 +100,225 @@ public class ImSrvTest extends ServiceTestCase<TImSrv> {
 	}
 
 	public void testIm() throws Exception {
-		// this.startService(null);
-		// this.startService(null);
-		// TImSrv srv = this.getService();
-		// Thread.sleep(200);
-		// // srv.imc.close();
-		// // Thread.sleep(2000);
-		// srv.cdl.waitc(101);
-		// srv.lo(null);
-		// srv.cdl.waitc(102);
+		this.startService(null);
+		Thread.sleep(500);
+		this.startService(null);
+		final TImSrv srv = this.getService();
+		Thread.sleep(200);
+		srv.start();// for test.
 		// srv.imc.close();
-		// srv.cdl.waitc(103);
-		// //
 		// Thread.sleep(2000);
-		// srv.cdl.waitc(204);
-		// srv.lo(null);
-		// srv.cdl.waitc(205);
-		// srv.imc.close();
-		// srv.cdl.waitc(206);
+		srv.cdl.waitc(101);
+		srv.lo(null);
+		srv.cdl.waitc(102);
+		srv.imc.close();
+		srv.cdl.waitc(103);
 		// //
+		Thread.sleep(2000);
+		srv.cdl.waitc(204);
+		srv.lo(null);
+		srv.cdl.waitc(205);
+		srv.imc.close();
+		srv.cdl.waitc(206);
+		// //
+		//
+		srv.liArgs(null);
+		srv.loArgs(null);
 		// srv.onDestroy();
-		// srv.cdl.await();
+		srv.cdl.await();
+
+		ImSrv is = new ImSrv() {
+
+			@Override
+			protected boolean netAvaliable() {
+				this.imc = srv.imc;
+				throw new RuntimeException();
+			}
+
+			@Override
+			protected void onLi(NetwRunnable nr, Res m) {
+			}
+
+			@Override
+			protected void onLo(NetwRunnable nr, Res m) {
+
+			}
+
+			@Override
+			public IBinder onBind(Intent arg0) {
+				return null;
+			}
+
+		};
+		try {
+			is.run_();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void testErr1() {
+		ImSrv is = new ImSrv() {
+
+			@Override
+			protected boolean run_() throws Exception {
+				this.running = false;
+				throw new Exception();
+			}
+
+			@Override
+			protected void onLi(NetwRunnable nr, Res m) {
+			}
+
+			@Override
+			protected void onLo(NetwRunnable nr, Res m) {
+
+			}
+
+			@Override
+			public IBinder onBind(Intent arg0) {
+				return null;
+			}
+
+			@Override
+			protected void create() {
+				throw new RuntimeException();
+			}
+
+			@Override
+			protected void close() throws IOException {
+				throw new IOException();
+			}
+
+		};
+		try {
+			is.run();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		try {
+			is.onDestroy();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		try {
+			is.onCreate();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void testErr2() {
+		ImSrv is = new ImSrv() {
+
+			@Override
+			protected boolean netAvaliable() {
+				return false;
+			}
+
+			@Override
+			protected void onLi(NetwRunnable nr, Res m) {
+			}
+
+			@Override
+			protected void onLo(NetwRunnable nr, Res m) {
+
+			}
+
+			@Override
+			public IBinder onBind(Intent arg0) {
+				return null;
+			}
+
+		};
+		try {
+			is.run_();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void testOnMsg() {
+		ImSrv is = new ImSrv() {
+			@Override
+			protected void onLi(NetwRunnable nr, Res m) {
+			}
+
+			@Override
+			protected void onLo(NetwRunnable nr, Res m) {
+
+			}
+
+			@Override
+			public IBinder onBind(Intent arg0) {
+				return null;
+			}
+
+		};
+		LocalBroadcastManager lbm = LocalBroadcastManager.getInstance(this
+				.getContext());
+		lbm.registerReceiver(new BroadcastReceiver() {
+
+			@Override
+			public void onReceive(Context arg0, Intent arg1) {
+
+			}
+		}, new IntentFilter(ImSrv.IMC_ACTION));
+		lbm.registerReceiver(new BroadcastReceiver() {
+
+			@Override
+			public void onReceive(Context arg0, Intent arg1) {
+
+			}
+		}, new IntentFilter(ImSrv.IMC_ACTION + "1"));
+		lbm.registerReceiver(new BroadcastReceiver() {
+
+			@Override
+			public void onReceive(Context arg0, Intent arg1) {
+
+			}
+		}, new IntentFilter(ImSrv.IMC_ACTION + "S"));
+		lbm.registerReceiver(new BroadcastReceiver() {
+
+			@Override
+			public void onReceive(Context arg0, Intent arg1) {
+
+			}
+		}, new IntentFilter(ImSrv.IMC_ACTION + "R"));
+		Msg msg = new Msg();
+		msg.t = 1;
+		msg.s = "S";
+		msg.r = new String[] { "R" };
+		is.onMsg(msg);
+	}
+
+	public void testErr() {
+		try {
+			new ImSrv() {
+
+				@Override
+				public boolean isRunning() {
+					throw new RuntimeException();
+				}
+
+				@Override
+				protected void onLi(NetwRunnable nr, Res m) {
+
+				}
+
+				@Override
+				protected void onLo(NetwRunnable nr, Res m) {
+
+				}
+
+				@Override
+				public IBinder onBind(Intent arg0) {
+					return null;
+				}
+
+			}.start();
+		} catch (Exception e) {
+
+		}
 	}
 }

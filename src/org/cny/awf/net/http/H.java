@@ -133,4 +133,7 @@ public class H {
 	public static HAsyncTask doGet(String url, HCallback cb) {
 		return doGet(url, null, cb);
 	}
+
+	protected H() {
+	}
 }

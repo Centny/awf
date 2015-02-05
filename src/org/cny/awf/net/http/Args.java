@@ -36,4 +36,8 @@ public class Args {
 	public static V J(String name, Object value) {
 		return new V().J(name, value);
 	}
+
+	protected Args() {
+
+	}
 }

@@ -1,6 +1,7 @@
 package tdl
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -18,6 +19,7 @@ func Register() {
 	http.HandleFunc("/h_args", hdl_hs)
 	http.HandleFunc("/t_args", hdl_ts)
 	http.HandleFunc("/rec_f", rec_f)
+	http.HandleFunc("/res_j", res_j)
 }
 func hdl_ts(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/plain;")
@@ -212,4 +214,15 @@ func rec_f(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	fmt.Println("copy len:", wl)
+}
+
+type Ab struct {
+	I int
+	S string
+}
+
+func res_j(w http.ResponseWriter, r *http.Request) {
+	ab := Ab{I: 1, S: "sss"}
+	by, _ := json.Marshal(&ab)
+	w.Write(by)
 }

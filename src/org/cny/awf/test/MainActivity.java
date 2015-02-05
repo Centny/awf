@@ -1,9 +1,9 @@
 package org.cny.awf.test;
 
 import org.cny.awf.R;
+import org.cny.awf.base.BaseAty;
 import org.cny.awf.util.Util;
 
-import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -13,7 +13,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.view.Menu;
 import android.view.MenuItem;
 
-public class MainActivity extends Activity {
+public class MainActivity extends BaseAty {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -30,6 +30,7 @@ public class MainActivity extends Activity {
 					@Override
 					public void onReceive(Context arg0, Intent arg1) {
 						System.err.println("----->");
+						addm("Broadcast", "a", "val");
 					}
 				}, new IntentFilter("sss"));
 		System.out.println(LocalBroadcastManager.getInstance(this)

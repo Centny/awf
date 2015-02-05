@@ -169,15 +169,18 @@ public abstract class CBase implements Runnable, PIS.PisH {
 	}
 
 	protected void exec() throws Exception {
+		HResp res = null;
+		InputStream in = null;
+		OutputStream out = null;
 		try {
 			Policy pc = this.parsePolicy();
-			HResp res = this.find(pc);
+			res = this.find(pc);
 			if (res == null) {
 				res = new HResp().init(this);
 			}
 			res = this.createRes(res, pc);
-			InputStream in = res.getIn();
-			OutputStream out = this.createO(res);
+			in = res.getIn();
+			out = this.createO(res);
 			long clen = res.len;
 			long rsize = 0;
 			byte[] buf = new byte[this.bsize];
@@ -192,9 +195,26 @@ public abstract class CBase implements Runnable, PIS.PisH {
 			}
 			this.onProcEnd(res, in, out);
 			this.onSuccess(res);
+			res.close();
+			in.close();
 		} catch (Exception e) {
 			this.onError(new Exception(this.url + "," + this.getMethod() + "->"
 					+ e.getMessage(), e));
+			this.closea(res, in, out);
+		}
+	}
+
+	protected void closea(HResp res, InputStream in, OutputStream out) {
+		res.close();
+		try {
+			in.close();
+		} catch (Exception e) {
+
+		}
+		try {
+			out.close();
+		} catch (Exception e) {
+
 		}
 	}
 

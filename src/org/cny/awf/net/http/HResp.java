@@ -6,7 +6,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -84,11 +83,11 @@ public class HResp {
 	}
 
 	public HResp init(HttpResponse res, String encoding) {
-		if (res == null) {
-			throw new RuntimeException("response is null");
-		}
 		if (encoding == null) {
 			throw new RuntimeException("encoding is null");
+		}
+		if (res == null) {
+			throw new RuntimeException("response is null");
 		}
 		this.enc = encoding;
 		this.code = res.getStatusLine().getStatusCode();
@@ -168,10 +167,10 @@ public class HResp {
 
 	public void close() {
 		try {
-			if (this.in != null) {
-				this.in.close();
-			}
-		} catch (IOException e) {
+			// if (this.in != null) {
+			this.in.close();
+			// }
+		} catch (Exception e) {
 			L.warn("closing stream error:", e.getMessage());
 		}
 	}
@@ -197,7 +196,7 @@ public class HResp {
 	protected String encoding(String data) {
 		try {
 			return new String(data.getBytes("ISO-8859-1"), this.enc);
-		} catch (UnsupportedEncodingException e) {
+		} catch (Exception e) {
 			return null;
 		}
 	}

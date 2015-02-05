@@ -1,7 +1,7 @@
 package org.cny.awf.im;
 
 import java.io.IOException;
-import java.util.Date;
+import java.net.SocketException;
 import java.util.HashMap;
 
 import org.cny.awf.base.BaseSrv;
@@ -85,9 +85,10 @@ public abstract class ImSrv extends BaseSrv implements MsgListener,
 
 	@Override
 	public void onMsg(Msg m) {
-		LocalBroadcastManager lbm = LocalBroadcastManager.getInstance(this);
+		LocalBroadcastManager lbm;
 		Intent it;
 		boolean rec = false;
+		lbm = LocalBroadcastManager.getInstance(this);
 		// broadcast to all.
 		it = new Intent(IMC_ACTION);
 		it.putExtra("msg", m);
@@ -117,7 +118,7 @@ public abstract class ImSrv extends BaseSrv implements MsgListener,
 		this.running = true;
 		while (this.running) {
 			try {
-				this.run_(new Date().getTime());
+				this.running = this.run_();
 			} catch (Exception e) {
 				L.debug("try running err:", e);
 			}
@@ -153,9 +154,13 @@ public abstract class ImSrv extends BaseSrv implements MsgListener,
 				ConnectivityManager.CONNECTIVITY_ACTION));
 	}
 
+	public boolean isRunning() {
+		return this.running;
+	}
+
 	protected void start() {
 		synchronized (this) {
-			if (this.running) {
+			if (this.isRunning()) {
 				L.warn("the IMC thread already running");
 				return;
 			}
@@ -165,25 +170,25 @@ public abstract class ImSrv extends BaseSrv implements MsgListener,
 		}
 	}
 
-	protected void run_(long last) throws Exception {
+	protected boolean netAvaliable() throws SocketException {
+		NetInfo.net().update(this);
+		return NetInfo.net().isAvailable();
+	}
+
+	protected boolean run_() throws Exception {
 		try {
-			NetInfo.net().update(this);
-			if (NetInfo.net().isAvailable()) {
+			if (this.netAvaliable()) {
 				this.imc.run_c();
 			} else {
 				L.debug("network is not available, thread will stop");
+				return false;
 			}
 		} catch (Throwable e) {
-			L.error("running err:", e);
+			L.error("running err,will retry after {} ms:", this.retry, e);
 			this.imc.rcClear(new Exception(e));
-		}
-
-		long now = new Date().getTime();
-		if (now - last < this.retry) {
-			L.debug("retry after {} ms", this.retry);
 			Thread.sleep(this.retry);
 		}
-		last = now;
+		return true;
 	}
 
 	public void li(Object v) throws Exception {

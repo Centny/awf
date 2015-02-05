@@ -111,4 +111,58 @@ public class ERTest extends ActivityInstrumentationTestCase2<MainActivity> {
 		er.close();
 		ER.free();
 	}
+
+	public void testER2() throws Exception {
+		ER.init(this.getActivity());
+		ER.setUid("UU");
+		ER.writem("ss", "sdfsf", 11);
+		ER.backup();
+		Thread thr = new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				throw new RuntimeException();
+			}
+		});
+		thr.setUncaughtExceptionHandler(CrashHandler.instance());
+		thr.start();
+		thr.join();
+		//
+		ER.free();
+		ER.backup();
+		try {
+			ER.free();
+		} catch (Exception e) {
+
+		}
+		try {
+			new ER(this.getActivity()) {
+
+				@Override
+				public void close() {
+					throw new RuntimeException();
+				}
+
+			}.backup_();
+		} catch (Exception e) {
+
+		}
+	}
+
+	// public void testValueOf() {
+	// ActType.valueOf("100");
+	// ActType.valueOf("101");
+	// ActType.valueOf("102");
+	// ActType.values();
+	// try {
+	// ActType.valueOf(ActType.class, "100");
+	// } catch (Exception e) {
+	//
+	// }
+	// try {
+	// ActType.valueOf("100ss");
+	// } catch (Exception e) {
+	//
+	// }
+	// }
 }

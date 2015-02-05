@@ -95,7 +95,7 @@ public class C extends CBase {
 		this.initc(url);
 	}
 
-	private void initc(String url) {
+	protected void initc(String url) {
 		try {
 			if (url.trim().matches("^https\\:.*")) {
 				this.client = newHttpsClient(80, httpsPort(url));

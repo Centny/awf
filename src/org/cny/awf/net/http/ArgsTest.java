@@ -14,5 +14,7 @@ public class ArgsTest extends ActivityInstrumentationTestCase2<MainActivity> {
 		System.err
 				.println(Args.A("a", "1").A("b", "2").J("c", new Object()).Args
 						.toString());
+		new Args();
+		Args.J("ab", null);
 	}
 }

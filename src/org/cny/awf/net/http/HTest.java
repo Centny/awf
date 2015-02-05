@@ -134,13 +134,64 @@ public class HTest extends ActivityInstrumentationTestCase2<MainActivity> {
 		}
 	}
 
+	public static class Jab {
+		public int i;
+		public String s;
+	}
+
+	public class TJson extends HCallback.GDataCallback<Jab> {
+
+		CountDownLatch cdl;
+		String name;
+
+		public TJson(CountDownLatch cdl, String name) {
+			super(Jab.class);
+			this.cdl = cdl;
+			this.name = name;
+		}
+
+		@Override
+		public void onError(CBase c, Throwable err) throws Exception {
+			cdl.countDown();
+		}
+
+		@Override
+		public void onSuccess(CBase c, HResp res, Jab data) throws Exception {
+			cdl.countDown();
+		}
+
+	}
+
+	public class TJson2 extends HCallback.GCacheCallback<Jab> {
+
+		CountDownLatch cdl;
+		String name;
+
+		public TJson2(CountDownLatch cdl, String name) {
+			super(Jab.class);
+			this.cdl = cdl;
+			this.name = name;
+		}
+
+		@Override
+		public void onSuccess(CBase c, HResp res, Jab data) throws Exception {
+			cdl.countDown();
+		}
+
+		@Override
+		public void onError(CBase c, Jab cache, Throwable err) throws Exception {
+			cdl.countDown();
+		}
+
+	}
+
 	public void testC() throws InterruptedException {
 		System.out.println("test ip:" + ts_ip);
 		System.out.println("test ip:" + ts_ip);
 		System.out.println("test ip:" + ts_ip);
 		System.out.println("test ip:" + ts_ip);
 		this.rerr = null;
-		final CountDownLatch cdl = new CountDownLatch(21);
+		final CountDownLatch cdl = new CountDownLatch(31);
 
 		// 1
 		H.doGet("http://" + ts_ip + ":8000/g_args?a=1&b=abc&c=这是中文", new Abc(
@@ -190,12 +241,26 @@ public class HTest extends ActivityInstrumentationTestCase2<MainActivity> {
 		args.add(new BasicNameValuePair("b", "abc"));
 		H.doGet("http://" + ts_ip + ":8000/g_args?c=这是中文", args, new Abc(cdl,
 				"3"));
+		// 3-1
+		H.doGet(this.getActivity(), "http://" + ts_ip + ":8000/g_args?c=这是中文",
+				args, new None(cdl, "3"));
+		// 3-2
+		H.doGet("http://" + ts_ip + ":8000/g_args?c=这是中文", new None(cdl, "3-2"));
+		// 3-3
+		H.doGet(this.getActivity(), "http://" + ts_ip + ":8000/g_args?c=这是中文",
+				new None(cdl, "3-3"));
 		// 4
 		args.add(new BasicNameValuePair("c", "这是中文"));
 		H.doGet("http://" + ts_ip + ":8000/g_args", args, new Abc(cdl, "4"));
 		// 5
 		H.doPost("http://" + ts_ip + ":8000/g_args?c=这是中文", args, new Abc(cdl,
 				"5"));
+		// 5-1
+		H.doPost(this.getActivity(), "http://" + ts_ip + ":8000/g_args?c=这是中文",
+				new None(cdl, "5-1"));
+		// 5-2
+		H.doPost("http://" + ts_ip + ":8000/g_args?c=这是中文",
+				new None(cdl, "5-2"));
 		//
 		HAsyncTask dc;
 		// 6
@@ -231,11 +296,24 @@ public class HTest extends ActivityInstrumentationTestCase2<MainActivity> {
 		dc.setMethod("POST");
 		dc.setCencoding("UTF-8");
 		dc.asyncExec();
+		// 10
+		H.doGet("http://" + ts_ip + ":8000/dl?sw=1", args, new None(cdl, "10"));
+		// 11
+		H.doGet("https://www.baidu.com", args, new None(cdl, "11"));
+		// 11-1
+		H.doGet("https://www.baidu.com:443", args, new None(cdl, "11-1"));
+		// 12
+		H.doGet("http://" + ts_ip + ":8000/res_j", args, new TJson(cdl, "12"));
+		// 12-1
+		H.doGet("http://" + ts_ip + ":8000/res_j", args,
+				new TJson2(cdl, "12-1"));
+		//
 		cdl.await();
 		if (this.rerr != null) {
 			this.rerr.printStackTrace();
 			assertNull(this.rerr.getMessage(), this.rerr);
 		}
+		new H();
 	}
 
 	public void testErr() throws URISyntaxException {
@@ -367,5 +445,16 @@ public class HTest extends ActivityInstrumentationTestCase2<MainActivity> {
 		Thread.sleep(200);
 		cdl.await();
 		assertNull(this.rerr);
+	}
+
+	public void testJsonErr() throws Exception {
+		final CountDownLatch cdl = new CountDownLatch(1);
+		new TJson(cdl, "").onSuccess(null, null, (String) null);
+		new TJson(cdl, "").onSuccess(null, null, "");
+		new TJson2(cdl, "").onSuccess(null, null, (String) null);
+		new TJson2(cdl, "").onSuccess(null, null, "");
+		new TJson2(cdl, "").onError(null, "", null);
+		new TJson2(cdl, "").onError(null, (String) null, null);
+		new TJson2(cdl, "").onError(null, "{}", null);
 	}
 }

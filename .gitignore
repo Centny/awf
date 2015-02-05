@@ -17,3 +17,5 @@ libs/*.jar
 libs/*.properties
 
 TServer/main
+
+assets/ts_ip.dat

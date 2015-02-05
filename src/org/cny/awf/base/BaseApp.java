@@ -1,6 +1,5 @@
 package org.cny.awf.base;
 
-import java.io.FileNotFoundException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -15,7 +14,7 @@ import android.app.Application;
 
 public class BaseApp extends Application {
 	public static final Map<String, Object> Kvs = new HashMap<String, Object>();
-	private Logger L;
+	protected Logger L;
 
 	public static void addKv(String key, Object val) {
 		Kvs.put(key, val);
@@ -25,29 +24,38 @@ public class BaseApp extends Application {
 		return Kvs.get(key);
 	}
 
+	protected void erInit() throws Exception {
+		ER.init(this);
+	}
+
+	protected void erFree() throws Exception {
+		ER.free();
+	}
+
 	@Override
 	public void onCreate() {
 		H.CTX = this;
 		L = LoggerFactory.getLogger(this.getClass());
-		super.onCreate();
 		L.debug("running application on thread:{},{}", Thread.currentThread()
 				.getId(), Thread.currentThread().getName());
 		Thread.setDefaultUncaughtExceptionHandler(CrashHandler.instance());
 		try {
-			ER.init(this);
-		} catch (FileNotFoundException e) {
+			this.erInit();
+		} catch (Exception e) {
 			L.warn("the ER init err:", e);
 		}
 		ER.writem(this.getClass(), ER.ACT_IN, ActType.APP.getVal());
+		super.onCreate();
 	}
 
 	@Override
 	public void onTerminate() {
 		ER.writem(this.getClass(), ER.ACT_OUT, ActType.APP.getVal());
 		try {
-			ER.free();
+			this.erFree();
 		} catch (Exception e) {
 			L.warn("the ER free err:", e);
 		}
+		super.onTerminate();
 	}
 }

@@ -157,7 +157,7 @@ public class ER {
 	}
 
 	public static void writem(String name, String action, int type) {
-		writem(UID, name, action, type, null);
+		writem(name, action, type, null);
 	}
 
 	public static void writem(String uid, Class<?> cls, String action,
