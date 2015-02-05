@@ -3,6 +3,12 @@ package org.cny.awf.net.http;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import android.os.Handler;
+import android.os.Message;
+
 import com.google.gson.Gson;
 
 public interface HCallback {
@@ -120,4 +126,87 @@ public interface HCallback {
 				throws Exception;
 	}
 
+	public static class HandlerCallback implements HCallback {
+		private static final Logger L = LoggerFactory
+				.getLogger(HandlerCallback.class);
+
+		public static int vvv = 0;
+		protected static Handler H = new Handler() {
+
+			@Override
+			public void dispatchMessage(Message msg) {
+				try {
+					Object[] args = (Object[]) msg.obj;
+					HCallback tg = (HCallback) args[0];
+					switch (msg.what) {
+					case 0:
+						tg.onProcess((CBase) args[1], (PIS) args[2],
+								(Float) args[3]);
+						break;
+					case 1:
+						tg.onProcess((CBase) args[1], (Float) args[2]);
+						break;
+					case 2:
+						tg.onSuccess((CBase) args[1], (HResp) args[2]);
+						break;
+					case 3:
+						tg.onError((CBase) args[1], (Throwable) args[2]);
+						break;
+					}
+				} catch (Exception e) {
+					L.warn("exec HCallback({}) err", msg.what, e);
+				}
+			}
+
+		};
+
+		protected HCallback target;
+
+		public HandlerCallback(HCallback target) {
+			this.target = target;
+		}
+
+		@Override
+		public void onProcess(CBase c, PIS pis, float rate) {
+			Message msg = new Message();
+			msg.what = 0;
+			msg.obj = new Object[] { this.target, c, pis, (Float) rate };
+			H.sendMessage(msg);
+		}
+
+		@Override
+		public void onProcess(CBase c, float rate) {
+			Message msg = new Message();
+			msg.what = 1;
+			msg.obj = new Object[] { this.target, c, (Float) rate };
+			H.sendMessage(msg);
+		}
+
+		@Override
+		public void onSuccess(CBase c, HResp res) throws Exception {
+			Message msg = new Message();
+			msg.what = 2;
+			msg.obj = new Object[] { this.target, c, res };
+			H.sendMessage(msg);
+		}
+
+		@Override
+		public void onError(CBase c, Throwable err) throws Exception {
+			Message msg = new Message();
+			msg.what = 3;
+			msg.obj = new Object[] { this.target, c, err };
+			H.sendMessage(msg);
+		}
+
+		@Override
+		public OutputStream createO(CBase c, HResp res) throws Exception {
+			return this.target.createO(c, res);
+		}
+
+		@Override
+		public void onProcEnd(CBase c, HResp res, OutputStream o)
+				throws Exception {
+			this.target.onProcEnd(c, res, o);
+		}
+	}
 }

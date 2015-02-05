@@ -14,6 +14,7 @@ import org.cny.awf.net.http.C.FullX509TrustManager;
 import org.cny.awf.test.MainActivity;
 import org.cny.jwf.util.Utils;
 
+import android.os.Message;
 import android.test.ActivityInstrumentationTestCase2;
 
 public class ErrTest extends ActivityInstrumentationTestCase2<MainActivity> {
@@ -134,5 +135,23 @@ public class ErrTest extends ActivityInstrumentationTestCase2<MainActivity> {
 		} catch (Exception e) {
 
 		}
+	}
+
+	public void testHandler() throws Throwable {
+		this.runTestOnUiThread(new Runnable() {
+
+			@Override
+			public void run() {
+				Message m = new Message();
+				m.what = -1;
+				m.obj = new Object[] { null, null };
+				HCallback.HandlerCallback.H.dispatchMessage(m);
+				try {
+					HCallback.HandlerCallback.H.dispatchMessage(null);
+				} catch (Exception e) {
+
+				}
+			}
+		});
 	}
 }

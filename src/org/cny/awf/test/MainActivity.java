@@ -1,6 +1,5 @@
 package org.cny.awf.test;
 
-import org.cny.awf.R;
 import org.cny.awf.base.BaseAty;
 import org.cny.awf.util.Util;
 
@@ -12,6 +11,7 @@ import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
 public class MainActivity extends BaseAty {
 
@@ -54,5 +54,9 @@ public class MainActivity extends BaseAty {
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
+	}
+
+	public void toImageView(View v) {
+		this.startActivity(new Intent(this, ImageViewActivity.class));
 	}
 }

@@ -6,7 +6,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +18,8 @@ import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.message.BasicNameValuePair;
 import org.cny.awf.net.http.HCallback.HCacheCallback;
 import org.cny.awf.test.MainActivity;
+import org.cny.awf.util.CDL;
+import org.cny.awf.util.MultiOutputStream;
 
 import android.os.Environment;
 import android.test.ActivityInstrumentationTestCase2;
@@ -185,13 +186,25 @@ public class HTest extends ActivityInstrumentationTestCase2<MainActivity> {
 
 	}
 
-	public void testC() throws InterruptedException {
+	public void testC() throws Throwable {
+		this.runTestOnUiThread(new Runnable() {
+
+			@Override
+			public void run() {
+				new HCallback.HandlerCallback(null);// for register handler.
+
+			}
+		});
+		callC();
+	}
+
+	public void callC() throws InterruptedException {
 		System.out.println("test ip:" + ts_ip);
 		System.out.println("test ip:" + ts_ip);
 		System.out.println("test ip:" + ts_ip);
 		System.out.println("test ip:" + ts_ip);
 		this.rerr = null;
-		final CountDownLatch cdl = new CountDownLatch(31);
+		final CDL cdl = new CDL(31);
 
 		// 1
 		H.doGet("http://" + ts_ip + ":8000/g_args?a=1&b=abc&c=这是中文", new Abc(
@@ -404,7 +417,7 @@ public class HTest extends ActivityInstrumentationTestCase2<MainActivity> {
 					throw new IOException();
 				}
 
-			}, new OutputStream() {
+			}, new MultiOutputStream() {
 
 				@Override
 				public void write(int arg0) throws IOException {

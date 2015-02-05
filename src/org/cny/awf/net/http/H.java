@@ -18,6 +18,11 @@ public class H {
 
 	public static HAsyncTask doPost(Context ctx, String url,
 			List<BasicNameValuePair> args, PIS pis, HCallback cb) {
+		return doPostNH(ctx, url, args, pis, new HCallback.HandlerCallback(cb));
+	}
+
+	public static HAsyncTask doPostNH(Context ctx, String url,
+			List<BasicNameValuePair> args, PIS pis, HCallback cb) {
 		HAsyncTask hc = new HAsyncTask(ctx, url, cb);
 		if (args != null) {
 			hc.getArgs().addAll(args);
@@ -101,6 +106,11 @@ public class H {
 	 * @return the HTTPAsyncTask.
 	 */
 	public static HAsyncTask doGet(Context ctx, String url,
+			List<BasicNameValuePair> args, HCallback cb) {
+		return doGetNH(ctx, url, args, new HCallback.HandlerCallback(cb));
+	}
+
+	public static HAsyncTask doGetNH(Context ctx, String url,
 			List<BasicNameValuePair> args, HCallback cb) {
 		HAsyncTask hc = new HAsyncTask(ctx, url, cb);
 		if (args != null) {

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="org.cny.awf"
+    package="org.cny.awf.test"
     android:versionCode="1"
     android:versionName="1.0" >
 
@@ -11,7 +11,7 @@
     <instrumentation
         android:name="com.zutubi.android.junitreport.JUnitReportTestRunner"
         android:label="Tests amf"
-        android:targetPackage="org.cny.awf" />
+        android:targetPackage="org.cny.awf.test" />
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -23,13 +23,13 @@
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
 
     <application
-        android:name="org.cny.awf.test.MainApp"
+        android:name=".MainApp"
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name=".test.MainActivity"
+            android:name=".MainActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -45,7 +45,7 @@
             android:label="@string/title_activity_im_aty" >
         </activity>
         <activity
-            android:name="org.cny.awf.test.ImActivity"
+            android:name=".ImActivity"
             android:label="@string/title_activity_im" >
         </activity>
 
@@ -55,7 +55,7 @@
             android:exported="false" >
             <meta-data
                 android:name="host"
-                android:value="192.168.2.70" />
+                android:value="192.168.1.102" />
             <meta-data
                 android:name="port"
                 android:value="9891" />
@@ -67,6 +67,11 @@
                 <action android:name="org.cny.awf.im.PushSrv" />
             </intent-filter>
         </service>
+
+        <activity
+            android:name=".ImageViewActivity"
+            android:label="@string/title_activity_image_view" >
+        </activity>
     </application>
 
 </manifest>

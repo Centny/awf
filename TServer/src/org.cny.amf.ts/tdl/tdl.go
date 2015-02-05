@@ -20,6 +20,7 @@ func Register() {
 	http.HandleFunc("/t_args", hdl_ts)
 	http.HandleFunc("/rec_f", rec_f)
 	http.HandleFunc("/res_j", res_j)
+	http.Handle("/", http.FileServer(http.Dir("www")))
 }
 func hdl_ts(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/plain;")

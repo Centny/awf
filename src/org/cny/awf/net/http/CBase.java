@@ -61,6 +61,7 @@ public abstract class CBase implements Runnable, PIS.PisH {
 
 	public void addBinary(PIS pis) {
 		this.files.add(pis);
+		pis.setH(this);
 	}
 
 	public String findArg(String key) {
@@ -171,7 +172,7 @@ public abstract class CBase implements Runnable, PIS.PisH {
 	protected void exec() throws Exception {
 		HResp res = null;
 		InputStream in = null;
-		OutputStream out = null;
+		MultiOutputStream out = null;
 		try {
 			Policy pc = this.parsePolicy();
 			res = this.find(pc);
@@ -180,7 +181,7 @@ public abstract class CBase implements Runnable, PIS.PisH {
 			}
 			res = this.createRes(res, pc);
 			in = res.getIn();
-			out = this.createO(res);
+			out = this.createO(res, pc);
 			long clen = res.len;
 			long rsize = 0;
 			byte[] buf = new byte[this.bsize];
@@ -269,9 +270,11 @@ public abstract class CBase implements Runnable, PIS.PisH {
 		}
 	}
 
-	protected OutputStream createO(HResp res) throws Exception {
+	@SuppressWarnings("resource")
+	protected MultiOutputStream createO(HResp res, Policy pc) throws Exception {
 		if (res.code == 304) {
-			return this.cback.createO(this, res);
+			return new MultiOutputStream(null, this.cback.createO(this, res))
+					.mark(0, false);// not need download to file.
 		}
 		File cf = null;
 		if (this.db.CacheExist(res)) {
@@ -280,14 +283,23 @@ public abstract class CBase implements Runnable, PIS.PisH {
 			cf = this.db.newCacheF();
 			res.path = cf.getName();
 		}
-		return new MultiOutputStream(new FileOutputStream(cf),
-				this.cback.createO(this, res));
+		OutputStream tout = this.cback.createO(this, res);
+		if (pc == Policy.I) {
+			// in image policy,only write the path to call back
+			// output stream.
+			tout.write(cf.getAbsolutePath().getBytes());
+			return new MultiOutputStream(new FileOutputStream(cf), tout).mark(
+					1, false);
+		} else {
+			return new MultiOutputStream(new FileOutputStream(cf), tout).mark(
+					1, true);
+		}
 	}
 
-	protected void onProcEnd(HResp res, InputStream in, OutputStream o)
+	protected void onProcEnd(HResp res, InputStream in, MultiOutputStream o)
 			throws Exception {
 		if (res.code == 304) {
-			this.cback.onProcEnd(this, res, o);
+			this.cback.onProcEnd(this, res, o.at(1));
 			return;
 		}
 		Exception err = null;
@@ -297,9 +309,8 @@ public abstract class CBase implements Runnable, PIS.PisH {
 			err = e;
 		}
 		try {
-			MultiOutputStream mos = (MultiOutputStream) o;
-			mos.at(0).close();
-			this.cback.onProcEnd(this, res, mos.at(1));
+			o.close(0);
+			this.cback.onProcEnd(this, res, o.at(1));
 		} catch (Exception e) {
 			err = e;
 		}
