@@ -1,4 +1,4 @@
-package org.cny.awf.exmaple;
+package org.cny.awf.example;
 
 import java.util.List;
 
