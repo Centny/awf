@@ -38,6 +38,7 @@ public class CResTest extends ActivityInstrumentationTestCase2<MainActivity> {
 
 	public String tdata1 = "{\"code\":0,\"data\":[{\"key\":\"a1\",\"val\":\"123\",\"type\":1},{\"key\":\"a2\",\"val\":\"124\",\"type\":2}]}";
 	public String tdata2 = "{\"code\":0,\"data\":{\"key\":\"a1\",\"val\":\"123\",\"type\":1}}";
+	public String tdata3 = "{\"code\":0,\"pa\":{\"pn\":0,\"ps\":20,\"total\":100},\"data\":[{\"key\":\"a1\",\"val\":\"123\",\"type\":1},{\"key\":\"a2\",\"val\":\"124\",\"type\":2}]}";
 
 	public void testRes() throws Exception {
 		// HResCallbackL.Res res = new Gson().fromJson(tdata1,
@@ -97,5 +98,23 @@ public class CResTest extends ActivityInstrumentationTestCase2<MainActivity> {
 		rcl.onError(null, tdata2, null);
 		rcl.onError(null, (String) null, null);
 		rcl.onError(null, "", null);
+		new HResCallbackL<Abc>(Abc.class) {
+
+			@Override
+			public void onError(CBase c, CRes<List<Abc>> cache, Throwable err)
+					throws Exception {
+
+			}
+
+			@Override
+			public void onSuccess(CBase c, HResp res, CRes<List<Abc>> data)
+					throws Exception {
+				assertEquals(0, data.code);
+				assertEquals(0, data.pa.pn);
+				assertEquals(20, data.pa.ps);
+				assertEquals(100, data.pa.total);
+			}
+
+		}.onSuccess(null, null, tdata3);
 	}
 }

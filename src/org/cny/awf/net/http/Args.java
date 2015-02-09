@@ -1,7 +1,6 @@
 package org.cny.awf.net.http;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import org.apache.http.message.BasicNameValuePair;
 import org.slf4j.Logger;
@@ -12,11 +11,14 @@ import com.google.gson.Gson;
 public class Args {
 	private static Logger L = LoggerFactory.getLogger(Args.class);
 
-	public static class V {
-		public final List<BasicNameValuePair> Args = new ArrayList<BasicNameValuePair>();
+	public static class V extends ArrayList<BasicNameValuePair> {
+		// public final List<BasicNameValuePair> Args = new
+		// ArrayList<BasicNameValuePair>();
+
+		private static final long serialVersionUID = 5364764081478877788L;
 
 		public V A(String name, Object value) {
-			this.Args.add(new BasicNameValuePair(name, value.toString()));
+			this.add(new BasicNameValuePair(name, value.toString()));
 			return this;
 		}
 

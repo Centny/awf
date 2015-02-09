@@ -40,6 +40,8 @@ public class CRes<T> {
 	 */
 	public String dmsg;
 
+	public Pa pa = new Pa();
+
 	/**
 	 * @return the code
 	 */
@@ -98,6 +100,14 @@ public class CRes<T> {
 	 */
 	public void setDmsg(String dmsg) {
 		this.dmsg = dmsg;
+	}
+
+	/**
+	 * @param pa
+	 *            the pa to set
+	 */
+	public void setPa(Pa pa) {
+		this.pa = pa;
 	}
 
 	/**
@@ -215,5 +225,30 @@ public class CRes<T> {
 		TypeToken<CRes<T>> createToken();
 
 		TypeToken<CRes<List<T>>> createTokenL();
+	}
+
+	/**
+	 * set PA.
+	 * 
+	 * @author cny
+	 *
+	 */
+	public static class Pa {
+		public int pn;
+		public int ps;
+		public int total;
+
+		public void setPn(int pn) {
+			this.pn = pn;
+		}
+
+		public void setPs(int ps) {
+			this.ps = ps;
+		}
+
+		public void setTotal(int total) {
+			this.total = total;
+		}
+
 	}
 }

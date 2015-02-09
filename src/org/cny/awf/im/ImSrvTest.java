@@ -93,6 +93,12 @@ public class ImSrvTest extends ServiceTestCase<TImSrv> {
 			this.cdl.countDown();
 		}
 
+		@Override
+		protected ImDb createImDb() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
 	}
 
 	public ImSrvTest() {
@@ -149,6 +155,12 @@ public class ImSrvTest extends ServiceTestCase<TImSrv> {
 				return null;
 			}
 
+			@Override
+			protected ImDb createImDb() {
+				// TODO Auto-generated method stub
+				return null;
+			}
+
 		};
 		try {
 			is.run_();
@@ -188,6 +200,12 @@ public class ImSrvTest extends ServiceTestCase<TImSrv> {
 			@Override
 			protected void close() throws IOException {
 				throw new IOException();
+			}
+
+			@Override
+			protected ImDb createImDb() {
+				// TODO Auto-generated method stub
+				return null;
 			}
 
 		};
@@ -230,6 +248,12 @@ public class ImSrvTest extends ServiceTestCase<TImSrv> {
 				return null;
 			}
 
+			@Override
+			protected ImDb createImDb() {
+				// TODO Auto-generated method stub
+				return null;
+			}
+
 		};
 		try {
 			is.run_();
@@ -251,6 +275,12 @@ public class ImSrvTest extends ServiceTestCase<TImSrv> {
 
 			@Override
 			public IBinder onBind(Intent arg0) {
+				return null;
+			}
+
+			@Override
+			protected ImDb createImDb() {
+				// TODO Auto-generated method stub
 				return null;
 			}
 
@@ -313,6 +343,12 @@ public class ImSrvTest extends ServiceTestCase<TImSrv> {
 
 				@Override
 				public IBinder onBind(Intent arg0) {
+					return null;
+				}
+
+				@Override
+				protected ImDb createImDb() {
+					// TODO Auto-generated method stub
 					return null;
 				}
 

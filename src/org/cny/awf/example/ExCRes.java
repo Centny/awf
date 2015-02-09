@@ -2,15 +2,68 @@ package org.cny.awf.example;
 
 import java.util.List;
 
+import org.cny.awf.net.http.Args;
 import org.cny.awf.net.http.CBase;
 import org.cny.awf.net.http.H;
 import org.cny.awf.net.http.HResp;
+import org.cny.awf.net.http.HCallback.HCacheCallback;
 import org.cny.awf.net.http.cres.CRes;
 
 import com.google.gson.reflect.TypeToken;
 
 public class ExCRes {
 
+	/**
+	 * 
+	 * 
+	 * ---------------- normal require ----------------
+	 * 
+	 * 
+	 */
+	protected HCacheCallback cback = new HCacheCallback() {
+
+		@Override
+		public void onSuccess(CBase c, HResp res, String data) throws Exception {
+			// do success
+		}
+
+		@Override
+		public void onError(CBase c, String cache, Throwable err)
+				throws Exception {
+			// do error.
+		}
+	};
+
+	public void example1() {
+		H.doGet("http://xxx", cback);
+		H.doPost("http://www", Args.A("v1", "val1").A("v2", "val2"), cback);
+		//
+	}
+
+	// using cache policy.
+	public void example1_1() {
+		// the general HTTP cache,which is this default policy.
+		H.doGet("http://xxx?_hc_=N", cback);
+		// the image policy,it will not return response data instead of file
+		// path.
+		H.doGet("http://xxx?_hc_=I", cback);
+		// cache only policy.
+		H.doGet("http://xxx?_hc_=C", cback);
+		// not cache policy
+		H.doGet("http://xxx?_hc_=NO", cback);
+		//
+		//
+		H.doPost("http://www", Args.A("v1", "val1").A("_hc_", "I"), cback);
+	}
+
+	/**
+	 * 
+	 * 
+	 * ---------------- orm require ----------------
+	 * 
+	 * 
+	 */
+	// define object.
 	public static class Ex implements CRes.Resable<Ex> {
 		public String key;
 		public String val;
@@ -29,7 +82,7 @@ public class ExCRes {
 		}
 	}
 
-	public static void example1() {
+	public static void example2() {
 		/*
 		 * for data:
 		 * {"code":0,"data":[{"key":"a1","val":"123","type":1},{"key":"a2",

@@ -1,8 +1,11 @@
 package org.cny.awf.net.http;
 
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 
+import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicNameValuePair;
+import org.cny.awf.util.Util;
 
 import android.content.Context;
 
@@ -36,7 +39,29 @@ public class H {
 	 */
 	public static HAsyncTask doPost(Context ctx, String url,
 			List<BasicNameValuePair> args, PIS pis, HCallback cb) {
-		return doPostNH(ctx, url, args, pis, new HCallback.HandlerCallback(cb));
+		return doPost(ctx, url, args, null, pis, cb);
+	}
+
+	public static HAsyncTask doPost(String url, List<BasicNameValuePair> args,
+			List<BasicNameValuePair> heads, PIS pis, HCallback cb) {
+		return doPost(CTX, url, args, heads, pis, cb);
+	}
+
+	public static HAsyncTask doPost(Context ctx, String url,
+			List<BasicNameValuePair> args, List<BasicNameValuePair> heads,
+			PIS pis, HCallback cb) {
+		return doPostNH(ctx, url, args, heads, pis,
+				new HCallback.HandlerCallback(cb));
+	}
+
+	public static HAsyncTask doPostData(String url, String data, HCallback cb)
+			throws UnsupportedEncodingException {
+		return doPostData(CTX, url, data, new HCallback.HandlerCallback(cb));
+	}
+
+	public static HAsyncTask doPostData(Context ctx, String url, String data,
+			HCallback cb) throws UnsupportedEncodingException {
+		return doPostDataNH(ctx, url, data, new HCallback.HandlerCallback(cb));
 	}
 
 	/**
@@ -56,12 +81,42 @@ public class H {
 	 */
 	public static HAsyncTask doPostNH(Context ctx, String url,
 			List<BasicNameValuePair> args, PIS pis, HCallback cb) {
+		return doPostNH(ctx, url, args, null, pis, cb);
+	}
+
+	public static HAsyncTask doPostNH(String url,
+			List<BasicNameValuePair> args, PIS pis, HCallback cb) {
+		return doPostNH(CTX, url, args, null, pis, cb);
+	}
+
+	public static HAsyncTask doPostNH(Context ctx, String url,
+			List<BasicNameValuePair> args, List<BasicNameValuePair> heads,
+			PIS pis, HCallback cb) {
 		HAsyncTask hc = new HAsyncTask(ctx, url, cb);
 		if (args != null) {
 			hc.getArgs().addAll(args);
 		}
 		if (pis != null) {
 			hc.addBinary(pis);
+		}
+		if (heads != null) {
+			hc.getHeaders().addAll(heads);
+		}
+		hc.setMethod("POST");
+		hc.asyncExec();
+		return hc;
+	}
+
+	public static HAsyncTask doPostDataNH(String url, String data, HCallback cb)
+			throws UnsupportedEncodingException {
+		return doPostDataNH(CTX, url, data, cb);
+	}
+
+	public static HAsyncTask doPostDataNH(Context ctx, String url, String data,
+			HCallback cb) throws UnsupportedEncodingException {
+		HAsyncTask hc = new HAsyncTask(ctx, url, cb);
+		if (Util.isNoEmpty(data)) {
+			hc.setEntity(new StringEntity(data));
 		}
 		hc.setMethod("POST");
 		hc.asyncExec();
@@ -195,7 +250,18 @@ public class H {
 	 */
 	public static HAsyncTask doGet(Context ctx, String url,
 			List<BasicNameValuePair> args, HCallback cb) {
-		return doGetNH(ctx, url, args, new HCallback.HandlerCallback(cb));
+		return doGet(ctx, url, args, null, cb);
+	}
+
+	public static HAsyncTask doGet(String url, List<BasicNameValuePair> args,
+			List<BasicNameValuePair> heads, HCallback cb) {
+		return doGet(CTX, url, args, heads, cb);
+	}
+
+	public static HAsyncTask doGet(Context ctx, String url,
+			List<BasicNameValuePair> args, List<BasicNameValuePair> heads,
+			HCallback cb) {
+		return doGetNH(ctx, url, args, heads, new HCallback.HandlerCallback(cb));
 	}
 
 	/**
@@ -211,11 +277,25 @@ public class H {
 	 *            HTTP call back instance.
 	 * @return the HTTPAsyncTask.
 	 */
+	public static HAsyncTask doGetNH(String url, List<BasicNameValuePair> args,
+			HCallback cb) {
+		return doGetNH(CTX, url, args, null, cb);
+	}
+
+	public static HAsyncTask doGetNH(String url, List<BasicNameValuePair> args,
+			List<BasicNameValuePair> heads, HCallback cb) {
+		return doGetNH(CTX, url, args, heads, cb);
+	}
+
 	public static HAsyncTask doGetNH(Context ctx, String url,
-			List<BasicNameValuePair> args, HCallback cb) {
+			List<BasicNameValuePair> args, List<BasicNameValuePair> heads,
+			HCallback cb) {
 		HAsyncTask hc = new HAsyncTask(ctx, url, cb);
 		if (args != null) {
 			hc.getArgs().addAll(args);
+		}
+		if (heads != null) {
+			hc.getHeaders().addAll(heads);
 		}
 		hc.asyncExec();
 		return hc;

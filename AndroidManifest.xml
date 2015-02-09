@@ -41,10 +41,6 @@
         <uses-library android:name="android.test.runner" />
 
         <activity
-            android:name=".ImAty"
-            android:label="@string/title_activity_im_aty" >
-        </activity>
-        <activity
             android:name=".ImActivity"
             android:label="@string/title_activity_im" >
         </activity>

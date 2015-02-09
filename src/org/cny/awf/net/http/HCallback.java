@@ -3,6 +3,7 @@ package org.cny.awf.net.http;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 
+import org.cny.jwf.hook.Hooks;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,7 +51,11 @@ public interface HCallback {
 
 		@Override
 		public void onSuccess(CBase c, HResp res) throws Exception {
-			this.onSuccess(c, res, new String(this.buf.toByteArray(), res.enc));
+			String data = new String(this.buf.toByteArray(), res.enc);
+			// sending hook
+			if (Hooks.call(HDataCallback.class, "onSuccess", c, res, data) < 1) {
+				this.onSuccess(c, res, data);
+			}
 		}
 
 		public abstract void onSuccess(CBase c, HResp res, String data)
@@ -61,7 +66,10 @@ public interface HCallback {
 
 		@Override
 		public void onError(CBase c, Throwable err) throws Exception {
-			this.onError(c, c.readCache(), err);
+			String cache = c.readCache();
+			if (Hooks.call(HCacheCallback.class, "onError", c, cache, err) < 1) {
+				this.onError(c, cache, err);
+			}
 		}
 
 		public abstract void onError(CBase c, String cache, Throwable err)
@@ -79,10 +87,14 @@ public interface HCallback {
 		@SuppressWarnings("unchecked")
 		@Override
 		public void onSuccess(CBase c, HResp res, String data) throws Exception {
+			T val;
 			if (data == null || data.isEmpty()) {
-				this.onSuccess(c, res, (T) null);
+				val = null;
 			} else {
-				this.onSuccess(c, res, (T) this.gs.fromJson(data, this.cls));
+				val = (T) this.gs.fromJson(data, this.cls);
+			}
+			if (Hooks.call(HCacheCallback.class, "onSuccess", c, res, val) < 1) {
+				this.onSuccess(c, res, val);
 			}
 		}
 
@@ -102,20 +114,28 @@ public interface HCallback {
 		@Override
 		public void onError(CBase c, String cache, Throwable err)
 				throws Exception {
+			T val;
 			if (cache == null || cache.isEmpty()) {
-				this.onError(c, (T) null, err);
+				val = null;
 			} else {
-				this.onError(c, (T) this.gs.fromJson(cache, this.cls), err);
+				val = (T) this.gs.fromJson(cache, this.cls);
+			}
+			if (Hooks.call(HCacheCallback.class, "onError", c, val, err) < 1) {
+				this.onError(c, val, err);
 			}
 		}
 
 		@SuppressWarnings("unchecked")
 		@Override
 		public void onSuccess(CBase c, HResp res, String data) throws Exception {
+			T val;
 			if (data == null || data.isEmpty()) {
-				this.onSuccess(c, res, (T) null);
+				val = null;
 			} else {
-				this.onSuccess(c, res, (T) this.gs.fromJson(data, this.cls));
+				val = (T) this.gs.fromJson(data, this.cls);
+			}
+			if (Hooks.call(HCacheCallback.class, "onSuccess", c, res, val) < 1) {
+				this.onSuccess(c, res, val);
 			}
 		}
 

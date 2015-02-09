@@ -3,6 +3,7 @@ package org.cny.awf.util;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -27,6 +28,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
@@ -39,6 +41,8 @@ import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.telephony.TelephonyManager;
 import android.util.Log;
+import android.view.View;
+import android.view.ViewGroup;
 
 /**
  * the external util for android.
@@ -47,6 +51,8 @@ import android.util.Log;
  * 
  */
 public class Util {
+
+	public static Context CTX;
 
 	public static String listMac() throws SocketException {
 		List<String> macs = new ArrayList<String>();
@@ -180,6 +186,20 @@ public class Util {
 		return newbmp;
 	}
 
+	public static Bitmap readBitmap(String file) throws IOException {
+		FileInputStream fis = null;
+		try {
+			fis = new FileInputStream(file);
+			return BitmapFactory.decodeStream(fis);
+		} catch (FileNotFoundException e) {
+			throw e;
+		} finally {
+			if (fis != null) {
+				fis.close();
+			}
+		}
+	}
+
 	/**
 	 * get the px by dp
 	 */
@@ -230,6 +250,10 @@ public class Util {
 
 	public static boolean isNullOrEmpty(String t) {
 		return t == null || t.trim().isEmpty();
+	}
+
+	public static boolean isNoEmpty(String t) {
+		return !(t == null || t.trim().isEmpty());
 	}
 
 	public static Map<String, String> DevInfo(Context ctx) {
@@ -307,5 +331,18 @@ public class Util {
 			inf.put("mac", listMacv());
 		} catch (Exception e) {
 		}
+	}
+
+	/**
+	 * inflate the view by resource id and view group.using common context.
+	 * 
+	 * @param resource
+	 *            the resource id.
+	 * @param vg
+	 *            the ViewGorup
+	 * @return the view.
+	 */
+	public static View inflate(int resource, ViewGroup vg) {
+		return View.inflate(CTX, resource, vg);
 	}
 }

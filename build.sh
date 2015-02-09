@@ -9,6 +9,10 @@ case $1 in
  pub)
   ant pub.jar
  ;;
+ pub.ims)
+  ant pub.jar
+  cp ~/git/awf/build/awf/awf-v0.0.1.jar ~/svn/IMS/trunk/050IMS/IMS-A/libs/ 
+;;
  *) 
   ant clear_cls stop_ts start_ts uninstall emma debug install test fetch-test-report stop_ts
 esac

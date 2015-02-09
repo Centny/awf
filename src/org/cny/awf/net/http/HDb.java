@@ -97,6 +97,17 @@ public class HDb {
 		return rs;
 	}
 
+	public synchronized List<HResp> list() {
+		String sql = "SELECT * FROM _HC_R_";
+		Cursor cur = this.db_.Db().rawQuery(sql, new String[0]);
+		List<HResp> rs = new ArrayList<HResp>();
+		while (cur.moveToNext()) {
+			rs.add(new HResp().init(cur));
+		}
+		cur.close();
+		return rs;
+	}
+
 	public synchronized void add(HResp r) {
 		String sql = "INSERT INTO _HC_R_ (" + COLS
 				+ ") VALUES(?,?,?,?,?,?,?,?,?,?,?)";
@@ -139,7 +150,7 @@ public class HDb {
 			sql = "UPDATE _HC_ENV_ SET VAL=VAL+1 WHERE NAME='_HC_F_I' AND TYPE='_HC_'";
 		} else {
 			name = "0";
-			sql = "INSERT INTO _HC_ENV_ VALUES('_HC_F_I','0','_HC_')";
+			sql = "INSERT INTO _HC_ENV_ VALUES('_HC_F_I','1','_HC_')";
 		}
 		this.db_.exec(sql);
 		return name;

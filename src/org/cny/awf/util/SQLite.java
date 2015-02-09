@@ -3,6 +3,7 @@ package org.cny.awf.util;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import org.cny.jwf.util.Orm;
@@ -70,23 +71,23 @@ public class SQLite {
 		}
 	}
 
-	public <T> List<T> rawQuery(String sql, Class<T> cls) throws Exception {
-		return this.rawQuery(sql, (String) null, cls);
+	public <T> List<T> rawQuery(String sql, Class<T> cls, boolean toUpper) {
+		return this.rawQuery(sql, (String) null, cls, toUpper);
 	}
 
-	public <T> List<T> rawQuery(String sql, String args, Class<T> cls)
-			throws Exception {
+	public <T> List<T> rawQuery(String sql, String args, Class<T> cls,
+			boolean toUpper) {
 		if (args == null) {
-			return this.rawQuery(sql, (String[]) null, cls);
+			return this.rawQuery(sql, (String[]) null, cls, toUpper);
 		} else {
-			return this.rawQuery(sql, new String[] { args }, cls);
+			return this.rawQuery(sql, new String[] { args }, cls, toUpper);
 		}
 	}
 
-	public <T> List<T> rawQuery(String sql, String[] args, Class<T> cls)
-			throws Exception {
-		return Orm.builds(new CursorOrmBuilder(this.db_.rawQuery(sql, args)),
-				cls);
+	public <T> List<T> rawQuery(String sql, String[] args, Class<T> cls,
+			boolean toUpper) {
+		return Orm.builds(new CursorOrmBuilder(this.db_.rawQuery(sql, args),
+				toUpper), cls);
 	}
 
 	public List<Long> longQuery(String sql, String[] args) {
@@ -115,10 +116,12 @@ public class SQLite {
 
 	public class CursorOrmBuilder extends OrderBuilder {
 		private final Cursor c;
+		private final boolean toUpper;
 		private final Map<String, Integer> cidx = new HashMap<String, Integer>();
 
-		public CursorOrmBuilder(Cursor c) {
+		public CursorOrmBuilder(Cursor c, boolean toUpper) {
 			this.c = c;
+			this.toUpper = toUpper;
 			for (String n : c.getColumnNames()) {
 				this.cidx.put(n, c.getColumnIndex(n));
 			}
@@ -132,10 +135,14 @@ public class SQLite {
 		@SuppressWarnings("unchecked")
 		@Override
 		public <T> T get(String name, Class<T> cls) {
-			if (!this.cidx.containsKey(name)) {
+			String tname = name;
+			if (this.toUpper) {
+				tname = name.toUpperCase(Locale.ENGLISH);
+			}
+			if (!this.cidx.containsKey(tname)) {
 				return null;
 			}
-			int idx = this.cidx.get(name);
+			int idx = this.cidx.get(tname);
 			if (cls == String.class) {
 				return (T) this.c.getString(idx);
 			} else if (cls == long.class || cls == Long.class) {

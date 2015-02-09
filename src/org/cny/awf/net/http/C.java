@@ -63,7 +63,10 @@ public class C extends CBase {
 			return get;
 		} else if ("POST".equals(this.method)) {
 			HttpPost post;
-			if (this.files.isEmpty()) {
+			if (this.entity != null) {
+				post = new HttpPost(this.url + "?" + this.getQuery());
+				post.setEntity(this.entity);
+			} else if (this.files.isEmpty()) {
 				post = new HttpPost(this.url);
 				post.setEntity(new UrlEncodedFormEntity(this.args,
 						this.cencoding));

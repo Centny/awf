@@ -102,7 +102,7 @@ public class SQLiteTest extends ActivityInstrumentationTestCase2<MainActivity> {
 		db.exec("INSERT INTO NVL VALUES('N1','V1',1)");
 		db.exec("INSERT INTO NVL VALUES('N2','V2',2)");
 		db.exec("INSERT INTO NVL VALUES('N3','V3',342324)");
-		List<Nvl> vls = db.rawQuery("SELECT * FROM NVL", Nvl.class);
+		List<Nvl> vls = db.rawQuery("SELECT * FROM NVL", Nvl.class, true);
 		for (Nvl vl : vls) {
 			Log.d("SQLite", vl.toString());
 		}

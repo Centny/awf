@@ -20,6 +20,7 @@ func Register() {
 	http.HandleFunc("/t_args", hdl_ts)
 	http.HandleFunc("/rec_f", rec_f)
 	http.HandleFunc("/res_j", res_j)
+	http.HandleFunc("/data_j", data_j)
 	http.Handle("/", http.FileServer(http.Dir("www")))
 }
 func hdl_ts(w http.ResponseWriter, r *http.Request) {
@@ -226,4 +227,8 @@ func res_j(w http.ResponseWriter, r *http.Request) {
 	ab := Ab{I: 1, S: "sss"}
 	by, _ := json.Marshal(&ab)
 	w.Write(by)
+}
+
+func data_j(w http.ResponseWriter, r *http.Request) {
+	io.Copy(w, r.Body)
 }

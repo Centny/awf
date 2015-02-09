@@ -4,13 +4,13 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
@@ -40,6 +40,7 @@ public abstract class CBase implements Runnable, PIS.PisH {
 	protected String sencoding = "UTF-8";
 	protected int bsize = BUF_SIZE;
 	protected boolean running = false;
+	protected HttpEntity entity;
 	//
 	protected String url;
 	protected HDb db;
@@ -52,10 +53,16 @@ public abstract class CBase implements Runnable, PIS.PisH {
 	}
 
 	public void addArg(String key, String val) {
+		if (Util.isNullOrEmpty(key) || Util.isNullOrEmpty(val)) {
+			return;
+		}
 		this.args.add(new BasicNameValuePair(key, val));
 	}
 
 	public void addHead(String key, String val) {
+		if (Util.isNullOrEmpty(key) || Util.isNullOrEmpty(val)) {
+			return;
+		}
 		this.headers.add(new BasicNameValuePair(key, val));
 	}
 
@@ -83,14 +90,19 @@ public abstract class CBase implements Runnable, PIS.PisH {
 	}
 
 	public void setUrl(String url) {
-		try {
-			URI uri = new URI(url);
-			this.args.addAll(URLEncodedUtils.parse(uri, this.cencoding));
-			this.url = uri.getScheme() + "://" + uri.getHost()
-					+ (uri.getPort() < 0 ? "" : ":" + uri.getPort())
-					+ uri.getPath();
-		} catch (Exception e) {
-			throw new RuntimeException(e);
+		this.args.clear();
+		this.headers.clear();
+		String[] urls = url.split("\\?", 0);
+		this.url = urls[0];
+		if (urls.length < 2) {
+			return;
+		}
+		for (String arg : urls[1].split("&")) {
+			String[] kv = arg.split("=", 0);
+			if (kv.length < 2) {
+				continue;
+			}
+			this.addArg(kv[0], kv[1]);
 		}
 	}
 
@@ -463,6 +475,21 @@ public abstract class CBase implements Runnable, PIS.PisH {
 	 */
 	public boolean isRunning() {
 		return running;
+	}
+
+	/**
+	 * @return the entity
+	 */
+	public HttpEntity getEntity() {
+		return entity;
+	}
+
+	/**
+	 * @param entity
+	 *            the entity to set
+	 */
+	public void setEntity(HttpEntity entity) {
+		this.entity = entity;
 	}
 
 }

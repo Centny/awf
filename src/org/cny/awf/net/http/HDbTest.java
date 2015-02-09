@@ -63,4 +63,12 @@ public class HDbTest extends ActivityInstrumentationTestCase2<MainActivity> {
 
 		}
 	}
+
+	public void testList() {
+		HDb hdb = HDb.loadDb_(this.getActivity());
+		List<HResp> rs = hdb.list();
+		for (HResp r : rs) {
+			System.err.println(r.u);
+		}
+	}
 }

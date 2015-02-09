@@ -6,8 +6,11 @@ import java.util.Map;
 import org.cny.awf.er.ActType;
 import org.cny.awf.er.ER;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.view.View;
 
+@SuppressLint("Registered")
 public class BaseAty extends Activity {
 
 	@Override
@@ -30,5 +33,9 @@ public class BaseAty extends Activity {
 
 	public void addm(String action, Map<String, Object> kvs) {
 		ER.writem(this.getClass(), action, ActType.N.getVal(), kvs);
+	}
+
+	public void onClkRet(View v) {
+		this.finish();
 	}
 }

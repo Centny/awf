@@ -36,6 +36,18 @@ public class HTest extends ActivityInstrumentationTestCase2<MainActivity> {
 
 	@Override
 	protected void setUp() throws Exception {
+		try {
+			this.runTestOnUiThread(new Runnable() {
+
+				@Override
+				public void run() {
+					new HCallback.HandlerCallback(null);// for register handler.
+
+				}
+			});
+		} catch (Throwable e) {
+			e.printStackTrace();
+		}
 		System.out.println("-------------->");
 		System.out.println("-------------->");
 		super.setUp();
@@ -198,17 +210,28 @@ public class HTest extends ActivityInstrumentationTestCase2<MainActivity> {
 		callC();
 	}
 
-	public void callC() throws InterruptedException {
+	public void callC() throws Exception {
 		System.out.println("test ip:" + ts_ip);
 		System.out.println("test ip:" + ts_ip);
 		System.out.println("test ip:" + ts_ip);
 		System.out.println("test ip:" + ts_ip);
 		this.rerr = null;
-		final CDL cdl = new CDL(31);
+		final CDL cdl = new CDL(35);
 
 		// 1
 		H.doGet("http://" + ts_ip + ":8000/g_args?a=1&b=abc&c=这是中文", new Abc(
 				cdl, "1"));
+		// 1-1
+		H.doGet("http://"
+				+ ts_ip
+				+ ":8000/g_args?param={\"pa\":{\"pn\":1,\"ps\":5},\"filter\":\"\"}&a=1&b=abc&c=这是中文",
+				new Abc(cdl, "1-1"));
+		// 1-2
+		H.doGet("http://" + ts_ip + ":8000/g_args?", new None(cdl, "1-2"));
+		// 1-3
+		H.doGet("http://" + ts_ip + ":8000/g_args", new None(cdl, "1-3"));
+		// 1-4
+		H.doGet("http://" + ts_ip + ":8000/g_args?a=", new None(cdl, "1-4"));
 		// 2
 		List<BasicNameValuePair> args = new ArrayList<BasicNameValuePair>();
 		args.add(new BasicNameValuePair("a", "1"));
@@ -282,6 +305,8 @@ public class HTest extends ActivityInstrumentationTestCase2<MainActivity> {
 		dc.addArg("a", "1");
 		dc.addArg("b", "abc");
 		dc.addArg("c", "这是中文");
+		dc.addArg("c", null);
+		dc.addArg(null, "这是中文");
 		dc.setMethod("GET");
 		dc.asyncExec();
 		// 7
@@ -306,6 +331,8 @@ public class HTest extends ActivityInstrumentationTestCase2<MainActivity> {
 		dc.addHead("a", "1");
 		dc.addHead("b", "abc");
 		dc.addHead("c", "这是中文");
+		dc.addHead("c", null);
+		dc.addHead(null, "这是中文");
 		dc.setMethod("POST");
 		dc.setCencoding("UTF-8");
 		dc.asyncExec();
@@ -469,5 +496,55 @@ public class HTest extends ActivityInstrumentationTestCase2<MainActivity> {
 		new TJson2(cdl, "").onError(null, "", null);
 		new TJson2(cdl, "").onError(null, (String) null, null);
 		new TJson2(cdl, "").onError(null, "{}", null);
+	}
+
+	// public void testURL() throws Throwable {
+	// this.runTestOnUiThread(new Runnable() {
+	//
+	// @Override
+	// public void run() {
+	// new HCallback.HandlerCallback(null);// for register handler.
+	//
+	// }
+	// });
+	// //
+	// H.doGet("http://rcp.dev.jxzy.com/get-course-list?param={\"pa\":{\"pn\":1,\"ps\":5},\"filter\":\"\"}",
+	// // null);
+	// // H.doGet("http://rcp.dev.jxzy.com/get-course-list", null);
+	// // H.doGet("http://rcp.dev.jxzy.com/get-course-list?", null);
+	// // H.doGet("http://"
+	// // + ts_ip
+	// // +
+	// //
+	// ":8000/g_args?param={\"pa\":{\"pn\":1,\"ps\":5},\"filter\":\"\"}&a=1&b=abc&c=这是中文",
+	// // null);
+	// // H.doGet("http://" + ts_ip + ":8000/g_args?a=1&b=abc&c=这是中文", null);
+	// final CountDownLatch cdl = new CountDownLatch(1);
+	// H.doGet("http://rcp.dev.jxzy.com/get-section?courseId=310&token=",
+	// new None(cdl, "sss"));
+	// cdl.await();
+	// // Thread.sleep(5000);
+	// }
+
+	public void testData() throws Throwable {
+		final CountDownLatch cdl = new CountDownLatch(1);
+		H.doPostData("http://" + ts_ip + ":8000/data_j", "abc",
+				new HCacheCallback() {
+
+					@Override
+					public void onSuccess(CBase c, HResp res, String data)
+							throws Exception {
+						cdl.countDown();
+						assertEquals("abc", data);
+					}
+
+					@Override
+					public void onError(CBase c, String cache, Throwable err)
+							throws Exception {
+						cdl.countDown();
+						assertNull(err);
+					}
+				});
+		cdl.await();
 	}
 }

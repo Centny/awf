@@ -84,7 +84,25 @@ public abstract class ImSrv extends BaseSrv implements MsgListener,
 	}
 
 	@Override
+	public void begCon(NetwRunnable nr) throws Exception {
+
+	}
+
+	public void onRecon() {
+
+	}
+
+	public void begRun() {
+
+	}
+
+	public void endRun() {
+
+	}
+
+	@Override
 	public void onMsg(Msg m) {
+		this.db.add(m);
 		LocalBroadcastManager lbm;
 		Intent it;
 		boolean rec = false;
@@ -116,14 +134,19 @@ public abstract class ImSrv extends BaseSrv implements MsgListener,
 	@Override
 	public void run() {
 		this.running = true;
+		this.begRun();
 		while (this.running) {
 			try {
 				this.running = this.run_();
+				if (this.running) {
+					this.onRecon();
+				}
 			} catch (Exception e) {
 				L.debug("try running err:", e);
 			}
 			// this.running = false;
 		}
+		this.endRun();
 		this.running = false;
 		L.warn("background thread is stopped");
 	}
@@ -134,12 +157,14 @@ public abstract class ImSrv extends BaseSrv implements MsgListener,
 		}
 	}
 
+	protected abstract ImDb createImDb();
+
 	protected void create() {
 		this.host = info.metaData.getString("host");
 		this.port = info.metaData.getInt("port");
 		this.retry = info.metaData.getInt("retry", 3000);
 		this.imc = new PbSckIMC(this, this, this.host, this.port);
-		this.db = ImDb.loadDb_(this);
+		this.db = this.createImDb();
 		this.con = new BroadcastReceiver() {
 
 			@Override

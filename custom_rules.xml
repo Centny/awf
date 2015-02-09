@@ -77,22 +77,6 @@
 				<exclude name="org/cny/awf/*" />
 			</fileset>
 		</jar>
-		<javadoc destdir="${lib.dir}/${lib.name}" windowtitle="Cny4a Project Class Library" use="yes" linksource="no" splitindex="yes" encoding="UTF-8" docencoding="UTF-8">
-			<classpath>
-				<fileset dir="${sdk.dir}/platforms/${target}">
-					<include name="*.jar" />
-				</fileset>
-				<path path="${lib.cls}" />
-				<fileset dir="libs">
-					<include name="*.jar" />
-				</fileset>
-			</classpath>
-			<packageset dir="${lib.cls}" defaultexcludes="yes">
-				<exclude name="org/cny/awf/net/http/HTest"/>
-				<exclude name="org/cny/awf/net/http/HDbTest"/>
-				<exclude name="org/cny/awf/test*/**"/>
-			</packageset>
-		</javadoc>
 		<jar destfile="${lib.dir}/${lib.name}.doc.zip">
 			<fileset dir="${lib.dir}/${lib.name}">
 				<include name="*/**" />

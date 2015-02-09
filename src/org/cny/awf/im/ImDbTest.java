@@ -1,10 +1,13 @@
 package org.cny.awf.im;
 
+import java.io.InputStream;
 import java.util.List;
 
 import junit.framework.Assert;
 
 import org.cny.awf.test.MainActivity;
+import org.cny.awf.util.SQLite;
+import org.cny.awf.util.Util;
 import org.cny.jwf.im.Msg;
 
 import android.test.ActivityInstrumentationTestCase2;
@@ -22,12 +25,22 @@ public class ImDbTest extends ActivityInstrumentationTestCase2<MainActivity> {
 
 	@Override
 	protected void tearDown() throws Exception {
-		ImDb.free();
 		super.tearDown();
 	}
 
 	public void testQuery() throws Exception {
-		ImDb idb = ImDb.loadDb_(this.getActivity());
+		ImDb idb = new ImDb() {
+			{
+				InputStream ic = ImDb.class.getResourceAsStream("_im_.sql");
+				if (ic == null) {
+					throw new RuntimeException("_im_.sql not found");
+				}
+				String script = Util.readAll(ic);
+				this.ctx = getActivity();
+				this.db_ = SQLite.loadDb(this.ctx, "_imdb_dd.dbf", "_IM_M_",
+						script);
+			}
+		};
 		idb.clearMsg("");
 		Msg m = new Msg();
 		m.d = "D";
@@ -66,11 +79,11 @@ public class ImDbTest extends ActivityInstrumentationTestCase2<MainActivity> {
 		Assert.assertEquals(5, idb.sumMsgS(Msg.MS_REV).longValue());
 		System.out.println(ms);
 		idb.close();
-		try {
-			ImDb.free();
-			ImDb.loadDb_(getActivity(), "sfsfs");
-		} catch (Exception E) {
-
-		}
+		// try {
+		// ImDb.free();
+		// ImDb.loadDb_(getActivity(), "sfsfs");
+		// } catch (Exception E) {
+		//
+		// }
 	}
 }
