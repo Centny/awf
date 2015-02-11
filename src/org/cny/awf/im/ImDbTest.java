@@ -86,4 +86,12 @@ public class ImDbTest extends ActivityInstrumentationTestCase2<MainActivity> {
 		//
 		// }
 	}
+
+	public void testLoadErr() {
+		try {
+			new ImDb().load(getActivity(), "sfsdfs");
+		} catch (Exception e) {
+
+		}
+	}
 }

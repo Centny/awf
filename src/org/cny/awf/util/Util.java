@@ -187,15 +187,15 @@ public class Util {
 	}
 
 	public static Bitmap readBitmap(String file) throws IOException {
-		FileInputStream fis = null;
+		InputStream is = null;
 		try {
-			fis = new FileInputStream(file);
-			return BitmapFactory.decodeStream(fis);
+			is = new FileInputStream(file);
+			return BitmapFactory.decodeStream(is);
 		} catch (FileNotFoundException e) {
 			throw e;
 		} finally {
-			if (fis != null) {
-				fis.close();
+			if (is != null) {
+				is.close();
 			}
 		}
 	}

@@ -3,7 +3,6 @@ package org.cny.awf.net.http;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -88,24 +87,26 @@ public class HDb {
 	public synchronized List<HResp> findv(String url, String m, String args) {
 		String sql = "SELECT * FROM _HC_R_ WHERE U=? AND M=? AND ARG=? "
 				+ " ORDER BY TIME DESC";
-		Cursor cur = this.db_.Db().rawQuery(sql, new String[] { url, m, args });
-		List<HResp> rs = new ArrayList<HResp>();
-		while (cur.moveToNext()) {
-			rs.add(new HResp().init(cur));
-		}
-		cur.close();
-		return rs;
+		// Cursor cur = this.db_.Db().rawQuery(sql, new String[] { url, m, args
+		// });
+		// List<HResp> rs = new ArrayList<HResp>();
+		// while (cur.moveToNext()) {
+		// rs.add(new HResp().init(cur));
+		// }
+		// cur.close();
+		return this.db_.rawQuery(sql, new String[] { url, m, args },
+				HResp.class, true);
 	}
 
 	public synchronized List<HResp> list() {
 		String sql = "SELECT * FROM _HC_R_";
-		Cursor cur = this.db_.Db().rawQuery(sql, new String[0]);
-		List<HResp> rs = new ArrayList<HResp>();
-		while (cur.moveToNext()) {
-			rs.add(new HResp().init(cur));
-		}
-		cur.close();
-		return rs;
+		// Cursor cur = this.db_.Db().rawQuery(sql, new String[0]);
+		// List<HResp> rs = new ArrayList<HResp>();
+		// while (cur.moveToNext()) {
+		// rs.add(new HResp().init(cur));
+		// }
+		// cur.close();
+		return this.db_.rawQuery(sql, HResp.class, true);
 	}
 
 	public synchronized void add(HResp r) {

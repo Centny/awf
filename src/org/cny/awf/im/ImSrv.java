@@ -33,6 +33,7 @@ import android.support.v4.content.LocalBroadcastManager;
 public abstract class ImSrv extends BaseSrv implements MsgListener,
 		EvnListener, Runnable {
 	public static final String IMC_ACTION = "ON_IMC";
+	public static final String BC_MSG = "msg";
 	public static final String NOTIFY_TAG = "IMC";
 	public static final int NOTIFY_ID = 10;
 	protected final Logger L = LoggerFactory.getLogger(this.getClass());
@@ -102,26 +103,31 @@ public abstract class ImSrv extends BaseSrv implements MsgListener,
 
 	@Override
 	public void onMsg(Msg m) {
-		this.db.add(m);
+		L.debug("on recieve message:{}", m.toString());
+		// this.db.add(m);
+		// this.doNotify(m);
+	}
+
+	protected void doBroadcast(Msg m) {
 		LocalBroadcastManager lbm;
 		Intent it;
 		boolean rec = false;
 		lbm = LocalBroadcastManager.getInstance(this);
 		// broadcast to all.
 		it = new Intent(IMC_ACTION);
-		it.putExtra("msg", m);
+		it.putExtra(BC_MSG, m);
 		rec = lbm.sendBroadcast(it) || rec;
 		// broadcast by type.
 		it = new Intent(IMC_ACTION + "-" + m.t);
-		it.putExtra("msg", m);
+		it.putExtra(BC_MSG, m);
 		rec = lbm.sendBroadcast(it) || rec;
 		// broadcast by sender.
 		it = new Intent(IMC_ACTION + "-" + m.s);
-		it.putExtra("msg", m);
+		it.putExtra(BC_MSG, m);
 		rec = lbm.sendBroadcast(it) || rec;
 		// broadcast by R
 		it = new Intent(IMC_ACTION + "-" + Utils.join(m.r));
-		it.putExtra("msg", m);
+		it.putExtra(BC_MSG, m);
 		rec = lbm.sendBroadcast(it) || rec;
 		if (rec) {// already received.
 			return;

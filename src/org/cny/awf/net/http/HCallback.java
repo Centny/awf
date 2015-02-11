@@ -91,7 +91,7 @@ public interface HCallback {
 			if (data == null || data.isEmpty()) {
 				val = null;
 			} else {
-				val = (T) this.gs.fromJson(data, this.cls);
+				val = (T) this.gs.fromJson(data.trim(), this.cls);
 			}
 			if (Hooks.call(HCacheCallback.class, "onSuccess", c, res, val) < 1) {
 				this.onSuccess(c, res, val);
@@ -118,7 +118,7 @@ public interface HCallback {
 			if (cache == null || cache.isEmpty()) {
 				val = null;
 			} else {
-				val = (T) this.gs.fromJson(cache, this.cls);
+				val = (T) this.gs.fromJson(cache.trim(), this.cls);
 			}
 			if (Hooks.call(HCacheCallback.class, "onError", c, val, err) < 1) {
 				this.onError(c, val, err);
@@ -132,7 +132,7 @@ public interface HCallback {
 			if (data == null || data.isEmpty()) {
 				val = null;
 			} else {
-				val = (T) this.gs.fromJson(data, this.cls);
+				val = (T) this.gs.fromJson(data.trim(), this.cls);
 			}
 			if (Hooks.call(HCacheCallback.class, "onSuccess", c, res, val) < 1) {
 				this.onSuccess(c, res, val);
@@ -172,6 +172,9 @@ public interface HCallback {
 					case 3:
 						tg.onError((CBase) args[1], (Throwable) args[2]);
 						break;
+					default:
+						throw new Exception("invalid message type for"
+								+ msg.what);
 					}
 				} catch (Exception e) {
 					L.warn("exec HCallback({}) err", msg.what, e);

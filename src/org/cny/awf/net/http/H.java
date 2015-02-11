@@ -8,6 +8,7 @@ import org.apache.http.message.BasicNameValuePair;
 import org.cny.awf.util.Util;
 
 import android.content.Context;
+import android.os.Handler;
 
 /**
  * Static class method to HTTP GET/POST.
@@ -21,6 +22,7 @@ public class H {
 	 * default CTX for HTTP call.it should be set when APP start.
 	 */
 	public static Context CTX;
+	public static Handler H = HCallback.HandlerCallback.H;
 
 	/**
 	 * Do a POST request for upload and call back by Handler.

@@ -544,7 +544,7 @@ public class HTest extends ActivityInstrumentationTestCase2<MainActivity> {
 						cdl.countDown();
 						assertNull(err);
 					}
-				});
+				}).getEntity();
 		cdl.await();
 	}
 }

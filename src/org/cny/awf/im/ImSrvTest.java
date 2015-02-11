@@ -1,6 +1,7 @@
 package org.cny.awf.im;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -95,8 +96,11 @@ public class ImSrvTest extends ServiceTestCase<TImSrv> {
 
 		@Override
 		protected ImDb createImDb() {
-			// TODO Auto-generated method stub
-			return null;
+			try {
+				return new ImDb().load(getBaseContext());
+			} catch (IOException e) {
+				return null;
+			}
 		}
 
 	}
@@ -157,7 +161,6 @@ public class ImSrvTest extends ServiceTestCase<TImSrv> {
 
 			@Override
 			protected ImDb createImDb() {
-				// TODO Auto-generated method stub
 				return null;
 			}
 
@@ -204,8 +207,11 @@ public class ImSrvTest extends ServiceTestCase<TImSrv> {
 
 			@Override
 			protected ImDb createImDb() {
-				// TODO Auto-generated method stub
-				return null;
+				try {
+					return new ImDb().load(getBaseContext());
+				} catch (IOException e) {
+					return null;
+				}
 			}
 
 		};
@@ -250,8 +256,11 @@ public class ImSrvTest extends ServiceTestCase<TImSrv> {
 
 			@Override
 			protected ImDb createImDb() {
-				// TODO Auto-generated method stub
-				return null;
+				try {
+					return new ImDb().load(getBaseContext());
+				} catch (IOException e) {
+					return null;
+				}
 			}
 
 		};
@@ -262,7 +271,7 @@ public class ImSrvTest extends ServiceTestCase<TImSrv> {
 		}
 	}
 
-	public void testOnMsg() {
+	public void testOnMsg() throws IOException {
 		ImSrv is = new ImSrv() {
 			@Override
 			protected void onLi(NetwRunnable nr, Res m) {
@@ -280,11 +289,11 @@ public class ImSrvTest extends ServiceTestCase<TImSrv> {
 
 			@Override
 			protected ImDb createImDb() {
-				// TODO Auto-generated method stub
 				return null;
 			}
 
 		};
+		is.db = new ImDb().load(getContext());
 		LocalBroadcastManager lbm = LocalBroadcastManager.getInstance(this
 				.getContext());
 		lbm.registerReceiver(new BroadcastReceiver() {
@@ -316,9 +325,11 @@ public class ImSrvTest extends ServiceTestCase<TImSrv> {
 			}
 		}, new IntentFilter(ImSrv.IMC_ACTION + "R"));
 		Msg msg = new Msg();
+		msg.i = "ssx" + new Date().getTime();
 		msg.t = 1;
 		msg.s = "S";
 		msg.r = new String[] { "R" };
+		msg.c = "abcc".getBytes();
 		is.onMsg(msg);
 	}
 
@@ -348,8 +359,11 @@ public class ImSrvTest extends ServiceTestCase<TImSrv> {
 
 				@Override
 				protected ImDb createImDb() {
-					// TODO Auto-generated method stub
-					return null;
+					try {
+						return new ImDb().load(getBaseContext());
+					} catch (IOException e) {
+						return null;
+					}
 				}
 
 			}.start();

@@ -37,5 +37,9 @@ public class BaseTest extends ActivityInstrumentationTestCase2<MainActivity> {
 				L = LoggerFactory.getLogger("abc");
 			}
 		}.onTerminate();
+		new BaseAty() {
+
+		}.onClkRet(null);
+		;
 	}
 }

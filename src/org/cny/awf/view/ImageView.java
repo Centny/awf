@@ -10,14 +10,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import android.content.Context;
-import android.graphics.drawable.ColorDrawable;
 import android.util.AttributeSet;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 
 public class ImageView extends android.widget.ImageView {
 	protected static final Logger L = LoggerFactory.getLogger(ImageView.class);
-	protected static final ColorDrawable CLS = new ColorDrawable();
+	// protected static final ColorDrawable CLS = new ColorDrawable();
 	/**
 	 * target URL.
 	 */
@@ -58,7 +57,7 @@ public class ImageView extends android.widget.ImageView {
 	public boolean setUrl(String url) {
 		try {
 			this.url = url;
-			this.setImageDrawable(CLS);
+			this.setImageDrawable(this.getBackground());
 			H.doGet(this.getContext(), this.url, Args.A("_hc_", "I"),
 					this.cback);
 			return true;

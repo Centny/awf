@@ -45,6 +45,9 @@ public class HDbTest extends ActivityInstrumentationTestCase2<MainActivity> {
 		hdb.add(r);
 		rs = hdb.findv(r.u, r.m, r.arg);
 		assertEquals(1, rs.size());
+		HResp tr = rs.get(0);
+		assertEquals(r.arg, tr.arg);
+		assertEquals(r.type, tr.type);
 		r = rs.get(0);
 		assertTrue(r.tid > 0);
 		hdb.del(r.tid);

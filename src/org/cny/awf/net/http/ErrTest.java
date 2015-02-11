@@ -146,11 +146,9 @@ public class ErrTest extends ActivityInstrumentationTestCase2<MainActivity> {
 				m.what = -1;
 				m.obj = new Object[] { null, null };
 				HCallback.HandlerCallback.H.dispatchMessage(m);
-				try {
-					HCallback.HandlerCallback.H.dispatchMessage(null);
-				} catch (Exception e) {
-
-				}
+				Message msg = new Message();
+				msg.what = -100;
+				HCallback.HandlerCallback.H.dispatchMessage(msg);
 			}
 		});
 	}

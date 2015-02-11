@@ -1,15 +1,18 @@
 package org.cny.awf.im;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 
 import org.cny.awf.util.SQLite;
+import org.cny.awf.util.Util;
 import org.cny.jwf.im.Msg;
 
 import android.content.Context;
 
 public class ImDb {
-	// public static final String DB_F_NAME = "_imdb_.dbf";
-	// public static final String DB_SCRIPT_F = "_im_.sql";
+	public static final String DB_F_NAME = "_imdb_.dbf";
+	public static final String DB_SCRIPT_F = "_im_.sql";
 	public static final String COLS = "I,S,R,D,T,C,TIME,STATUS";
 	// protected static ImDb IDB_;
 	//
@@ -46,16 +49,20 @@ public class ImDb {
 
 	}
 
-	//
-	// public ImDb(Context ctx, String file) throws IOException {
-	// InputStream ic = ImDb.class.getResourceAsStream(file);
-	// if (ic == null) {
-	// throw new RuntimeException("_im_.sql not found");
-	// }
-	// String script = Util.readAll(ic);
-	// this.ctx = ctx;
-	// this.db_ = SQLite.loadDb(this.ctx, DB_F_NAME, "_IM_M_", script);
-	// }
+	public ImDb load(Context ctx) throws IOException {
+		return load(ctx, DB_SCRIPT_F);
+	}
+
+	public ImDb load(Context ctx, String file) throws IOException {
+		InputStream ic = ImDb.class.getResourceAsStream(file);
+		if (ic == null) {
+			throw new RuntimeException("_im_.sql not found");
+		}
+		String script = Util.readAll(ic);
+		this.ctx = ctx;
+		this.db_ = SQLite.loadDb(this.ctx, DB_F_NAME, "_IM_M_", script);
+		return this;
+	}
 
 	public synchronized void close() {
 		if (this.db_ != null) {
@@ -72,6 +79,11 @@ public class ImDb {
 	public void add(Msg m) {
 		this.db_.exec("INSERT INTO _IM_M_ (" + COLS
 				+ ") VALUES(?,?,?,?,?,?,?,?)", m.toObjects());
+	}
+
+	public void update(String i, int status) {
+		this.db_.exec("UPDATE _IM_M_ SET STATUS=? WHERE I=?", new String[] {
+				status + "", i });
 	}
 
 	/**

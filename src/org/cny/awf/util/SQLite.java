@@ -86,8 +86,18 @@ public class SQLite {
 
 	public <T> List<T> rawQuery(String sql, String[] args, Class<T> cls,
 			boolean toUpper) {
-		return Orm.builds(new CursorOrmBuilder(this.db_.rawQuery(sql, args),
-				toUpper), cls);
+		Cursor c = this.db_.rawQuery(sql, args);
+		List<T> ls = Orm.builds(new CursorOrmBuilder(c, toUpper), cls);
+		c.close();
+		return ls;
+	}
+
+	public <T> T rawQueryOne(String sql, String[] args, Class<T> cls,
+			boolean toUpper) {
+		Cursor c = this.db_.rawQuery(sql, args);
+		T val = Orm.build(new CursorOrmBuilder(c, toUpper), cls);
+		c.close();
+		return val;
 	}
 
 	public List<Long> longQuery(String sql, String[] args) {

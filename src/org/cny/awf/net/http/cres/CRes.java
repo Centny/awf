@@ -1,5 +1,6 @@
 package org.cny.awf.net.http.cres;
 
+import java.lang.reflect.Type;
 import java.util.List;
 
 import org.cny.awf.net.http.CBase;
@@ -110,27 +111,14 @@ public class CRes<T> {
 		this.pa = pa;
 	}
 
-	/**
-	 * common result call back.
-	 * 
-	 * @author cny
-	 *
-	 * @param <T>
-	 *            the target class will be parsed by Gson.
-	 */
-	public static abstract class HResCallback<T> extends HCacheCallback {
-
-		protected Class<? extends Resable<?>> cls;
+	public static abstract class HResCallbackN<T> extends HCacheCallback {
 		protected Gson gs = new Gson();
 
-		public HResCallback(Class<? extends Resable<?>> cls) {
-			this.cls = cls;
-		}
+		protected abstract Type createToken() throws Exception;
 
 		@SuppressWarnings("unchecked")
 		public CRes<T> fromJson(String data) throws Exception {
-			CRes.Resable<T> rt = (Resable<T>) this.cls.newInstance();
-			return (CRes<T>) this.gs.fromJson(data, rt.createToken().getType());
+			return (CRes<T>) this.gs.fromJson(data, this.createToken());
 		}
 
 		@Override
@@ -179,6 +167,30 @@ public class CRes<T> {
 		 */
 		public abstract void onSuccess(CBase c, HResp res, CRes<T> data)
 				throws Exception;
+	}
+
+	/**
+	 * common result call back.
+	 * 
+	 * @author cny
+	 *
+	 * @param <T>
+	 *            the target class will be parsed by Gson.
+	 */
+	public static abstract class HResCallback<T> extends HResCallbackN<T> {
+
+		protected Class<? extends Resable<?>> cls;
+		protected Gson gs = new Gson();
+
+		public HResCallback(Class<? extends Resable<?>> cls) {
+			this.cls = cls;
+		}
+
+		@SuppressWarnings("unchecked")
+		protected Type createToken() throws Exception {
+			CRes.Resable<T> rt = (Resable<T>) this.cls.newInstance();
+			return rt.createToken().getType();
+		}
 
 	}
 
@@ -202,12 +214,10 @@ public class CRes<T> {
 			super(cls);
 		}
 
-		@SuppressWarnings("unchecked")
-		@Override
-		public CRes<List<T>> fromJson(String data) throws Exception {
+		protected Type createToken() throws Exception {
+			@SuppressWarnings("unchecked")
 			CRes.Resable<T> rt = (Resable<T>) this.cls.newInstance();
-			return (CRes<List<T>>) this.gs.fromJson(data, rt.createTokenL()
-					.getType());
+			return rt.createTokenL().getType();
 		}
 
 	}

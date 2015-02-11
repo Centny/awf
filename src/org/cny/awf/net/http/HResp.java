@@ -22,8 +22,6 @@ import org.cny.awf.util.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import android.database.Cursor;
-
 public class HResp {
 	private static Logger L = LoggerFactory.getLogger(HResp.class);
 	long tid;
@@ -45,35 +43,36 @@ public class HResp {
 	String filename;
 	Map<String, String> headers = new HashMap<String, String>();
 
-	public HResp init(Cursor c) {
-		String[] ns = c.getColumnNames();
-		for (int i = 0; i < ns.length; i++) {
-			if ("TID".equals(ns[i])) {
-				this.tid = c.getLong(i);
-			} else if ("U".equals(ns[i])) {
-				this.u = c.getString(i);
-			} else if ("M".equals(ns[i])) {
-				this.m = c.getString(i);
-			} else if ("ARG".equals(ns[i])) {
-				this.arg = c.getString(i);
-			} else if ("LMT".equals(ns[i])) {
-				this.lmt = c.getLong(i);
-			} else if ("ETAG".equals(ns[i])) {
-				this.etag = c.getString(i);
-			} else if ("TYPE".equals(ns[i])) {
-				this.type = c.getString(i);
-			} else if ("LEN".equals(ns[i])) {
-				this.len = c.getLong(i);
-			} else if ("ENC".equals(ns[i])) {
-				this.enc = c.getString(i);
-			} else if ("PATH".equals(ns[i])) {
-				this.path = c.getString(i);
-			} else if ("TIME".equals(ns[i])) {
-				this.time = c.getLong(i);
-			}
-		}
-		return this;
-	}
+	//
+	// public HResp init(Cursor c) {
+	// String[] ns = c.getColumnNames();
+	// for (int i = 0; i < ns.length; i++) {
+	// if ("TID".equals(ns[i])) {
+	// this.tid = c.getLong(i);
+	// } else if ("U".equals(ns[i])) {
+	// this.u = c.getString(i);
+	// } else if ("M".equals(ns[i])) {
+	// this.m = c.getString(i);
+	// } else if ("ARG".equals(ns[i])) {
+	// this.arg = c.getString(i);
+	// } else if ("LMT".equals(ns[i])) {
+	// this.lmt = c.getLong(i);
+	// } else if ("ETAG".equals(ns[i])) {
+	// this.etag = c.getString(i);
+	// } else if ("TYPE".equals(ns[i])) {
+	// this.type = c.getString(i);
+	// } else if ("LEN".equals(ns[i])) {
+	// this.len = c.getLong(i);
+	// } else if ("ENC".equals(ns[i])) {
+	// this.enc = c.getString(i);
+	// } else if ("PATH".equals(ns[i])) {
+	// this.path = c.getString(i);
+	// } else if ("TIME".equals(ns[i])) {
+	// this.time = c.getLong(i);
+	// }
+	// }
+	// return this;
+	// }
 
 	public HResp init(CBase c) {
 		this.u = c.getUrl();
@@ -298,6 +297,50 @@ public class HResp {
 	 */
 	public String getFilename() {
 		return filename;
+	}
+
+	public void setTid(long tid) {
+		this.tid = tid;
+	}
+
+	public void setPath(String path) {
+		this.path = path;
+	}
+
+	public void setTime(long time) {
+		this.time = time;
+	}
+
+	public void setU(String u) {
+		this.u = u;
+	}
+
+	public void setM(String m) {
+		this.m = m;
+	}
+
+	public void setArg(String arg) {
+		this.arg = arg;
+	}
+
+	public void setLen(long len) {
+		this.len = len;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
+
+	public void setEnc(String enc) {
+		this.enc = enc;
+	}
+
+	public void setLmt(long lmt) {
+		this.lmt = lmt;
+	}
+
+	public void setEtag(String etag) {
+		this.etag = etag;
 	}
 
 	/**

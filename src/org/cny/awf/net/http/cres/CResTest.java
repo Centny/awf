@@ -6,6 +6,7 @@ import org.cny.awf.net.http.CBase;
 import org.cny.awf.net.http.HResp;
 import org.cny.awf.net.http.cres.CRes.HResCallback;
 import org.cny.awf.net.http.cres.CRes.HResCallbackL;
+import org.cny.awf.net.http.cres.CRes.Pa;
 import org.cny.awf.test.MainActivity;
 
 import android.test.ActivityInstrumentationTestCase2;
@@ -113,6 +114,11 @@ public class CResTest extends ActivityInstrumentationTestCase2<MainActivity> {
 				assertEquals(0, data.pa.pn);
 				assertEquals(20, data.pa.ps);
 				assertEquals(100, data.pa.total);
+				Pa pa = new Pa();
+				pa.setPn(10);
+				pa.setPs(10);
+				pa.setTotal(100);
+				data.setPa(pa);
 			}
 
 		}.onSuccess(null, null, tdata3);
