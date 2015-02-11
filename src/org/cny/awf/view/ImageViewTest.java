@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 
 import org.cny.awf.test.MainActivity;
 
+import android.graphics.drawable.Drawable;
 import android.test.ActivityInstrumentationTestCase2;
 
 public class ImageViewTest extends
@@ -35,9 +36,31 @@ public class ImageViewTest extends
 	public void testImageView() throws InterruptedException {
 		new ImageView(getActivity()).setUrl("http://1932.332.33");
 		ImageView iv = new ImageView(getActivity());
+		iv.setRoundCorner(iv.getRoundCorner());
+		iv.setShowTime(iv.getShowTime());
 		iv.setUrl("http://" + this.ts_ip + ":8000/ss.png");
 		Thread.sleep(1000);
 		iv.setUrl("http://" + this.ts_ip + ":8000/ss.png");
 		Thread.sleep(1000);
+		iv.getUrl();
+		try {
+			new ImageView(getActivity()) {
+
+				@Override
+				public void setImageDrawable(Drawable drawable) {
+					throw new RuntimeException();
+				}
+
+			}.setUrl(null);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		try {
+			iv.doAnimation("/sfsdfssdfs'");
+		} catch (Exception e) {
+
+		}
+		new ImageView(getActivity(), null, 1);
+		new ImageView(getActivity(), null);
 	}
 }

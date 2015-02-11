@@ -26,7 +26,7 @@ public class SQLiteTest extends ActivityInstrumentationTestCase2<MainActivity> {
 
 	private static final String dbs = ""
 			+ "CREATE TABLE NVL ("
-			+ "	 N TEXT(256,0) NOT NULL,V TEXT(256,0) NOT NULL,L INTEGER(64,0) NOT NULL"
+			+ "	 N TEXT(256,0) NOT NULL,V TEXT(256,0) NOT NULL,L INTEGER(64,0) NOT NULL,B BLOB"
 			+ ")";
 
 	public static class Nvl {
@@ -40,6 +40,8 @@ public class SQLiteTest extends ActivityInstrumentationTestCase2<MainActivity> {
 		public double dv;
 		public String ssv;
 		public String abc;
+		public byte[] bys;
+		public Nvl nvl;
 
 		@Name(name = "N")
 		public void setN(String n) {
@@ -81,6 +83,16 @@ public class SQLiteTest extends ActivityInstrumentationTestCase2<MainActivity> {
 			this.ssv = ssv;
 		}
 
+		@Name(name = "B")
+		public void setBys(byte[] bys) {
+			this.bys = bys;
+		}
+
+		@Name(name = "L")
+		public void setNvl(Nvl nvl) {
+			this.nvl = nvl;
+		}
+
 		public void setAbc(String abc) {
 			this.abc = abc;
 		}
@@ -99,13 +111,18 @@ public class SQLiteTest extends ActivityInstrumentationTestCase2<MainActivity> {
 	public void testQuery() throws Exception {
 		SQLite db = SQLite.loadDb(this.getActivity(), "ab_db", "NVL", dbs);
 		db.exec("DELETE FROM NVL");
-		db.exec("INSERT INTO NVL VALUES('N1','V1',1)");
-		db.exec("INSERT INTO NVL VALUES('N2','V2',2)");
-		db.exec("INSERT INTO NVL VALUES('N3','V3',342324)");
+		db.exec("INSERT INTO NVL VALUES('N1','V1',1,null)");
+		db.exec("INSERT INTO NVL VALUES('N2','V2',2,null)");
+		db.exec("INSERT INTO NVL VALUES('N3','V3',342324,null)");
 		List<Nvl> vls = db.rawQuery("SELECT * FROM NVL", Nvl.class, true);
 		for (Nvl vl : vls) {
 			Log.d("SQLite", vl.toString());
 		}
+		Nvl nvl = db.rawQueryOne("SELECT * FROM NVL", null, Nvl.class, true);
+		assertNotNull(nvl);
+		assertEquals(3, db.longQuery("SELECT L FROM NVL", null).size());
+		assertNotNull(db.longQueryOne("SELECT L FROM NVL", null));
+		assertNull(db.longQueryOne("SELECT L FROM NVL WHERE 1=0", null));
 		db.close();
 	}
 }

@@ -106,6 +106,7 @@ public class SQLite {
 		while (c.moveToNext()) {
 			lv.add(c.getLong(0));
 		}
+		c.close();
 		return lv;
 	}
 
