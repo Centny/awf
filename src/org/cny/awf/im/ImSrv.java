@@ -43,7 +43,6 @@ public abstract class ImSrv extends BaseSrv implements MsgListener,
 	protected SckIMC imc;
 	protected Thread thr;
 	protected boolean running = false;
-	protected ImDb db;
 	protected BroadcastReceiver con;
 
 	@Override
@@ -163,14 +162,13 @@ public abstract class ImSrv extends BaseSrv implements MsgListener,
 		}
 	}
 
-	protected abstract ImDb createImDb();
+	protected abstract ImDb Db();
 
 	protected void create() {
 		this.host = info.metaData.getString("host");
 		this.port = info.metaData.getInt("port");
 		this.retry = info.metaData.getInt("retry", 3000);
 		this.imc = new PbSckIMC(this, this, this.host, this.port);
-		this.db = this.createImDb();
 		this.con = new BroadcastReceiver() {
 
 			@Override

@@ -39,8 +39,10 @@ import android.graphics.RectF;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Build;
+import android.os.SystemClock;
 import android.telephony.TelephonyManager;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -344,5 +346,14 @@ public class Util {
 	 */
 	public static View inflate(int resource, ViewGroup vg) {
 		return View.inflate(CTX, resource, vg);
+	}
+
+	public static void sendTouch(View v) {
+		long downTime = SystemClock.uptimeMillis();
+		long eventTime = SystemClock.uptimeMillis() + 100;
+		MotionEvent env = MotionEvent.obtain(downTime, eventTime,
+				MotionEvent.ACTION_UP, 0, 0, 0);
+		v.dispatchTouchEvent(env);
+		env.recycle();
 	}
 }

@@ -95,7 +95,7 @@ public class ImSrvTest extends ServiceTestCase<TImSrv> {
 		}
 
 		@Override
-		protected ImDb createImDb() {
+		protected ImDb Db() {
 			try {
 				return new ImDb().load(getBaseContext());
 			} catch (IOException e) {
@@ -160,7 +160,7 @@ public class ImSrvTest extends ServiceTestCase<TImSrv> {
 			}
 
 			@Override
-			protected ImDb createImDb() {
+			protected ImDb Db() {
 				return null;
 			}
 
@@ -206,7 +206,7 @@ public class ImSrvTest extends ServiceTestCase<TImSrv> {
 			}
 
 			@Override
-			protected ImDb createImDb() {
+			protected ImDb Db() {
 				try {
 					return new ImDb().load(getBaseContext());
 				} catch (IOException e) {
@@ -255,7 +255,7 @@ public class ImSrvTest extends ServiceTestCase<TImSrv> {
 			}
 
 			@Override
-			protected ImDb createImDb() {
+			protected ImDb Db() {
 				try {
 					return new ImDb().load(getBaseContext());
 				} catch (IOException e) {
@@ -288,12 +288,11 @@ public class ImSrvTest extends ServiceTestCase<TImSrv> {
 			}
 
 			@Override
-			protected ImDb createImDb() {
+			protected ImDb Db() {
 				return null;
 			}
 
 		};
-		is.db = new ImDb().load(getContext());
 		LocalBroadcastManager lbm = LocalBroadcastManager.getInstance(this
 				.getContext());
 		lbm.registerReceiver(new BroadcastReceiver() {
@@ -358,7 +357,7 @@ public class ImSrvTest extends ServiceTestCase<TImSrv> {
 				}
 
 				@Override
-				protected ImDb createImDb() {
+				protected ImDb Db() {
 					try {
 						return new ImDb().load(getBaseContext());
 					} catch (IOException e) {
