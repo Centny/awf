@@ -537,4 +537,9 @@ public abstract class CBase implements Runnable, PIS.PisH {
 		this.entity = entity;
 	}
 
+	@Override
+	public String toString() {
+		return this.getMethod() + "->" + this.url + "?" + this.getQuery();
+	}
+
 }

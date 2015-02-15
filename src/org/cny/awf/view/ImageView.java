@@ -6,6 +6,7 @@ import org.cny.awf.net.http.H;
 import org.cny.awf.net.http.HCallback.HCacheCallback;
 import org.cny.awf.net.http.HResp;
 import org.cny.awf.pool.BitmapPool;
+import org.cny.awf.util.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,6 +58,9 @@ public class ImageView extends android.widget.ImageView {
 	}
 
 	public boolean setUrl(String url) {
+		if (Util.isNullOrEmpty(url)) {
+			return false;
+		}
 		if (this.url != null && this.url.equals(url)) {
 			return true;
 		}

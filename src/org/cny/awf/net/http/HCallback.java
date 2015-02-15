@@ -31,6 +31,7 @@ public interface HCallback {
 
 	public static abstract class HDataCallback implements HCallback {
 		ByteArrayOutputStream buf = new ByteArrayOutputStream();
+		protected String tdata;
 
 		@Override
 		public void onCache(CBase c, HResp res) throws Exception {
@@ -60,10 +61,11 @@ public interface HCallback {
 
 		@Override
 		public void onSuccess(CBase c, HResp res) throws Exception {
-			String data = new String(this.buf.toByteArray(), res.enc);
+			this.tdata = new String(this.buf.toByteArray(), res.enc);
 			// sending hook
-			if (Hooks.call(HDataCallback.class, "onSuccess", c, res, data) < 1) {
-				this.onSuccess(c, res, data);
+			if (Hooks
+					.call(HDataCallback.class, "onSuccess", c, res, this.tdata) < 1) {
+				this.onSuccess(c, res, this.tdata);
 			}
 		}
 
@@ -195,35 +197,36 @@ public interface HCallback {
 
 			@Override
 			public void dispatchMessage(Message msg) {
+				CBase c = null;
 				try {
 					Object[] args = (Object[]) msg.obj;
 					HCallback tg = (HCallback) args[0];
+					c = (CBase) args[1];
 					switch (msg.what) {
 					case 0:
-						tg.onProcess((CBase) args[1], (PIS) args[2],
-								(Float) args[3]);
+						tg.onProcess(c, (PIS) args[2], (Float) args[3]);
 						break;
 					case 1:
-						tg.onProcess((CBase) args[1], (Float) args[2]);
+						tg.onProcess(c, (Float) args[2]);
 						break;
 					case 2:
-						tg.onSuccess((CBase) args[1], (HResp) args[2]);
+						tg.onSuccess(c, (HResp) args[2]);
 						break;
 					case 3:
-						tg.onError((CBase) args[1], (Throwable) args[2]);
+						tg.onError(c, (Throwable) args[2]);
 						break;
 					case 4:
-						tg.onCache((CBase) args[1], (HResp) args[2]);
+						tg.onCache(c, (HResp) args[2]);
 						break;
 					case 5:
-						tg.onExecErr((CBase) args[1], (Throwable) args[2]);
+						tg.onExecErr(c, (Throwable) args[2]);
 						break;
 					default:
 						throw new Exception("invalid message type for"
 								+ msg.what);
 					}
 				} catch (Exception e) {
-					L.warn("exec HCallback({}) err", msg.what, e);
+					L.warn("exec H({}) HCallback({}) err", c, msg.what, e);
 				}
 			}
 
