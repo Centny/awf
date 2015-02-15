@@ -7,13 +7,14 @@ import java.util.List;
 import org.cny.awf.util.SQLite;
 import org.cny.awf.util.Util;
 import org.cny.jwf.im.Msg;
+import org.cny.jwf.util.Utils;
 
 import android.content.Context;
 
 public class ImDb {
 	public static final String DB_F_NAME = "_imdb_.dbf";
 	public static final String DB_SCRIPT_F = "_im_.sql";
-	public static final String COLS = "I,S,R,D,T,C,TIME,STATUS";
+	public static final String COLS = "I,S,R,D,T,C,A,TIME,STATUS";
 	// protected static ImDb IDB_;
 	//
 	// public static ImDb loadDb_(Context ctx) {
@@ -78,7 +79,7 @@ public class ImDb {
 	 */
 	public void add(Msg m) {
 		this.db_.exec("INSERT INTO _IM_M_ (" + COLS
-				+ ") VALUES(?,?,?,?,?,?,?,?)", m.toObjects());
+				+ ") VALUES(?,?,?,?,?,?,?,?,?)", m.toObjects());
 	}
 
 	public void update(String i, int status) {
@@ -118,6 +119,17 @@ public class ImDb {
 	public List<Msg> listMsgT(int t) throws Exception {
 		return this.db_.rawQuery("SELECT * FROM _IM_M_ WHERE T = ?", "" + t,
 				Msg.class, true);
+	}
+
+	public void mark(List<String> is, int status) {
+		this.db_.exec(
+				"UPDATE _IM_M_ SET STATUS=? WHERE I IN (" + Utils.joinSQL(is)
+						+ ")", new Object[] { status });
+	}
+
+	public void mark(String is, int status) {
+		this.db_.exec("UPDATE _IM_M_ SET STATUS=? WHERE I IN ('" + is + "')",
+				new Object[] { status });
 	}
 
 	/**

@@ -8,6 +8,11 @@ import org.cny.awf.net.http.HCallback.HCacheCallback;
 import org.cny.awf.net.http.HResp;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParseException;
 import com.google.gson.reflect.TypeToken;
 
 /**
@@ -111,14 +116,48 @@ public class CRes<T> {
 		this.pa = pa;
 	}
 
+	/**
+	 * set PA.
+	 * 
+	 * @author cny
+	 *
+	 */
+	public static class Pa {
+		public int pn;
+		public int ps;
+		public int total;
+
+		public void setPn(int pn) {
+			this.pn = pn;
+		}
+
+		public void setPs(int ps) {
+			this.ps = ps;
+		}
+
+		public void setTotal(int total) {
+			this.total = total;
+		}
+
+	}
+
 	public static abstract class HResCallbackN<T> extends HCacheCallback {
-		protected Gson gs = new Gson();
 
 		protected abstract Type createToken() throws Exception;
 
+		protected Gson createGson() throws Exception {
+			return new Gson();
+		}
+
+		@Override
+		public void onCache(CBase c, HResp res) throws Exception {
+			this.onCache(c, res, this.fromJson(c.readCahce(res)));
+		}
+
 		@SuppressWarnings("unchecked")
 		public CRes<T> fromJson(String data) throws Exception {
-			return (CRes<T>) this.gs.fromJson(data, this.createToken());
+			Gson gs = this.createGson();
+			return (CRes<T>) gs.fromJson(data, this.createToken());
 		}
 
 		@Override
@@ -138,6 +177,10 @@ public class CRes<T> {
 			} else {
 				this.onSuccess(c, res, (CRes<T>) this.fromJson(data));
 			}
+		}
+
+		public void onCache(CBase c, HResp res, CRes<T> data) throws Exception {
+
 		}
 
 		/**
@@ -180,18 +223,36 @@ public class CRes<T> {
 	public static abstract class HResCallback<T> extends HResCallbackN<T> {
 
 		protected Class<? extends Resable<?>> cls;
-		protected Gson gs = new Gson();
+		protected ObjectDeserializer<List<T>> des;
+		protected GsonBuilder gb = new GsonBuilder();
+		protected CRes.Resable<T> rt;
 
 		public HResCallback(Class<? extends Resable<?>> cls) {
 			this.cls = cls;
 		}
 
 		@SuppressWarnings("unchecked")
-		protected Type createToken() throws Exception {
-			CRes.Resable<T> rt = (Resable<T>) this.cls.newInstance();
-			return rt.createToken().getType();
+		@Override
+		protected Gson createGson() throws Exception {
+			this.rt = (Resable<T>) this.cls.newInstance();
+			if (rt instanceof BaseRes) {
+				gb.registerTypeAdapter(this.cls,
+						((BaseRes<T>) rt).createDeserializer());
+			}
+			return this.gb.create();
 		}
 
+		protected Type createToken() throws Exception {
+			return this.rt.createToken().getType();
+		}
+
+		public String sdata() {
+			if (this.des == null || this.des.je == null) {
+				return null;
+			} else {
+				return this.des.je.getAsString();
+			}
+		}
 	}
 
 	/**
@@ -222,6 +283,22 @@ public class CRes<T> {
 
 	}
 
+	public static class ObjectDeserializer<T> implements JsonDeserializer<T> {
+		protected Gson gs = new Gson();
+		protected JsonElement je;
+
+		@Override
+		public T deserialize(JsonElement je, Type type,
+				JsonDeserializationContext ctx) throws JsonParseException {
+			this.je = je;
+			if (je.isJsonObject() || je.isJsonArray()) {
+				return this.gs.fromJson(je, type);
+			} else {
+				return null;
+			}
+		}
+	}
+
 	/**
 	 * the Resable interface to mark the bean can convert from json by gson.<br/>
 	 * it must return the gson TypeToken.
@@ -235,30 +312,14 @@ public class CRes<T> {
 		TypeToken<CRes<T>> createToken();
 
 		TypeToken<CRes<List<T>>> createTokenL();
+
+		ObjectDeserializer<T> createDeserializer();
 	}
 
-	/**
-	 * set PA.
-	 * 
-	 * @author cny
-	 *
-	 */
-	public static class Pa {
-		public int pn;
-		public int ps;
-		public int total;
-
-		public void setPn(int pn) {
-			this.pn = pn;
+	public static abstract class BaseRes<T> implements Resable<T> {
+		@Override
+		public ObjectDeserializer<T> createDeserializer() {
+			return new ObjectDeserializer<T>();
 		}
-
-		public void setPs(int ps) {
-			this.ps = ps;
-		}
-
-		public void setTotal(int total) {
-			this.total = total;
-		}
-
 	}
 }

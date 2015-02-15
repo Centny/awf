@@ -15,7 +15,7 @@ public class BitmapPool extends ObjPool<Bitmap> {
 
 	public static BitmapPool instance() {
 		if (POOL_ == null) {
-			POOL_ = new BitmapPool(50);
+			POOL_ = new BitmapPool(20);
 		}
 		return POOL_;
 	}

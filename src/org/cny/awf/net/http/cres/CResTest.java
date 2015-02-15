@@ -4,13 +4,17 @@ import java.util.List;
 
 import org.cny.awf.net.http.CBase;
 import org.cny.awf.net.http.HResp;
+import org.cny.awf.net.http.cres.CRes.BaseRes;
 import org.cny.awf.net.http.cres.CRes.HResCallback;
 import org.cny.awf.net.http.cres.CRes.HResCallbackL;
+import org.cny.awf.net.http.cres.CRes.ObjectDeserializer;
 import org.cny.awf.net.http.cres.CRes.Pa;
 import org.cny.awf.test.MainActivity;
 
 import android.test.ActivityInstrumentationTestCase2;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
 public class CResTest extends ActivityInstrumentationTestCase2<MainActivity> {
@@ -19,7 +23,7 @@ public class CResTest extends ActivityInstrumentationTestCase2<MainActivity> {
 		super(MainActivity.class);
 	}
 
-	public static class Abc implements CRes.Resable<Abc> {
+	public static class Abc extends BaseRes<Abc> implements CRes.Resable<Abc> {
 		public String key;
 		public String val;
 		public int type;
@@ -27,6 +31,7 @@ public class CResTest extends ActivityInstrumentationTestCase2<MainActivity> {
 		@Override
 		public TypeToken<CRes<Abc>> createToken() {
 			return new TypeToken<CRes<Abc>>() {
+
 			};
 		}
 
@@ -122,5 +127,63 @@ public class CResTest extends ActivityInstrumentationTestCase2<MainActivity> {
 			}
 
 		}.onSuccess(null, null, tdata3);
+	}
+
+	public String tdata4 = "{\"code\":11}";
+	public String tdata5 = "{\"code\":11,\"data\":\"sdfs\"}";
+	public String tdata6 = "{\"code\":11,\"data\":111}";
+	public String tdata7 = "{\"code\":11,\"data\":{\"key\":\"ss\"}}";
+
+	public void testRes2() throws Exception {
+		HResCallback<Abc> res = new HResCallback<Abc>(Abc.class) {
+
+			@Override
+			public void onError(CBase c, CRes<Abc> cache, Throwable err)
+					throws Exception {
+
+			}
+
+			@Override
+			public void onSuccess(CBase c, HResp res, CRes<Abc> data)
+					throws Exception {
+				if (data.data == null) {
+					System.err
+							.println("sss->" + data.code + "<" + this.sdata());
+				} else {
+					System.err.println("sss->" + data.code + "<"
+							+ data.data.key);
+				}
+			}
+
+		};
+		res.onSuccess(null, null, tdata4);
+		res.onSuccess(null, null, tdata5);
+		res.onSuccess(null, null, tdata6);
+		res.onSuccess(null, null, tdata7);
+	}
+
+	public class AXX<T> extends BaseRes<T> implements CRes.Resable<T> {
+
+		@Override
+		public TypeToken<CRes<T>> createToken() {
+			return new TypeToken<CRes<T>>() {
+			};
+		}
+
+		@Override
+		public TypeToken<CRes<List<T>>> createTokenL() {
+			return new TypeToken<CRes<List<T>>>() {
+			};
+		}
+	}
+
+	public void testRes3() {
+		TypeToken<CRes<Abc>> tt = new TypeToken<CRes<Abc>>() {
+		};
+		GsonBuilder gb = new GsonBuilder();
+		gb.registerTypeAdapter(Abc.class, new ObjectDeserializer<Abc>());
+		Gson gs = gb.create();
+		CRes<Abc> ss = gs.fromJson(tdata5, tt.getType());
+		System.err.println(ss + "" + ss.data);
 	}
 }

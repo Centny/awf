@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
@@ -23,6 +24,7 @@ public class ImageView extends android.widget.ImageView {
 	protected String url;
 	protected int roundCorner = 0;
 	protected int showTime = 500;
+	protected Drawable bg;
 	protected final HCacheCallback cback = new HCacheCallback() {
 
 		@Override
@@ -55,15 +57,38 @@ public class ImageView extends android.widget.ImageView {
 	}
 
 	public boolean setUrl(String url) {
+		if (this.url != null && this.url.equals(url)) {
+			return true;
+		}
 		try {
+			this.reset_bg();
 			this.url = url;
-			this.setImageDrawable(this.getBackground());
-			H.doGet(this.getContext(), this.url, Args.A("_hc_", "I"),
-					this.cback);
+			String curl = H.findCache(this.url);
+			if (curl == null) {
+				this.setImageDrawable(this.bg);
+				H.doGet(this.getContext(), this.url, Args.A("_hc_", "I"),
+						this.cback);
+			} else {
+				this.setImageBitmap(BitmapPool.instance().load(curl,
+						this.roundCorner));
+			}
 			return true;
 		} catch (Exception e) {
 			return false;
 		}
+	}
+
+	private void reset_bg() {
+		if (this.bg == null) {
+			this.bg = this.getBackground();
+			this.setBackgroundColor(0);
+			this.setImageDrawable(this.bg);
+		}
+	}
+
+	public void clear() {
+		this.reset_bg();
+		this.setImageDrawable(this.bg);
 	}
 
 	public int getRoundCorner() {
@@ -98,6 +123,7 @@ public class ImageView extends android.widget.ImageView {
 			Animation an = new AlphaAnimation(0, ImageView.this.getAlpha());
 			an.setDuration(this.showTime);
 			this.startAnimation(an);
+			// this.setBackgroundColor(0);
 		} catch (Exception e) {
 			L.debug("read bitmap file err:{}", e.getMessage());
 		}

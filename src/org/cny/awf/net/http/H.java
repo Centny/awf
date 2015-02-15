@@ -352,4 +352,12 @@ public class H {
 	 */
 	protected H() {
 	}
+
+	public static String findCache(String url, String m) {
+		return CBase.checkCache(CTX, url, m);
+	}
+
+	public static String findCache(String url) {
+		return findCache(url, "GET");
+	}
 }

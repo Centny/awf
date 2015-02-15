@@ -5,9 +5,10 @@ import java.util.List;
 import org.cny.awf.net.http.Args;
 import org.cny.awf.net.http.CBase;
 import org.cny.awf.net.http.H;
-import org.cny.awf.net.http.HResp;
 import org.cny.awf.net.http.HCallback.HCacheCallback;
+import org.cny.awf.net.http.HResp;
 import org.cny.awf.net.http.cres.CRes;
+import org.cny.awf.net.http.cres.CRes.BaseRes;
 
 import com.google.gson.reflect.TypeToken;
 
@@ -64,7 +65,7 @@ public class ExCRes {
 	 * 
 	 */
 	// define object.
-	public static class Ex implements CRes.Resable<Ex> {
+	public static class Ex extends BaseRes<Ex> {
 		public String key;
 		public String val;
 		public int type;

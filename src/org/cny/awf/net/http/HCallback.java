@@ -13,6 +13,8 @@ import android.os.Message;
 import com.google.gson.Gson;
 
 public interface HCallback {
+	void onCache(CBase c, HResp res) throws Exception;
+
 	void onProcess(CBase c, PIS pis, float rate);
 
 	OutputStream createO(CBase c, HResp res) throws Exception;
@@ -25,8 +27,15 @@ public interface HCallback {
 
 	void onError(CBase c, Throwable err) throws Exception;
 
+	void onExecErr(CBase c, Throwable e);
+
 	public static abstract class HDataCallback implements HCallback {
 		ByteArrayOutputStream buf = new ByteArrayOutputStream();
+
+		@Override
+		public void onCache(CBase c, HResp res) throws Exception {
+
+		}
 
 		@Override
 		public void onProcess(CBase c, PIS pis, float rate) {
@@ -58,6 +67,11 @@ public interface HCallback {
 			}
 		}
 
+		@Override
+		public void onExecErr(CBase c, Throwable e) {
+
+		}
+
 		public abstract void onSuccess(CBase c, HResp res, String data)
 				throws Exception;
 	}
@@ -85,17 +99,33 @@ public interface HCallback {
 		}
 
 		@SuppressWarnings("unchecked")
-		@Override
-		public void onSuccess(CBase c, HResp res, String data) throws Exception {
+		protected T toT(String data) {
 			T val;
 			if (data == null || data.isEmpty()) {
 				val = null;
 			} else {
 				val = (T) this.gs.fromJson(data.trim(), this.cls);
 			}
+			return val;
+		}
+
+		@Override
+		public void onCache(CBase c, HResp res) throws Exception {
+			String data = c.readCahce(res);
+			T val = this.toT(data);
+			this.onCache(c, res, val);
+		}
+
+		@Override
+		public void onSuccess(CBase c, HResp res, String data) throws Exception {
+			T val = this.toT(data);
 			if (Hooks.call(HCacheCallback.class, "onSuccess", c, res, val) < 1) {
 				this.onSuccess(c, res, val);
 			}
+		}
+
+		public void onCache(CBase c, HResp res, T data) {
+
 		}
 
 		public abstract void onSuccess(CBase c, HResp res, T data)
@@ -111,32 +141,42 @@ public interface HCallback {
 		}
 
 		@SuppressWarnings("unchecked")
-		@Override
-		public void onError(CBase c, String cache, Throwable err)
-				throws Exception {
-			T val;
-			if (cache == null || cache.isEmpty()) {
-				val = null;
-			} else {
-				val = (T) this.gs.fromJson(cache.trim(), this.cls);
-			}
-			if (Hooks.call(HCacheCallback.class, "onError", c, val, err) < 1) {
-				this.onError(c, val, err);
-			}
-		}
-
-		@SuppressWarnings("unchecked")
-		@Override
-		public void onSuccess(CBase c, HResp res, String data) throws Exception {
+		protected T toT(String data) {
 			T val;
 			if (data == null || data.isEmpty()) {
 				val = null;
 			} else {
 				val = (T) this.gs.fromJson(data.trim(), this.cls);
 			}
+			return val;
+		}
+
+		@Override
+		public void onCache(CBase c, HResp res) throws Exception {
+			String data = c.readCahce(res);
+			T val = this.toT(data);
+			this.onCache(c, res, val);
+		}
+
+		@Override
+		public void onError(CBase c, String cache, Throwable err)
+				throws Exception {
+			T val = this.toT(cache);
+			if (Hooks.call(HCacheCallback.class, "onError", c, val, err) < 1) {
+				this.onError(c, val, err);
+			}
+		}
+
+		@Override
+		public void onSuccess(CBase c, HResp res, String data) throws Exception {
+			T val = this.toT(data);
 			if (Hooks.call(HCacheCallback.class, "onSuccess", c, res, val) < 1) {
 				this.onSuccess(c, res, val);
 			}
+		}
+
+		public void onCache(CBase c, HResp res, T data) {
+
 		}
 
 		public abstract void onError(CBase c, T cache, Throwable err)
@@ -171,6 +211,12 @@ public interface HCallback {
 						break;
 					case 3:
 						tg.onError((CBase) args[1], (Throwable) args[2]);
+						break;
+					case 4:
+						tg.onCache((CBase) args[1], (HResp) args[2]);
+						break;
+					case 5:
+						tg.onExecErr((CBase) args[1], (Throwable) args[2]);
 						break;
 					default:
 						throw new Exception("invalid message type for"
@@ -230,6 +276,22 @@ public interface HCallback {
 		public void onProcEnd(CBase c, HResp res, OutputStream o)
 				throws Exception {
 			this.target.onProcEnd(c, res, o);
+		}
+
+		@Override
+		public void onCache(CBase c, HResp res) throws Exception {
+			Message msg = new Message();
+			msg.what = 4;
+			msg.obj = new Object[] { this.target, c, res };
+			H.sendMessage(msg);
+		}
+
+		@Override
+		public void onExecErr(CBase c, Throwable e) {
+			Message msg = new Message();
+			msg.what = 5;
+			msg.obj = new Object[] { this.target, c, e };
+			H.sendMessage(msg);
 		}
 	}
 }

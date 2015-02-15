@@ -27,7 +27,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
-import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 
 public abstract class ImSrv extends BaseSrv implements MsgListener,
@@ -131,6 +130,10 @@ public abstract class ImSrv extends BaseSrv implements MsgListener,
 		if (rec) {// already received.
 			return;
 		}
+		Notification nt = this.createNotify(m);
+		if (nt == null) {
+			return;
+		}
 		NotificationManager nm = (NotificationManager) this
 				.getSystemService(NOTIFICATION_SERVICE);
 		nm.notify(NOTIFY_TAG, NOTIFY_ID, this.createNotify(m));
@@ -143,9 +146,6 @@ public abstract class ImSrv extends BaseSrv implements MsgListener,
 		while (this.running) {
 			try {
 				this.running = this.run_();
-				if (this.running) {
-					this.onRecon();
-				}
 			} catch (Exception e) {
 				L.debug("try running err:", e);
 			}
@@ -167,7 +167,7 @@ public abstract class ImSrv extends BaseSrv implements MsgListener,
 	protected void create() {
 		this.host = info.metaData.getString("host");
 		this.port = info.metaData.getInt("port");
-		this.retry = info.metaData.getInt("retry", 3000);
+		this.retry = info.metaData.getInt("retry", 8000);
 		this.imc = new PbSckIMC(this, this, this.host, this.port);
 		this.con = new BroadcastReceiver() {
 
@@ -193,6 +193,7 @@ public abstract class ImSrv extends BaseSrv implements MsgListener,
 				L.warn("the IMC thread already running");
 				return;
 			}
+			L.debug("starting ImSrv--->");
 			this.running = true;
 			this.thr = new Thread(this);
 			this.thr.start();
@@ -213,9 +214,10 @@ public abstract class ImSrv extends BaseSrv implements MsgListener,
 				return false;
 			}
 		} catch (Throwable e) {
+			this.onRecon();
 			L.error("running err,will retry after {} ms:", this.retry, e);
-			this.imc.rcClear(new Exception(e));
 			Thread.sleep(this.retry);
+			this.imc.rcClear(new Exception(e));
 		}
 		return true;
 	}
@@ -240,6 +242,10 @@ public abstract class ImSrv extends BaseSrv implements MsgListener,
 			}
 
 		});
+	}
+
+	public void ur() throws Exception {
+		this.imc.ur();
 	}
 
 	public void sms(String[] r, byte t, byte[] c) throws IOException {
@@ -280,10 +286,7 @@ public abstract class ImSrv extends BaseSrv implements MsgListener,
 	 * @return notify
 	 */
 	protected Notification createNotify(Msg m) {
-		NotificationCompat.Builder ncb;
-		ncb = new NotificationCompat.Builder(this);
-		ncb.setTicker(new String(m.c));
-		return ncb.build();
+		return null;
 	}
 
 	protected abstract void onLi(NetwRunnable nr, Con.Res m);

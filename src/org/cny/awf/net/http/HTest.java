@@ -353,6 +353,9 @@ public class HTest extends ActivityInstrumentationTestCase2<MainActivity> {
 			this.rerr.printStackTrace();
 			assertNull(this.rerr.getMessage(), this.rerr);
 		}
+		String res = H.findCache("http://" + ts_ip
+				+ ":8000/g_args?a=1&b=abc&c=这是中文");
+		assertNotNull(res);
 		new H();
 	}
 

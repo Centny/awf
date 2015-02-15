@@ -75,6 +75,15 @@ public class HDb {
 		return new File(hc, name);
 	}
 
+	public File checkCacheF(String name) {
+		File fc = this.openCacheF(name);
+		if (fc.exists()) {
+			return fc;
+		} else {
+			return null;
+		}
+	}
+
 	public HResp find(String url, String m, String args) {
 		List<HResp> rs = this.findv(url, m, args);
 		if (rs.isEmpty()) {

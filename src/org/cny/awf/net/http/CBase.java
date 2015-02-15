@@ -22,6 +22,8 @@ import org.cny.awf.util.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import android.content.Context;
+
 public abstract class CBase implements Runnable, PIS.PisH {
 	public static enum Policy {
 		C, // cache only.
@@ -31,7 +33,8 @@ public abstract class CBase implements Runnable, PIS.PisH {
 		NO, // not cache
 	}
 
-	public static int BUF_SIZE = 1024;
+	public static boolean ShowLog = false;
+	public static final int BUF_SIZE = 1024;
 	private static Logger L = LoggerFactory.getLogger(CBase.class);
 	protected List<NameValuePair> headers = new ArrayList<NameValuePair>();
 	protected List<NameValuePair> args = new ArrayList<NameValuePair>();
@@ -111,8 +114,39 @@ public abstract class CBase implements Runnable, PIS.PisH {
 	}
 
 	public String getQuery() {
+		return parseQuery(this.args, this.cencoding);
+	}
+
+	public static String checkCache(Context ctx, String url, String m) {
+		HDb db = HDb.loadDb_(ctx);
+		HResp res = findCache(db, url, m);
+		if (res == null || res.path == null) {
+			return null;
+		}
+		File fc = db.checkCacheF(res.path);
+		return fc.getAbsolutePath();
+	}
+
+	public static HResp findCache(HDb db, String url, String m) {
+		String[] urls = url.split("\\?", 0);
 		List<NameValuePair> args_ = new ArrayList<NameValuePair>();
-		for (NameValuePair arg : this.args) {
+		if (urls.length > 1) {
+			for (String arg : urls[1].split("&")) {
+				String[] kv = arg.split("=", 0);
+				if (kv.length < 2) {
+					continue;
+				}
+				args_.add(new BasicNameValuePair(kv[0], kv[1]));
+			}
+
+		}
+		String args = parseQuery(args_, "UTF-8");
+		return db.find(urls[0], m, args);
+	}
+
+	public static String parseQuery(List<NameValuePair> args, String cencoding) {
+		List<NameValuePair> args_ = new ArrayList<NameValuePair>();
+		for (NameValuePair arg : args) {
 			if (arg.getName().equals("_hc_")) {
 				continue;
 			} else {
@@ -127,7 +161,7 @@ public abstract class CBase implements Runnable, PIS.PisH {
 			}
 
 		});
-		return URLEncodedUtils.format(args_, this.cencoding);
+		return URLEncodedUtils.format(args_, cencoding);
 	}
 
 	public Policy parsePolicy() {
@@ -148,7 +182,7 @@ public abstract class CBase implements Runnable, PIS.PisH {
 		try {
 			this.exec();
 		} catch (Exception e) {
-			L.warn("exec error:", e);
+			this.cback.onExecErr(this, e);
 		}
 		this.running = false;
 	}
@@ -163,8 +197,12 @@ public abstract class CBase implements Runnable, PIS.PisH {
 	}
 
 	public String readCache() {
+		HResp res = this.find(this.parsePolicy());
+		return this.readCahce(res);
+	}
+
+	public String readCahce(HResp res) {
 		try {
-			HResp res = this.find(this.parsePolicy());
 			if (this.db.CacheExist(res)) {
 				return res.readCache(this.db);
 			} else {
@@ -177,8 +215,10 @@ public abstract class CBase implements Runnable, PIS.PisH {
 	}
 
 	private void slog(String msg, Policy pc) {
-		L.info("{} for {}:{}?{}({})", msg, this.getMethod(), this.getUrl(),
-				this.getQuery(), pc);
+		if (ShowLog) {
+			L.info("{} for {}:{}?{}({})", msg, this.getMethod(), this.getUrl(),
+					this.getQuery(), pc);
+		}
 	}
 
 	protected void exec() throws Exception {
@@ -244,6 +284,7 @@ public abstract class CBase implements Runnable, PIS.PisH {
 				this.slog("using cache", pc);
 				return res.initPathStream(this.db);
 			}
+			this.onCache(res);
 			uri = this.createR();
 			if (pc == Policy.N) {
 				if (res.lmt > 0) {
@@ -348,6 +389,10 @@ public abstract class CBase implements Runnable, PIS.PisH {
 		} else {
 			this.onProcess((float) 0);
 		}
+	}
+
+	protected void onCache(HResp res) throws Exception {
+
 	}
 
 	protected void onProcess(float rate) {
