@@ -156,4 +156,16 @@ public class ImDb {
 				"SELECT COUNT(*) FROM _IM_M_ WHERE STATUS <= ?",
 				new String[] { "" + Msg.MS_MARK });
 	}
+
+	/**
+	 * sum message by status.
+	 * 
+	 * @return
+	 * @throws Exception
+	 */
+	public Long sumNoReadMsg(String a) throws Exception {
+		return this.db_.longQueryOne(
+				"SELECT COUNT(*) FROM _IM_M_ WHERE STATUS <= ? AND A=?",
+				new String[] { "" + Msg.MS_MARK, a });
+	}
 }

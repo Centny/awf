@@ -19,3 +19,7 @@ libs/*.properties
 TServer/main
 
 assets
+
+libs/.fvm
+
+TServer/ts.lock
