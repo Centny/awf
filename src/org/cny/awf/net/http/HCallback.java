@@ -76,6 +76,10 @@ public interface HCallback {
 
 		public abstract void onSuccess(CBase c, HResp res, String data)
 				throws Exception;
+
+		public String rdata() {
+			return this.tdata;
+		}
 	}
 
 	public static abstract class HCacheCallback extends HDataCallback {

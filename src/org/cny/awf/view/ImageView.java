@@ -73,8 +73,7 @@ public class ImageView extends android.widget.ImageView {
 				H.doGet(this.getContext(), this.url, Args.A("_hc_", "I"),
 						this.cback);
 			} else {
-				this.setImageBitmap(BitmapPool.instance().load(curl,
-						this.roundCorner));
+				this.setImg(curl, this.roundCorner);
 			}
 			return true;
 		} catch (Exception e) {
@@ -118,12 +117,15 @@ public class ImageView extends android.widget.ImageView {
 		this.showTime = showTime;
 	}
 
+	protected void setImg(String url, int rc) throws Exception {
+		this.setImageBitmap(BitmapPool.dol(url, rc));
+	}
+
 	protected void doAnimation(String path) {
 		// this.setImageURI(Uri.fromFile(new File(path)));
 		// System.err.println(path + "---->");
 		try {
-			this.setImageBitmap(BitmapPool.instance().load(path,
-					this.roundCorner));
+			this.setImg(path, this.roundCorner);
 			Animation an = new AlphaAnimation(0, ImageView.this.getAlpha());
 			an.setDuration(this.showTime);
 			this.startAnimation(an);

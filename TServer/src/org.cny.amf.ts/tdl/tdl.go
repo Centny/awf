@@ -19,6 +19,7 @@ func Register() {
 	http.HandleFunc("/h_args", hdl_hs)
 	http.HandleFunc("/t_args", hdl_ts)
 	http.HandleFunc("/rec_f", rec_f)
+	http.HandleFunc("/rec_sr", rec_sr)
 	http.HandleFunc("/res_j", res_j)
 	http.HandleFunc("/data_j", data_j)
 	http.Handle("/", http.FileServer(http.Dir("www")))
@@ -231,4 +232,31 @@ func res_j(w http.ResponseWriter, r *http.Request) {
 
 func data_j(w http.ResponseWriter, r *http.Request) {
 	io.Copy(w, r.Body)
+}
+
+func rec_sr(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	sr_f, _, err := r.FormFile("sr_f")
+	if err != nil {
+		fmt.Println(err.Error())
+		w.Write([]byte(`{"code":1,"data":"ERR"}`))
+		return
+	}
+	os.Remove("sr_f.zip")
+	dst, err := os.OpenFile("sr_f.zip", os.O_CREATE|os.O_WRONLY, os.ModePerm)
+	if err != nil {
+		fmt.Println(err.Error())
+		w.Write([]byte(`{"code":1,"data":"ERR"}`))
+		return
+	}
+	defer dst.Close()
+	io.Copy(dst, sr_f)
+	sr := r.FormValue("sr")
+	fmt.Println("rec_sr", sr)
+	switch sr {
+	case "0":
+		w.Write([]byte(`{"code":0,"data":"OK"}`))
+	default:
+		w.Write([]byte(`{"code":1,"data":"OK"}`))
+	}
 }

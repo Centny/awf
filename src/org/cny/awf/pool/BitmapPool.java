@@ -9,13 +9,9 @@ public class BitmapPool extends ObjPool<Bitmap> {
 
 	protected static BitmapPool POOL_;
 
-	public static void init(int max) {
-		POOL_ = new BitmapPool(max);
-	}
-
 	public static BitmapPool instance() {
 		if (POOL_ == null) {
-			POOL_ = new BitmapPool(20);
+			POOL_ = new BitmapPool();
 		}
 		return POOL_;
 	}
@@ -28,8 +24,16 @@ public class BitmapPool extends ObjPool<Bitmap> {
 		return instance().load_(key, args);
 	}
 
-	public BitmapPool(int max) {
-		super(max);
+	public BitmapPool() {
+	}
+
+	@Override
+	protected Object createKey(Object key, Object[] args) {
+		if (args.length > 0) {
+			return key.toString() + ((Integer) args[0]);
+		} else {
+			return key.toString() + "0";
+		}
 	}
 
 	@Override
@@ -40,7 +44,10 @@ public class BitmapPool extends ObjPool<Bitmap> {
 		}
 		Bitmap img = Util.readBitmap(key.toString());
 		if (cr > 0) {
-			img = Util.toRoundCorner(img, cr);
+			Bitmap timg = img;
+			img = Util.toRoundCorner(timg, cr);
+			timg.recycle();
+			System.gc();
 		}
 		return img;
 	}

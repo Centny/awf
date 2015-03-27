@@ -77,11 +77,11 @@
 				<exclude name="org/cny/awf/*" />
 			</fileset>
 		</jar>
-		<jar destfile="${lib.dir}/${lib.name}.doc.zip">
+<!-- 		<jar destfile="${lib.dir}/${lib.name}.doc.zip">
 			<fileset dir="${lib.dir}/${lib.name}">
 				<include name="*/**" />
 			</fileset>
-		</jar>
+		</jar> -->
 	</target>
 
 	<target name="pub.pkg">

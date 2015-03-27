@@ -3,6 +3,7 @@ package org.cny.awf.pool;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.util.Date;
 
 import org.cny.awf.test.MainActivity;
 import org.cny.jwf.util.Utils;
@@ -32,8 +33,20 @@ public class BitmapPoolTest extends
 		File tf2 = new File(this.getActivity().getExternalCacheDir(), "2.png");
 		fos = new FileOutputStream(tf2);
 		Utils.copy(fos, is);
-		BitmapPool.init(1);
-		BitmapPool.dol(tf1.getAbsolutePath(), 8);
+		long beg = new Date().getTime();
+		long end = 0;
+		for (int i = 0; i < 1000; i++) {
+			BitmapPool.dol(tf1.getAbsolutePath(), 8);
+		}
+		end = new Date().getTime();
+		System.err.println("Used-1:" + (end - beg));
+		// List<Bitmap> bms = new ArrayList<Bitmap>();
+		// for (int i = 0; i < 100; i++) {
+		// bms.add(BitmapPool.dol(tf1.getAbsolutePath(), i));
+		// }
+		// end = new Date().getTime();
+		// System.err.println("Used-2:" + (end - beg));
+		//
 		BitmapPool.dol(tf1.getAbsolutePath(), 8);
 		BitmapPool.dol(tf2.getAbsolutePath(), 8);
 		BitmapPool.dol(tf2.getAbsolutePath());

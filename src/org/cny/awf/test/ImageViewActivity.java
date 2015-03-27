@@ -40,6 +40,6 @@ public class ImageViewActivity extends Activity {
 
 	public void clkShow1(View v) {
 		this.tiv1
-				.setUrl("http://pic1.nipic.com/2008-12-12/200812122158591_2.jpg");
+				.setUrl("http://f8.topit.me/8/29/96/119867884632a96298o.jpg");
 	}
 }

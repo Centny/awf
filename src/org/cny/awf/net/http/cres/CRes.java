@@ -116,6 +116,12 @@ public class CRes<T> {
 		this.pa = pa;
 	}
 
+	@Override
+	public String toString() {
+		return "code:" + this.code + ",msg:" + this.msg + ",dmsg:" + this.dmsg
+				+ ",data:" + this.data;
+	}
+
 	/**
 	 * set PA.
 	 * 
@@ -139,6 +145,16 @@ public class CRes<T> {
 			this.total = total;
 		}
 
+	}
+
+	public static interface HResCallbackNable<T> {
+		Type createToken(HResCallbackNCaller<T> caller) throws Exception;
+
+		void onError(HResCallbackNCaller<T> caller, CBase c, CRes<T> cache,
+				Throwable err) throws Exception;
+
+		void onSuccess(HResCallbackNCaller<T> caller, CBase c, HResp res,
+				CRes<T> data) throws Exception;
 	}
 
 	public static abstract class HResCallbackN<T> extends HCacheCallback {
@@ -210,6 +226,32 @@ public class CRes<T> {
 		 */
 		public abstract void onSuccess(CBase c, HResp res, CRes<T> data)
 				throws Exception;
+	}
+
+	public static class HResCallbackNCaller<T> extends HResCallbackN<T> {
+		protected HResCallbackNable<T> rcn;
+
+		public HResCallbackNCaller(HResCallbackNable<T> rcn) {
+			this.rcn = rcn;
+		}
+
+		@Override
+		protected Type createToken() throws Exception {
+			return this.rcn.createToken(this);
+		}
+
+		@Override
+		public void onError(CBase c, CRes<T> cache, Throwable err)
+				throws Exception {
+			this.rcn.onError(this, c, cache, err);
+		}
+
+		@Override
+		public void onSuccess(CBase c, HResp res, CRes<T> data)
+				throws Exception {
+			this.rcn.onSuccess(this, c, res, data);
+		}
+
 	}
 
 	/**

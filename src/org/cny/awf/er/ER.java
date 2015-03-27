@@ -9,6 +9,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.cny.awf.sr.SR;
 import org.cny.jwf.im.pb.Msg.Evn;
 import org.cny.jwf.im.pb.Msg.KV;
 import org.cny.jwf.util.PbOutputStream;
@@ -38,11 +39,11 @@ public class ER {
 	}
 
 	private File getf(boolean t) {
-		File ddir = ctx.getExternalFilesDir("_er_");
+		File ddir = ctx.getExternalFilesDir(SR.ER_DIR);
 		if (t) {
 			return new File(ddir, "er" + new Date().getTime() + ".dat");
 		} else {
-			return new File(ddir, "er.dat");
+			return new File(ddir, SR.ER_FN);
 		}
 	}
 
@@ -70,11 +71,16 @@ public class ER {
 		}
 	}
 
-	public void backup_() throws FileNotFoundException {
+	public boolean backup_() throws FileNotFoundException {
+		return this.backup_(this.getf(true));
+	}
+
+	public boolean backup_(File bf) throws FileNotFoundException {
 		synchronized (this) {
 			this.close();
-			this.getf(false).renameTo(this.getf(true));
+			boolean rv = this.getf(false).renameTo(bf);
 			this.open();
+			return rv;
 		}
 	}
 
@@ -92,12 +98,20 @@ public class ER {
 		return ER_;
 	}
 
-	public static void backup() throws FileNotFoundException {
+	public static boolean backup() throws FileNotFoundException {
 		if (ER_ == null) {
 			L.warn("the ER not init, it will do nothing");
-			return;
+			return false;
 		}
-		ER_.backup_();
+		return ER_.backup_();
+	}
+
+	public static boolean backup(File bf) throws FileNotFoundException {
+		if (ER_ == null) {
+			L.warn("the ER not init, it will do nothing");
+			return false;
+		}
+		return ER_.backup_(bf);
 	}
 
 	public static void writem(GeneratedMessage gm) throws Exception {
@@ -110,7 +124,8 @@ public class ER {
 
 	public static void free() throws Exception {
 		if (ER_ == null) {
-			throw new Exception("ER not init");
+			L.warn("the ER not init, it will do nothing");
+			return;
 		}
 		ER_.close();
 		ER_ = null;
