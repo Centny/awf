@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">amf</string>
+    <string name="app_name">awf</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
     <string name="title_activity_im_aty">ImAty</string>
@@ -9,5 +9,6 @@
     <string name="image_view">ImageView</string>
     <string name="title_activity_image_view">ImageViewActivity</string>
     <string name="show">Show</string>
+    <string name="title_activity_crash_aty">CrashAty</string>
 
 </resources>

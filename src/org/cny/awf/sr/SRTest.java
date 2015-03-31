@@ -77,7 +77,7 @@ public class SRTest extends ActivityInstrumentationTestCase2<MainActivity> {
 		Assert.assertEquals(
 				0,
 				new SR(getActivity()).dou("http://" + ts_ip
-						+ ":8000/rec_sr?_hc_=NO&sr=0"));
+						+ ":8000/rec_sr?_hc_=NO&sr=0", null));
 		cdl.countDown();
 		cdl.waitc(1);
 		ER.init(this.getActivity());
@@ -100,7 +100,7 @@ public class SRTest extends ActivityInstrumentationTestCase2<MainActivity> {
 				cdl.countDown();
 			}
 
-		}.dou("http://" + ts_ip + ":8000/rec_sr?_hc_=NO&sr=0"));
+		}.dou("http://" + ts_ip + ":8000/rec_sr?_hc_=NO&sr=0", null));
 		cdl.waitc(2);
 		System.err.println("2222->");
 		//
@@ -130,7 +130,7 @@ public class SRTest extends ActivityInstrumentationTestCase2<MainActivity> {
 				cdl.countDown();
 			}
 
-		}.dou("http://" + ts_ip + ":8000/rec_sr?_hc_=NO&sr=0"));
+		}.dou("http://" + ts_ip + ":8000/rec_sr?_hc_=NO&sr=0", null));
 		cdl.waitc(3);
 		if (this.rerr != null) {
 			this.rerr.printStackTrace();
@@ -156,7 +156,7 @@ public class SRTest extends ActivityInstrumentationTestCase2<MainActivity> {
 				cdl.countDown();
 			}
 
-		}.dou("http://" + ts_ip + ":8000/rec_sr?_hc_=NO&sr=0"));
+		}.dou("http://" + ts_ip + ":8000/rec_sr?_hc_=NO&sr=0", null));
 		cdl.waitc(4);
 		if (this.rerr != null) {
 			this.rerr.printStackTrace();

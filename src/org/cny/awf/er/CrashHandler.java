@@ -21,8 +21,11 @@ public class CrashHandler implements UncaughtExceptionHandler {
 		e.printStackTrace(new PrintWriter(sw));
 		kvs.put("err_stack", sw.toString());
 		ER.writem(thr.getClass(), ER.CRASH, ActType.APP.getVal(), kvs);
-		e.printStackTrace();
-		thr.interrupt();
+		try {
+			ER.free();
+		} catch (Exception e1) {
+			e1.printStackTrace();
+		}
 	}
 
 	private static CrashHandler CH_ = null;

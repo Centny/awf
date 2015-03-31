@@ -71,7 +71,7 @@ public interface HCallback {
 
 		@Override
 		public void onExecErr(CBase c, Throwable e) {
-
+			e.printStackTrace();
 		}
 
 		public abstract void onSuccess(CBase c, HResp res, String data)
@@ -146,15 +146,24 @@ public interface HCallback {
 			this.cls = cls;
 		}
 
-		@SuppressWarnings("unchecked")
 		protected T toT(String data) {
-			T val;
+			return toT(data, true);
+		}
+
+		@SuppressWarnings("unchecked")
+		protected T toT(String data, boolean err) {
 			if (data == null || data.isEmpty()) {
-				val = null;
-			} else {
-				val = (T) this.gs.fromJson(data.trim(), this.cls);
+				return null;
 			}
-			return val;
+			try {
+				return (T) this.gs.fromJson(data.trim(), this.cls);
+			} catch (RuntimeException e) {
+				if (err) {
+					throw e;
+				} else {
+					return null;
+				}
+			}
 		}
 
 		@Override
@@ -167,7 +176,7 @@ public interface HCallback {
 		@Override
 		public void onError(CBase c, String cache, Throwable err)
 				throws Exception {
-			T val = this.toT(cache);
+			T val = this.toT(cache, false);
 			if (Hooks.call(HCacheCallback.class, "onError", c, val, err) < 1) {
 				this.onError(c, val, err);
 			}

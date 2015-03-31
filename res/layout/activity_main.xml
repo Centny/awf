@@ -20,5 +20,10 @@
         android:onClick="toImageView"
         android:text="@string/image_view" />
 
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="toCrash"
+        android:text="@string/image_view" />
 
 </LinearLayout>

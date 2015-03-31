@@ -374,7 +374,7 @@ public abstract class CBase implements Runnable, PIS.PisH {
 		if (pc != Policy.NO) {
 			res.time = new Date().getTime();
 			if (res.tid > 0) {
-				this.slog("adding cache for", pc);
+				this.slog("update cache for", pc);
 				this.db.update(res);
 			} else {
 				this.slog("adding cache for", pc);

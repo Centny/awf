@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.cny.awf.test"
     android:versionCode="1"
-    android:versionName="1.0" >
+    android:versionName="0.0.1" >
 
     <uses-sdk
         android:minSdkVersion="14"
@@ -67,6 +67,18 @@
         <activity
             android:name=".ImageViewActivity"
             android:label="@string/title_activity_image_view" >
+        </activity>
+
+        <meta-data
+            android:name="debug"
+            android:value="true" />
+        <meta-data
+            android:name="sr-srv"
+            android:value="http://192.168.2.30:9904/sr" />
+
+        <activity
+            android:name=".CrashAty"
+            android:label="@string/title_activity_crash_aty" >
         </activity>
     </application>
 

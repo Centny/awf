@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.reflect.Type;
+import java.util.Map;
 
 import org.cny.awf.er.ER;
 import org.cny.awf.net.http.CBase;
@@ -56,7 +57,7 @@ public class SR implements HResCallbackNable<String> {
 	 * @throws IOException
 	 * 
 	 */
-	public int dou(String srv) throws IOException {
+	public int dou(String srv, Map<String, String> args) throws IOException {
 		//
 		File sr_er = new File(sr, ER_FN);
 		File sr_l = new File(sr, LOG_FN);
@@ -74,6 +75,11 @@ public class SR implements HResCallbackNable<String> {
 				new CRes.HResCallbackNCaller<String>(this));
 		hc.setMethod("POST");
 		hc.addBinary(PIS.create("sr_f", sr_sr));
+		if (args != null) {
+			for (String key : args.keySet()) {
+				hc.addArg(key, args.get(key));
+			}
+		}
 		this.onPrepareHc(hc);
 		hc.asyncExec();
 		return 1;

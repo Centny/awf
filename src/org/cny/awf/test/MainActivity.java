@@ -59,4 +59,8 @@ public class MainActivity extends BaseAty {
 	public void toImageView(View v) {
 		this.startActivity(new Intent(this, ImageViewActivity.class));
 	}
+
+	public void toCrash(View v) {
+		this.startActivity(new Intent(this, CrashAty.class));
+	}
 }
