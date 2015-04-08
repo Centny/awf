@@ -8,6 +8,7 @@ import org.apache.http.message.BasicNameValuePair;
 import org.cny.awf.util.Util;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.os.Handler;
 
 /**
@@ -235,6 +236,11 @@ public class H {
 	 */
 	public static HAsyncTask doPost(String url, PIS pis, HCallback cb) {
 		return doPost(url, null, pis, cb);
+	}
+
+	public static HAsyncTask doPost(String url, String name, Bitmap bm,
+			HCallback cb) {
+		return doPost(url, null, PIS.create(name, bm), cb);
 	}
 
 	/**

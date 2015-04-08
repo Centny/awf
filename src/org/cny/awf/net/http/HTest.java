@@ -18,9 +18,12 @@ import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.message.BasicNameValuePair;
 import org.cny.awf.net.http.HCallback.HCacheCallback;
 import org.cny.awf.test.MainActivity;
+import org.cny.awf.test.R;
 import org.cny.awf.util.CDL;
 import org.cny.awf.util.MultiOutputStream;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Environment;
 import android.test.ActivityInstrumentationTestCase2;
 
@@ -485,6 +488,19 @@ public class HTest extends ActivityInstrumentationTestCase2<MainActivity> {
 		H.doPost(
 				"http://" + ts_ip + ":8000/rec_f?sw=testing&abc=这是中文2&_hc_=NO",
 				PIS.create("file", "abc.txt", bais), new Abc3(cdl, "tu1"));
+		Thread.sleep(200);
+		cdl.await();
+		assertNull(this.rerr);
+	}
+
+	public void testUploadBm() throws Exception {
+		this.rerr = null;
+		final CountDownLatch cdl = new CountDownLatch(1);
+		Bitmap bm = BitmapFactory.decodeResource(this.getActivity()
+				.getResources(), R.drawable.ic_launcher);
+		H.doPost(
+				"http://" + ts_ip + ":8000/rec_f?sw=testing&abc=这是中文2&_hc_=NO",
+				"file", bm, new Abc3(cdl, "tu2"));
 		Thread.sleep(200);
 		cdl.await();
 		assertNull(this.rerr);

@@ -76,7 +76,7 @@ public class ImageView extends android.widget.ImageView {
 				this.setImg(curl, this.roundCorner);
 			}
 			return true;
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			return false;
 		}
 	}
@@ -130,7 +130,7 @@ public class ImageView extends android.widget.ImageView {
 			an.setDuration(this.showTime);
 			this.startAnimation(an);
 			// this.setBackgroundColor(0);
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			L.debug("read bitmap file err:{}", e.getMessage());
 		}
 	}

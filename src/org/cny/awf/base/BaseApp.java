@@ -106,12 +106,12 @@ public class BaseApp extends Application {
 
 	@Override
 	public void onTerminate() {
+		ER.writem(this.getClass(), ER.ACT_OUT, ActType.APP.getVal());
 		try {
 			this.erFree();
 		} catch (Exception e) {
 			L.warn("the ER free err:", e);
 		}
 		super.onTerminate();
-		ER.writem(this.getClass(), ER.ACT_OUT, ActType.APP.getVal());
 	}
 }

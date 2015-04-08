@@ -7,7 +7,10 @@ import java.io.FileWriter;
 import org.apache.http.entity.ContentType;
 import org.cny.awf.net.http.PIS.PisH;
 import org.cny.awf.test.MainActivity;
+import org.cny.awf.test.R;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.test.ActivityInstrumentationTestCase2;
 
 public class PISTest extends ActivityInstrumentationTestCase2<MainActivity> {
@@ -76,5 +79,12 @@ public class PISTest extends ActivityInstrumentationTestCase2<MainActivity> {
 		PIS.FileInputStream ff = new PIS.FileInputStream();
 		ff.f = f;
 		ff.createIn().close();
+	}
+
+	public void testBm() {
+		Bitmap bm = BitmapFactory.decodeResource(this.getActivity()
+				.getResources(), R.drawable.ic_launcher);
+		PIS.create("file", bm);
+		PIS.create("file", bm, true);
 	}
 }

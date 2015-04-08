@@ -62,11 +62,13 @@ public class ER {
 			// this.check_u();
 			try {
 				this.out.write(gm);
+				this.out.flush();
 			} catch (IOException e) {
 				L.warn("write message error, will retry :", e);
 				this.close();
 				this.open();
 				this.out.write(gm);
+				this.out.flush();
 			}
 		}
 	}

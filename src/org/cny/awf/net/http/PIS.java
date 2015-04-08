@@ -1,11 +1,15 @@
 package org.cny.awf.net.http;
 
 import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
 import org.apache.http.entity.ContentType;
+
+import android.graphics.Bitmap;
 
 public abstract class PIS extends InputStream {
 	private long readed = 0;
@@ -209,6 +213,34 @@ public abstract class PIS extends InputStream {
 	public static PIS create(String name, String filename, InputStream in,
 			long length, ContentType mimeType) {
 		return create(name, filename, in, length, mimeType, true);
+	}
+
+	public static PIS create(String name, Bitmap bm) {
+		return create(name, bm, false);
+	}
+
+	public static PIS create(String name, Bitmap bm, boolean isjpg) {
+		if (isjpg) {
+			return create(name, "u.jpg", bm, isjpg);
+		} else {
+			return create(name, "u.png", bm, isjpg);
+		}
+	}
+
+	public static PIS create(String name, String filename, Bitmap bm,
+			boolean isjpg) {
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		String mimeType;
+		if (isjpg) {
+			mimeType = "image/jpeg";
+			bm.compress(Bitmap.CompressFormat.JPEG, 30, out);
+		} else {
+			mimeType = "image/png";
+			bm.compress(Bitmap.CompressFormat.PNG, 30, out);
+		}
+		return create(name, filename,
+				new ByteArrayInputStream(out.toByteArray()), out.size(),
+				mimeType, false);
 	}
 
 	public static PIS create(String name, String filename, InputStream in,
