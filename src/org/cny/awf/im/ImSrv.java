@@ -123,6 +123,10 @@ public abstract class ImSrv extends BaseSrv implements MsgListener,
 		it = new Intent(IMC_ACTION + "-" + m.s);
 		it.putExtra(BC_MSG, m);
 		rec = lbm.sendBroadcast(it) || rec;
+		// broadcast by available.
+		it = new Intent(IMC_ACTION + "-A-" + m.a);
+		it.putExtra(BC_MSG, m);
+		rec = lbm.sendBroadcast(it) || rec;
 		// broadcast by R
 		it = new Intent(IMC_ACTION + "-" + Utils.join(m.r));
 		it.putExtra(BC_MSG, m);
