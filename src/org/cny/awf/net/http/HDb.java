@@ -32,7 +32,9 @@ public class HDb {
 
 	public static HDb loadDb(Context ctx, String file) throws IOException {
 		if (HDB_ == null) {
-			HDB_ = new HDb(ctx, file);
+			synchronized (HDb.class) {
+				HDB_ = new HDb(ctx, file);
+			}
 		}
 		return HDB_;
 	}
