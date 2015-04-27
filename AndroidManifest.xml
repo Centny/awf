@@ -51,7 +51,7 @@
             android:exported="false" >
             <meta-data
                 android:name="host"
-                android:value="192.168.2.70" />
+                android:value="192.168.2.66" />
             <meta-data
                 android:name="port"
                 android:value="9891" />

@@ -8,15 +8,18 @@ import java.util.Map;
 import org.cny.awf.im.ImSrvTest.TImSrv;
 import org.cny.awf.util.CDL;
 import org.cny.jwf.im.Msg;
+import org.cny.jwf.im.c.RC;
 import org.cny.jwf.netw.bean.Con;
 import org.cny.jwf.netw.bean.Con.Res;
 import org.cny.jwf.netw.r.NetwRunnable;
 
+import android.app.Notification;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.IBinder;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.test.ServiceTestCase;
 import android.util.Log;
@@ -25,11 +28,31 @@ public class ImSrvTest extends ServiceTestCase<TImSrv> {
 
 	public static class TImSrv extends ImSrv {
 		public CDL cdl;
+		public RC rc;
 
 		@Override
 		public void onCreate() {
-			this.cdl = new CDL(207);
+			this.cdl = new CDL(208);
 			super.onCreate();
+			this.rc = new RC(this.host, this.port) {
+
+				@Override
+				public void onMsg(Msg m) {
+					super.onMsg(m);
+					try {
+						this.sms(m.s, 0, "msg->back");
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+
+			};
+			try {
+				this.rc.li("10", "xxx");
+			} catch (Exception e) {
+				e.printStackTrace();
+				throw new RuntimeException(e);
+			}
 		}
 
 		@Override
@@ -57,13 +80,25 @@ public class ImSrvTest extends ServiceTestCase<TImSrv> {
 				this.running = false;
 			}
 			System.err.println("onLi-->" + m.res.r);
+			try {
+				this.ur();
+			} catch (Exception e1) {
+				e1.printStackTrace();
+			}
 			new Thread(new Runnable() {
 
 				@Override
 				public void run() {
+					try {
+						while (rc.r == null) {
+							Thread.sleep(100);
+						}
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
 					for (int i = 0; i < 100; i++) {
 						try {
-							sms(m.res.r, 0, "abdd这是中文".getBytes());
+							sms(rc.r, 0, "abdd这是中文".getBytes());
 						} catch (IOException e) {
 							e.printStackTrace();
 						}
@@ -115,21 +150,23 @@ public class ImSrvTest extends ServiceTestCase<TImSrv> {
 		this.startService(null);
 		final TImSrv srv = this.getService();
 		Thread.sleep(200);
+		srv.cdl.setLog(true);
 		srv.start();// for test.
 		// srv.imc.close();
 		// Thread.sleep(2000);
-		srv.cdl.waitc(101);
-		srv.lo(null);
+		System.err.println("waiting login and messsage");
 		srv.cdl.waitc(102);
-		srv.imc.close();
+		srv.lo(null);
 		srv.cdl.waitc(103);
+		srv.imc.close();
+		srv.cdl.waitc(104);
 		// //
 		Thread.sleep(2000);
-		srv.cdl.waitc(204);
-		srv.lo(null);
 		srv.cdl.waitc(205);
-		srv.imc.close();
+		srv.lo(null);
 		srv.cdl.waitc(206);
+		srv.imc.close();
+		srv.cdl.waitc(207);
 		// //
 		//
 		srv.liArgs(null);
@@ -271,6 +308,8 @@ public class ImSrvTest extends ServiceTestCase<TImSrv> {
 		}
 	}
 
+	Notification nt;
+
 	public void testOnMsg() throws IOException {
 		ImSrv is = new ImSrv() {
 			@Override
@@ -292,9 +331,39 @@ public class ImSrvTest extends ServiceTestCase<TImSrv> {
 				return null;
 			}
 
+			@Override
+			public void onMsg(Msg m) {
+				super.onMsg(m);
+				// this.Db().add(m);
+				this.doBroadcast(m);
+			}
+
+			@Override
+			protected Notification createNotify(Msg m) {
+				if (nt == null) {
+					return super.createNotify(m);
+				} else {
+					return nt;
+				}
+			}
+
+			@Override
+			public Object getSystemService(String name) {
+				return ImSrvTest.this.getContext().getSystemService(name);
+			}
+
 		};
 		LocalBroadcastManager lbm = LocalBroadcastManager.getInstance(this
 				.getContext());
+		Msg msg = new Msg();
+		msg.i = "ssx" + new Date().getTime();
+		msg.t = 1;
+		msg.s = "S";
+		msg.r = new String[] { "R" };
+		msg.c = "abcc".getBytes();
+		is.onMsg(msg);
+		nt = new NotificationCompat.Builder(this.getContext()).build();
+		is.onMsg(msg);
 		lbm.registerReceiver(new BroadcastReceiver() {
 
 			@Override
@@ -302,6 +371,7 @@ public class ImSrvTest extends ServiceTestCase<TImSrv> {
 
 			}
 		}, new IntentFilter(ImSrv.IMC_ACTION));
+		is.onMsg(msg);
 		lbm.registerReceiver(new BroadcastReceiver() {
 
 			@Override
@@ -309,6 +379,7 @@ public class ImSrvTest extends ServiceTestCase<TImSrv> {
 
 			}
 		}, new IntentFilter(ImSrv.IMC_ACTION + "1"));
+		is.onMsg(msg);
 		lbm.registerReceiver(new BroadcastReceiver() {
 
 			@Override
@@ -316,6 +387,7 @@ public class ImSrvTest extends ServiceTestCase<TImSrv> {
 
 			}
 		}, new IntentFilter(ImSrv.IMC_ACTION + "S"));
+		is.onMsg(msg);
 		lbm.registerReceiver(new BroadcastReceiver() {
 
 			@Override
@@ -323,12 +395,6 @@ public class ImSrvTest extends ServiceTestCase<TImSrv> {
 
 			}
 		}, new IntentFilter(ImSrv.IMC_ACTION + "R"));
-		Msg msg = new Msg();
-		msg.i = "ssx" + new Date().getTime();
-		msg.t = 1;
-		msg.s = "S";
-		msg.r = new String[] { "R" };
-		msg.c = "abcc".getBytes();
 		is.onMsg(msg);
 	}
 

@@ -23,3 +23,5 @@ assets
 libs/.fvm
 
 TServer/ts.lock
+
+TServer/data/www.txt

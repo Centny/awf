@@ -26,6 +26,7 @@ public class CrashHandler implements UncaughtExceptionHandler {
 		} catch (Exception e1) {
 			e1.printStackTrace();
 		}
+		e.printStackTrace();
 	}
 
 	private static CrashHandler CH_ = null;

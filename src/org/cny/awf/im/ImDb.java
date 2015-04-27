@@ -87,6 +87,12 @@ public class ImDb {
 				status + "", i });
 	}
 
+	public void update(List<String> is, int status) {
+		this.db_.exec(
+				"UPDATE _IM_M_ SET STATUS=? WHERE I IN (" + Utils.joinSQL(is)
+						+ ")", new Object[] { status });
+	}
+
 	/**
 	 * clear message by R, if r is empty clear all message.
 	 * 
@@ -121,16 +127,10 @@ public class ImDb {
 				Msg.class, true);
 	}
 
-	public void mark(List<String> is, int status) {
-		this.db_.exec(
-				"UPDATE _IM_M_ SET STATUS=? WHERE I IN (" + Utils.joinSQL(is)
-						+ ")", new Object[] { status });
-	}
-
-	public void mark(String is, int status) {
-		this.db_.exec("UPDATE _IM_M_ SET STATUS=? WHERE I IN ('" + is + "')",
-				new Object[] { status });
-	}
+	// public void mark(String is, int status) {
+	// this.db_.exec("UPDATE _IM_M_ SET STATUS=? WHERE I IN ('" + is + "')",
+	// new Object[] { status });
+	// }
 
 	/**
 	 * sum message by status.
@@ -167,5 +167,10 @@ public class ImDb {
 		return this.db_.longQueryOne(
 				"SELECT COUNT(*) FROM _IM_M_ WHERE STATUS <= ? AND A=?",
 				new String[] { "" + Msg.MS_MARK, a });
+	}
+
+	public void markReaded(String a) throws Exception {
+		this.db_.exec("UPDATE _IM_M_ SET STATUS=? WHERE STATUS<=? AND A=?",
+				new Object[] { Msg.MS_READED, Msg.MS_MARK, a });
 	}
 }

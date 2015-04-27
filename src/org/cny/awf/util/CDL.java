@@ -2,10 +2,15 @@ package org.cny.awf.util;
 
 import java.util.concurrent.CountDownLatch;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class CDL extends CountDownLatch {
 
 	private int current = 0;
 	private Integer wc = null;
+	private boolean log = false;
+	private static final Logger L = LoggerFactory.getLogger(CDL.class);
 
 	public CDL(int count) {
 		super(count);
@@ -16,6 +21,9 @@ public class CDL extends CountDownLatch {
 		super.countDown();
 		synchronized (this) {
 			this.current++;
+			if (this.log) {
+				L.debug("CountDown current({}),wait({})", this.current, this.wc);
+			}
 			if (this.wc != null && this.current == this.wc) {
 				synchronized (this.wc) {
 					this.wc.notifyAll();
@@ -42,6 +50,14 @@ public class CDL extends CountDownLatch {
 			this.wc.wait();
 			this.wc = null;
 		}
+	}
+
+	public boolean isLog() {
+		return log;
+	}
+
+	public void setLog(boolean log) {
+		this.log = log;
 	}
 
 }
