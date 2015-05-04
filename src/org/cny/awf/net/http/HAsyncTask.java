@@ -71,6 +71,7 @@ public class HAsyncTask extends C {
 	 * Start the asynchronous task.
 	 */
 	public void asyncExec() {
-		this.atsk.execute(new HAsyncTask[] { this });
+		this.atsk.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,
+				new HAsyncTask[] { this });
 	}
 }

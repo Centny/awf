@@ -35,7 +35,7 @@ public abstract class ImSrv extends BaseSrv implements MsgListener,
 	public static final String BC_MSG = "msg";
 	public static final String NOTIFY_TAG = "IMC";
 	public static final int NOTIFY_ID = 10;
-	protected final Logger L = LoggerFactory.getLogger(this.getClass());
+	private static final Logger L = LoggerFactory.getLogger(ImSrv.class);
 	protected String host;
 	protected int port;
 	protected int retry;
@@ -145,6 +145,8 @@ public abstract class ImSrv extends BaseSrv implements MsgListener,
 
 	@Override
 	public void run() {
+		L.debug("running im service on thread:{},{}", Thread.currentThread()
+				.getId(), Thread.currentThread().getName());
 		this.running = true;
 		this.begRun();
 		while (this.running) {
@@ -211,6 +213,7 @@ public abstract class ImSrv extends BaseSrv implements MsgListener,
 
 	protected boolean run_() throws Exception {
 		try {
+			L.debug("start run ImSrv-->");
 			if (this.netAvaliable()) {
 				this.imc.run_c();
 			} else {

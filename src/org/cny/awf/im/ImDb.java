@@ -104,12 +104,12 @@ public class ImDb {
 				+ r + "%" });
 	}
 
-	public List<Msg> listMsgS(String s) throws Exception {
+	public List<Msg> listMsgS(String s) {
 		return this.db_.rawQuery("SELECT * FROM _IM_M_ WHERE S = ?", s,
 				Msg.class, true);
 	}
 
-	public List<Msg> listMsgR(String r) throws Exception {
+	public List<Msg> listMsgR(String r) {
 		return this.db_.rawQuery("SELECT * FROM _IM_M_ WHERE R LIKE ?", "%" + r
 				+ "%", Msg.class, true);
 	}
@@ -122,7 +122,7 @@ public class ImDb {
 	 * @return message list.
 	 * @throws Exception
 	 */
-	public List<Msg> listMsgT(int t) throws Exception {
+	public List<Msg> listMsgT(int t) {
 		return this.db_.rawQuery("SELECT * FROM _IM_M_ WHERE T = ?", "" + t,
 				Msg.class, true);
 	}
@@ -139,7 +139,7 @@ public class ImDb {
 	 * @return
 	 * @throws Exception
 	 */
-	public Long sumMsgS(int s) throws Exception {
+	public Long sumMsgS(int s) {
 		return this.db_.longQueryOne(
 				"SELECT COUNT(*) FROM _IM_M_ WHERE STATUS = ?",
 				new String[] { "" + s });
@@ -151,7 +151,7 @@ public class ImDb {
 	 * @return
 	 * @throws Exception
 	 */
-	public Long sumNoReadMsg() throws Exception {
+	public Long sumNoReadMsg() {
 		return this.db_.longQueryOne(
 				"SELECT COUNT(*) FROM _IM_M_ WHERE STATUS <= ?",
 				new String[] { "" + Msg.MS_MARK });
@@ -163,13 +163,13 @@ public class ImDb {
 	 * @return
 	 * @throws Exception
 	 */
-	public Long sumNoReadMsg(String a) throws Exception {
+	public Long sumNoReadMsg(String a) {
 		return this.db_.longQueryOne(
 				"SELECT COUNT(*) FROM _IM_M_ WHERE STATUS <= ? AND A=?",
 				new String[] { "" + Msg.MS_MARK, a });
 	}
 
-	public void markReaded(String a) throws Exception {
+	public void markReaded(String a) {
 		this.db_.exec("UPDATE _IM_M_ SET STATUS=? WHERE STATUS<=? AND A=?",
 				new Object[] { Msg.MS_READED, Msg.MS_MARK, a });
 	}

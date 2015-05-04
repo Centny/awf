@@ -9,13 +9,11 @@ import android.content.pm.PackageManager;
 import android.content.pm.ServiceInfo;
 
 public abstract class BaseSrv extends Service {
-	protected final Logger L = LoggerFactory.getLogger(this.getClass());
+	private static final Logger L = LoggerFactory.getLogger(BaseSrv.class);
 	protected ServiceInfo info;
 
 	@Override
 	public void onCreate() {
-		L.debug("running service on thread:{},{}", Thread.currentThread()
-				.getId(), Thread.currentThread().getName());
 		try {
 			ComponentName cn = this.createComponentName();
 			this.info = this.getPackageManager().getServiceInfo(cn,
