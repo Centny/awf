@@ -7,13 +7,21 @@ import org.slf4j.LoggerFactory;
 
 public class CDL extends CountDownLatch {
 
+	private String name = "";
 	private int current = 0;
 	private Integer wc = null;
 	private boolean log = false;
-	private static final Logger L = LoggerFactory.getLogger(CDL.class);
+	private final Logger L;
 
 	public CDL(int count) {
 		super(count);
+		L = LoggerFactory.getLogger("CDL");
+	}
+
+	public CDL(int count, String name) {
+		super(count);
+		this.name = name;
+		L = LoggerFactory.getLogger("CDL(" + name + ")");
 	}
 
 	@Override
@@ -58,6 +66,10 @@ public class CDL extends CountDownLatch {
 
 	public void setLog(boolean log) {
 		this.log = log;
+	}
+
+	public String getName() {
+		return name;
 	}
 
 }

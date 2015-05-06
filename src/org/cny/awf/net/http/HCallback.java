@@ -2,6 +2,7 @@ package org.cny.awf.net.http;
 
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
+import java.util.Map;
 
 import org.cny.jwf.hook.Hooks;
 import org.slf4j.Logger;
@@ -11,6 +12,7 @@ import android.os.Handler;
 import android.os.Message;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 public interface HCallback {
 	void onCache(CBase c, HResp res) throws Exception;
@@ -159,7 +161,7 @@ public interface HCallback {
 				return (T) this.gs.fromJson(data.trim(), this.cls);
 			} catch (RuntimeException e) {
 				if (err) {
-					throw e;
+					throw new RuntimeException(data, e);
 				} else {
 					return null;
 				}
@@ -199,6 +201,20 @@ public interface HCallback {
 
 		public abstract void onSuccess(CBase c, HResp res, T data)
 				throws Exception;
+	}
+
+	public abstract class GMapCallback extends
+			GCacheCallback<Map<String, Object>> {
+
+		public GMapCallback() {
+			super(Map.class);
+		}
+
+		@Override
+		protected Map<String, Object> toT(String data, boolean err) {
+			return this.gs.fromJson(data, new TypeToken<Map<String, String>>() {
+			}.getType());
+		}
 	}
 
 	public static class HandlerCallback implements HCallback {

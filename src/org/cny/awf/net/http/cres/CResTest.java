@@ -1,9 +1,14 @@
 package org.cny.awf.net.http.cres;
 
 import java.util.List;
+import java.util.Map;
 
+import org.cny.awf.net.http.Args;
 import org.cny.awf.net.http.CBase;
+import org.cny.awf.net.http.H;
+import org.cny.awf.net.http.HCallback;
 import org.cny.awf.net.http.HResp;
+import org.cny.awf.net.http.SyncH;
 import org.cny.awf.net.http.cres.CRes.BaseRes;
 import org.cny.awf.net.http.cres.CRes.HResCallback;
 import org.cny.awf.net.http.cres.CRes.HResCallbackL;
@@ -186,4 +191,30 @@ public class CResTest extends ActivityInstrumentationTestCase2<MainActivity> {
 		CRes<Abc> ss = gs.fromJson(tdata5, tt.getType());
 		System.err.println(ss + "" + ss.data);
 	}
+
+//	public void testRes4() {
+//		String usr = "testing";
+//		String pwd = "123";
+//		final Gson gs = new Gson();
+//		H.CTX = this.getActivity();
+//		SyncH.doGet("http://192.168.2.57:7700/sso/api/login", Args
+//				.A("usr", usr).A("pwd", pwd), new HCallback.HDataCallback() {
+//
+//			@Override
+//			public void onError(CBase c, Throwable err) throws Exception {
+//				// TODO Auto-generated method stub
+//
+//			}
+//
+//			@Override
+//			public void onSuccess(CBase c, HResp res, String data)
+//					throws Exception {
+//				CRes<Map<String, Object>> ccc = gs.fromJson(data,
+//						new TypeToken<Map<String, Object>>() {
+//						}.getType());
+//
+//				System.err.println(ccc);
+//			}
+//		});
+//	}
 }

@@ -2,6 +2,7 @@ package org.cny.awf.net.http.cres;
 
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Map;
 
 import org.cny.awf.net.http.CBase;
 import org.cny.awf.net.http.HCallback.HCacheCallback;
@@ -226,6 +227,25 @@ public class CRes<T> {
 		 */
 		public abstract void onSuccess(CBase c, HResp res, CRes<T> data)
 				throws Exception;
+	}
+
+	public abstract static class HResMapCallback extends
+			HResCallbackN<Map<String, Object>> {
+
+		@Override
+		protected Type createToken() throws Exception {
+			return new TypeToken<CRes<Map<String, Object>>>() {
+			}.getType();
+		}
+	}
+
+	public abstract static class HResStrCallback extends HResCallbackN<String> {
+
+		@Override
+		protected Type createToken() throws Exception {
+			return new TypeToken<CRes<String>>() {
+			}.getType();
+		}
 	}
 
 	public static class HResCallbackNCaller<T> extends HResCallbackN<T> {

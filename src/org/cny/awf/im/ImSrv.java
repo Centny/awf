@@ -42,6 +42,7 @@ public abstract class ImSrv extends BaseSrv implements MsgListener,
 	protected SckIMC imc;
 	protected Thread thr;
 	protected boolean running = false;
+	protected boolean execing = false;
 	protected BroadcastReceiver con;
 
 	@Override
@@ -148,8 +149,9 @@ public abstract class ImSrv extends BaseSrv implements MsgListener,
 		L.debug("running im service on thread:{},{}", Thread.currentThread()
 				.getId(), Thread.currentThread().getName());
 		this.running = true;
+		this.execing = true;
 		this.begRun();
-		while (this.running) {
+		while (this.running && this.execing) {
 			try {
 				this.running = this.run_();
 			} catch (Exception e) {
@@ -159,6 +161,7 @@ public abstract class ImSrv extends BaseSrv implements MsgListener,
 		}
 		this.endRun();
 		this.running = false;
+		this.execing = false;
 		L.warn("background thread is stopped");
 	}
 
@@ -284,6 +287,7 @@ public abstract class ImSrv extends BaseSrv implements MsgListener,
 	}
 
 	protected void close() throws IOException {
+		this.execing = false;
 		this.imc.close();
 	}
 
@@ -299,5 +303,13 @@ public abstract class ImSrv extends BaseSrv implements MsgListener,
 	protected abstract void onLi(NetwRunnable nr, Con.Res m);
 
 	protected abstract void onLo(NetwRunnable nr, Con.Res m);
+
+	public String getHost() {
+		return host;
+	}
+
+	public int getPort() {
+		return port;
+	}
 
 }
