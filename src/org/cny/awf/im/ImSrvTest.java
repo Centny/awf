@@ -9,8 +9,7 @@ import org.cny.awf.im.ImSrvTest.TImSrv;
 import org.cny.awf.util.CDL;
 import org.cny.jwf.im.Msg;
 import org.cny.jwf.im.c.RC;
-import org.cny.jwf.netw.bean.Con;
-import org.cny.jwf.netw.bean.Con.Res;
+import org.cny.jwf.netw.r.Netw;
 import org.cny.jwf.netw.r.NetwRunnable;
 
 import android.app.Notification;
@@ -29,6 +28,14 @@ public class ImSrvTest extends ServiceTestCase<TImSrv> {
 	public static class TImSrv extends ImSrv {
 		public CDL cdl;
 		public RC rc;
+
+		@Override
+		public void onCon(NetwRunnable nr, Netw nw) throws Exception {
+			super.onCon(nr, nw);
+			Map<String, Object> args = new HashMap<String, Object>();
+			args.put("token", "abc");
+			this.li(args);
+		}
 
 		@Override
 		public void onCreate() {
@@ -74,54 +81,45 @@ public class ImSrvTest extends ServiceTestCase<TImSrv> {
 			this.cdl.countDown();
 		}
 
-		@Override
-		protected void onLi(NetwRunnable nr, final Res m) {
-			if (this.cdl.getCurrent() > 5) {
-				this.running = false;
-			}
-			System.err.println("onLi-->" + m.res.r);
-			try {
-				this.ur();
-			} catch (Exception e1) {
-				e1.printStackTrace();
-			}
-			new Thread(new Runnable() {
+//		@Override
+//		protected void onLi(NetwRunnable nr, final Res m) {
+//			if (this.cdl.getCurrent() > 5) {
+//				this.running = false;
+//			}
+//			System.err.println("onLi-->" + m.res.r);
+//			try {
+//				this.ur();
+//			} catch (Exception e1) {
+//				e1.printStackTrace();
+//			}
+//			new Thread(new Runnable() {
+//
+//				@Override
+//				public void run() {
+//					try {
+//						while (rc.r == null) {
+//							Thread.sleep(100);
+//						}
+//					} catch (InterruptedException e) {
+//						e.printStackTrace();
+//					}
+//					for (int i = 0; i < 100; i++) {
+//						try {
+//							sms(rc.r, 0, "abdd这是中文".getBytes());
+//						} catch (IOException e) {
+//							e.printStackTrace();
+//						}
+//					}
+//				}
+//			}).start();
+//			this.cdl.countDown();
+//		}
 
-				@Override
-				public void run() {
-					try {
-						while (rc.r == null) {
-							Thread.sleep(100);
-						}
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-					for (int i = 0; i < 100; i++) {
-						try {
-							sms(rc.r, 0, "abdd这是中文".getBytes());
-						} catch (IOException e) {
-							e.printStackTrace();
-						}
-					}
-				}
-			}).start();
-			this.cdl.countDown();
-		}
-
-		@Override
-		protected void onLo(NetwRunnable nr, Con.Res m) {
-			this.cdl.countDown();
-			System.err.println("onLo-->");
-		}
-
-		@Override
-		protected Object liArgs(Object v) {
-			Map<String, Object> args = new HashMap<String, Object>();
-			args.put("token", "abc");
-			super.liArgs(null);// for test.
-			super.loArgs(args);// for test.
-			return super.liArgs(args);
-		}
+//		@Override
+//		protected void onLo(NetwRunnable nr, Con.Res m) {
+//			this.cdl.countDown();
+//			System.err.println("onLo-->");
+//		}
 
 		@Override
 		public void run() {
@@ -169,8 +167,6 @@ public class ImSrvTest extends ServiceTestCase<TImSrv> {
 		srv.cdl.waitc(207);
 		// //
 		//
-		srv.liArgs(null);
-		srv.loArgs(null);
 		// srv.onDestroy();
 		srv.cdl.await();
 
@@ -180,15 +176,6 @@ public class ImSrvTest extends ServiceTestCase<TImSrv> {
 			protected boolean netAvaliable() {
 				this.imc = srv.imc;
 				throw new RuntimeException();
-			}
-
-			@Override
-			protected void onLi(NetwRunnable nr, Res m) {
-			}
-
-			@Override
-			protected void onLo(NetwRunnable nr, Res m) {
-
 			}
 
 			@Override
@@ -216,15 +203,6 @@ public class ImSrvTest extends ServiceTestCase<TImSrv> {
 			protected boolean run_() throws Exception {
 				this.running = false;
 				throw new Exception();
-			}
-
-			@Override
-			protected void onLi(NetwRunnable nr, Res m) {
-			}
-
-			@Override
-			protected void onLo(NetwRunnable nr, Res m) {
-
 			}
 
 			@Override
@@ -278,15 +256,6 @@ public class ImSrvTest extends ServiceTestCase<TImSrv> {
 			}
 
 			@Override
-			protected void onLi(NetwRunnable nr, Res m) {
-			}
-
-			@Override
-			protected void onLo(NetwRunnable nr, Res m) {
-
-			}
-
-			@Override
 			public IBinder onBind(Intent arg0) {
 				return null;
 			}
@@ -312,15 +281,6 @@ public class ImSrvTest extends ServiceTestCase<TImSrv> {
 
 	public void testOnMsg() throws IOException {
 		ImSrv is = new ImSrv() {
-			@Override
-			protected void onLi(NetwRunnable nr, Res m) {
-			}
-
-			@Override
-			protected void onLo(NetwRunnable nr, Res m) {
-
-			}
-
 			@Override
 			public IBinder onBind(Intent arg0) {
 				return null;
@@ -405,16 +365,6 @@ public class ImSrvTest extends ServiceTestCase<TImSrv> {
 				@Override
 				public boolean isRunning() {
 					throw new RuntimeException();
-				}
-
-				@Override
-				protected void onLi(NetwRunnable nr, Res m) {
-
-				}
-
-				@Override
-				protected void onLo(NetwRunnable nr, Res m) {
-
 				}
 
 				@Override

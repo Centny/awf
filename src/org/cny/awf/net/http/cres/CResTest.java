@@ -1,14 +1,9 @@
 package org.cny.awf.net.http.cres;
 
 import java.util.List;
-import java.util.Map;
 
-import org.cny.awf.net.http.Args;
 import org.cny.awf.net.http.CBase;
-import org.cny.awf.net.http.H;
-import org.cny.awf.net.http.HCallback;
 import org.cny.awf.net.http.HResp;
-import org.cny.awf.net.http.SyncH;
 import org.cny.awf.net.http.cres.CRes.BaseRes;
 import org.cny.awf.net.http.cres.CRes.HResCallback;
 import org.cny.awf.net.http.cres.CRes.HResCallbackL;

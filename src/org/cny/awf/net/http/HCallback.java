@@ -140,6 +140,26 @@ public interface HCallback {
 				throws Exception;
 	}
 
+	public class GDataCallbackS<T> extends GDataCallback<T> {
+		public Throwable err;
+		public T data;
+
+		public GDataCallbackS(Class<?> cls) {
+			super(cls);
+		}
+
+		@Override
+		public void onError(CBase c, Throwable err) throws Exception {
+			this.err = err;
+		}
+
+		@Override
+		public void onSuccess(CBase c, HResp res, T data) throws Exception {
+			this.data = data;
+		}
+
+	}
+
 	public abstract class GCacheCallback<T> extends HCacheCallback {
 		protected Class<?> cls;
 		protected Gson gs = new Gson();
@@ -201,6 +221,28 @@ public interface HCallback {
 
 		public abstract void onSuccess(CBase c, HResp res, T data)
 				throws Exception;
+	}
+
+	public class GCacheCallbackS<T> extends GCacheCallback<T> {
+
+		public Throwable err;
+		public T data;
+
+		public GCacheCallbackS(Class<?> cls) {
+			super(cls);
+		}
+
+		@Override
+		public void onError(CBase c, T cache, Throwable err) throws Exception {
+			this.data = cache;
+			this.err = err;
+		}
+
+		@Override
+		public void onSuccess(CBase c, HResp res, T data) throws Exception {
+			this.data = data;
+		}
+
 	}
 
 	public abstract class GMapCallback extends

@@ -317,6 +317,29 @@ public class CRes<T> {
 		}
 	}
 
+	public static class HResCallbackS<T> extends HResCallback<T> {
+		public Throwable err;
+		public CRes<T> data;
+
+		public HResCallbackS(Class<? extends Resable<?>> cls) {
+			super(cls);
+		}
+
+		@Override
+		public void onError(CBase c, CRes<T> cache, Throwable err)
+				throws Exception {
+			this.data = cache;
+			this.err = err;
+		}
+
+		@Override
+		public void onSuccess(CBase c, HResp res, CRes<T> data)
+				throws Exception {
+			this.data = data;
+		}
+
+	}
+
 	/**
 	 * common result call back for list.
 	 * 
@@ -341,6 +364,30 @@ public class CRes<T> {
 			@SuppressWarnings("unchecked")
 			CRes.Resable<T> rt = (Resable<T>) this.cls.newInstance();
 			return rt.createTokenL().getType();
+		}
+
+	}
+
+	public static class HResCallbackLS<T> extends HResCallbackL<T> {
+		public Throwable err;
+		public CRes<List<T>> data;
+
+		public HResCallbackLS(Class<? extends Resable<T>> cls) {
+			super(cls);
+		}
+
+		@Override
+		public void onError(CBase c, CRes<List<T>> cache, Throwable err)
+				throws Exception {
+			this.err = err;
+			this.data = cache;
+		}
+
+		@Override
+		public void onSuccess(CBase c, HResp res, CRes<List<T>> data)
+				throws Exception {
+			this.data = data;
+
 		}
 
 	}

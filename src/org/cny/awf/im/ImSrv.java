@@ -2,7 +2,6 @@ package org.cny.awf.im;
 
 import java.io.IOException;
 import java.net.SocketException;
-import java.util.HashMap;
 
 import org.cny.awf.base.BaseSrv;
 import org.cny.awf.net.NetInfo;
@@ -11,10 +10,8 @@ import org.cny.jwf.im.Msg;
 import org.cny.jwf.im.PbSckIMC;
 import org.cny.jwf.im.SckIMC;
 import org.cny.jwf.netw.bean.Con;
-import org.cny.jwf.netw.r.Cmd;
 import org.cny.jwf.netw.r.Netw;
 import org.cny.jwf.netw.r.NetwRunnable;
-import org.cny.jwf.netw.r.NetwRunnable.CmdListener;
 import org.cny.jwf.netw.r.NetwRunnable.EvnListener;
 import org.cny.jwf.util.Utils;
 import org.slf4j.Logger;
@@ -57,7 +54,11 @@ public abstract class ImSrv extends BaseSrv implements MsgListener,
 
 	@Override
 	public void onDestroy() {
-		this.running = false;
+		try {
+			this.unregisterReceiver(this.con);
+		} catch (Exception e) {
+
+		}
 		try {
 			this.close();
 		} catch (Exception e) {
@@ -66,6 +67,8 @@ public abstract class ImSrv extends BaseSrv implements MsgListener,
 
 	@Override
 	public void onStart(Intent intent, int startId) {
+		this.registerReceiver(this.con, new IntentFilter(
+				ConnectivityManager.CONNECTIVITY_ACTION));
 		this.checkStart();
 	}
 
@@ -80,7 +83,6 @@ public abstract class ImSrv extends BaseSrv implements MsgListener,
 
 	@Override
 	public void onCon(NetwRunnable nr, Netw nw) throws Exception {
-		this.li(null);
 	}
 
 	@Override
@@ -188,8 +190,6 @@ public abstract class ImSrv extends BaseSrv implements MsgListener,
 				}
 			}
 		};
-		this.registerReceiver(this.con, new IntentFilter(
-				ConnectivityManager.CONNECTIVITY_ACTION));
 	}
 
 	public boolean isRunning() {
@@ -232,26 +232,12 @@ public abstract class ImSrv extends BaseSrv implements MsgListener,
 		return true;
 	}
 
-	public void li(Object v) throws Exception {
-		this.imc.li(this.liArgs(v), new CmdListener() {
-
-			@Override
-			public void onCmd(NetwRunnable nr, Cmd m) {
-				onLi(nr, m.V(Con.Res.class));
-			}
-
-		});
+	public Con.Res li(Object v) throws Exception {
+		return this.imc.li(v, Con.Res.class);
 	}
 
-	public void lo(Object v) throws Exception {
-		this.imc.lo(this.loArgs(v), new CmdListener() {
-
-			@Override
-			public void onCmd(NetwRunnable nr, Cmd m) {
-				onLo(nr, m.V(Con.Res.class));
-			}
-
-		});
+	public Con.Res lo(Object v) throws Exception {
+		return this.imc.lo(v, Con.Res.class);
 	}
 
 	public void ur() throws Exception {
@@ -270,22 +256,6 @@ public abstract class ImSrv extends BaseSrv implements MsgListener,
 		this.sms(new String[] { r }, t, c);
 	}
 
-	protected Object loArgs(Object v) {
-		if (v == null) {
-			return new HashMap<String, Object>();
-		} else {
-			return v;
-		}
-	}
-
-	protected Object liArgs(Object v) {
-		if (v == null) {
-			return new HashMap<String, Object>();
-		} else {
-			return v;
-		}
-	}
-
 	protected void close() throws IOException {
 		this.execing = false;
 		this.imc.close();
@@ -299,10 +269,6 @@ public abstract class ImSrv extends BaseSrv implements MsgListener,
 	protected Notification createNotify(Msg m) {
 		return null;
 	}
-
-	protected abstract void onLi(NetwRunnable nr, Con.Res m);
-
-	protected abstract void onLo(NetwRunnable nr, Con.Res m);
 
 	public String getHost() {
 		return host;

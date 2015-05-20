@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicNameValuePair;
+import org.cny.awf.net.http.HCallback.GCacheCallbackS;
 import org.cny.awf.util.Util;
 
 import android.content.Context;
@@ -334,5 +335,18 @@ public class SyncH {
 	 */
 	public static C doGet(String url, HCallback cb) {
 		return doGet(url, null, cb);
+	}
+
+	//
+
+	public static <T> T doGetS(String url, List<BasicNameValuePair> args,
+			Class<?> cls) {
+		GCacheCallbackS<T> res = new GCacheCallbackS<T>(cls);
+		doGet(H.CTX, url, args, res);
+		if (res.err != null) {
+			throw new RuntimeException(res.err);
+		} else {
+			return res.data;
+		}
 	}
 }
