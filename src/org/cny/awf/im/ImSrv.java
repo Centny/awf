@@ -104,9 +104,6 @@ public abstract class ImSrv extends BaseSrv implements MsgListener,
 
 	@Override
 	public void onMsg(Msg m) {
-		L.debug("on recieve message:{}", m.toString());
-		// this.db.add(m);
-		// this.doNotify(m);
 	}
 
 	protected void doBroadcast(Msg m) {
