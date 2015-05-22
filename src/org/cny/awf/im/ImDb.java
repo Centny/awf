@@ -109,6 +109,16 @@ public class ImDb {
 				Msg.class, true);
 	}
 
+	public List<Msg> listMsgA(String a) {
+		return this.db_.rawQuery("SELECT * FROM _IM_M_ WHERE A=? ",
+				new String[] { a }, Msg.class, true);
+	}
+
+	// public List<Msg> listMsgS(String s, String a) {
+	// return this.db_.rawQuery("SELECT * FROM _IM_M_ WHERE S=? AND A=? ",
+	// new String[] { s, a }, Msg.class, true);
+	// }
+
 	public List<Msg> listMsgR(String r) {
 		return this.db_.rawQuery("SELECT * FROM _IM_M_ WHERE R LIKE ?", "%" + r
 				+ "%", Msg.class, true);
