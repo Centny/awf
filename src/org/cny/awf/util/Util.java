@@ -41,6 +41,7 @@ import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.SystemClock;
 import android.telephony.TelephonyManager;
+import android.util.Base64;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -355,5 +356,9 @@ public class Util {
 				MotionEvent.ACTION_UP, 0, 0, 0);
 		v.dispatchTouchEvent(env);
 		env.recycle();
+	}
+
+	public static String base64(byte[] bys) {
+		return Base64.encodeToString(bys, Base64.DEFAULT);
 	}
 }

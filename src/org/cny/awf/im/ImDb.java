@@ -87,6 +87,15 @@ public class ImDb {
 				status + "", i });
 	}
 
+	public void update(String i, String c, int status) {
+		this.db_.exec("UPDATE _IM_M_ SET STATUS=?,C=? WHERE I=?", new String[] {
+				status + "", c, i });
+	}
+
+	public void update(String i, byte[] c, int status) {
+		this.update(i, new String(c), status);
+	}
+
 	public void update(List<String> is, int status) {
 		this.db_.exec(
 				"UPDATE _IM_M_ SET STATUS=? WHERE I IN (" + Utils.joinSQL(is)

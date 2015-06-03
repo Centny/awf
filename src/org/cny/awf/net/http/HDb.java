@@ -95,6 +95,10 @@ public class HDb {
 		}
 	}
 
+	public HResp find(HResp res) {
+		return this.find(res.u, res.m, res.arg);
+	}
+
 	public synchronized List<HResp> findv(String url, String m, String args) {
 		String sql = "SELECT * FROM _HC_R_ WHERE U=? AND M=? AND ARG=? "
 				+ " ORDER BY TIME DESC";

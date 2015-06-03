@@ -18,6 +18,7 @@ import org.apache.http.Header;
 import org.apache.http.HeaderElement;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
+import org.cny.awf.net.http.PIS.PathPis;
 import org.cny.awf.util.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,6 +79,17 @@ public class HResp {
 		this.u = c.getUrl();
 		this.m = c.getMethod();
 		this.arg = c.getQuery();
+		return this;
+	}
+
+	public HResp init(CBase c, PathPis pis) {
+		this.u = c.getUrl();
+		this.m = c.getMethod();
+		this.arg = c.getQuery();
+		this.path = pis.path;
+		this.time = new Date().getTime();
+		this.type = pis.ct.getMimeType();
+		this.len = pis.length;
 		return this;
 	}
 

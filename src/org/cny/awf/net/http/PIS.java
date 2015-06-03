@@ -26,6 +26,16 @@ public abstract class PIS extends InputStream {
 
 	}
 
+	public PIS(String name, String filename, ContentType ct, boolean autoclose,
+			long length) {
+		super();
+		this.name = name;
+		this.filename = filename;
+		this.ct = ct;
+		this.autoclose = autoclose;
+		this.length = length;
+	}
+
 	@Override
 	public int available() throws IOException {
 		if (this.in == null) {
@@ -38,6 +48,7 @@ public abstract class PIS extends InputStream {
 	public void close() throws IOException {
 		if (this.in != null && this.autoclose) {
 			this.in.close();
+			this.in = null;
 		}
 	}
 
@@ -135,6 +146,10 @@ public abstract class PIS extends InputStream {
 		this.h = h;
 	}
 
+	public long getLength() {
+		return length;
+	}
+
 	protected abstract InputStream createIn() throws IOException;
 
 	protected void onProcess(PIS in, long t) {
@@ -149,6 +164,24 @@ public abstract class PIS extends InputStream {
 
 	public static interface PisH {
 		public void onProcess(PIS pis, float rate);
+	}
+
+	public static abstract class PathPis extends PIS {
+		protected String path;
+
+		public PathPis() {
+			super();
+		}
+
+		public PathPis(String name, String filename, ContentType ct,
+				boolean autoclose, long length) {
+			super(name, filename, ct, autoclose, length);
+		}
+
+		public String getPath() {
+			return path;
+		}
+
 	}
 
 	public static class FileInputStream extends NProcInputStream {

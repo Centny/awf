@@ -221,6 +221,7 @@ public abstract class CBase implements Runnable, PIS.PisH {
 		}
 	}
 
+	@SuppressWarnings("resource")
 	protected void exec() throws Exception {
 		HResp res = null;
 		InputStream in = null;
@@ -248,11 +249,10 @@ public abstract class CBase implements Runnable, PIS.PisH {
 			}
 			this.onProcEnd(res, in, out);
 			this.onSuccess(res);
-			res.close();
-			in.close();
 		} catch (Exception e) {
 			this.onError(new Exception(this.url + "," + this.getMethod() + "->"
 					+ e.getMessage(), e));
+		} finally {
 			this.closea(res, in, out);
 		}
 	}
@@ -268,6 +268,13 @@ public abstract class CBase implements Runnable, PIS.PisH {
 			out.close();
 		} catch (Exception e) {
 
+		}
+		for (PIS pis : this.files) {
+			try {
+				pis.close();
+			} catch (Exception e) {
+
+			}
 		}
 	}
 
@@ -285,6 +292,7 @@ public abstract class CBase implements Runnable, PIS.PisH {
 				return res.initPathStream(this.db);
 			}
 			this.onCache(res);
+			this.onCreateR(res, pc);
 			uri = this.createR();
 			if (pc == Policy.N) {
 				if (res.lmt > 0) {
@@ -300,6 +308,7 @@ public abstract class CBase implements Runnable, PIS.PisH {
 			if (pc == Policy.C) { // if cache not found and only cache policy
 				throw new Exception("cache not found");
 			}
+			this.onCreateR(res, pc);
 			uri = this.createR();
 			this.slog("not cache", pc);
 		}
@@ -412,6 +421,10 @@ public abstract class CBase implements Runnable, PIS.PisH {
 		this.cback.onProcess(this, pis, rate);
 	}
 
+	public void onCreateR(HResp res, Policy pc) throws Exception {
+		this.cback.onCreateR(this, res, pc);
+	}
+
 	protected abstract String getMethod();
 
 	protected abstract HttpClient createC() throws Exception;
@@ -423,6 +436,10 @@ public abstract class CBase implements Runnable, PIS.PisH {
 	 */
 	public List<NameValuePair> getArgs() {
 		return args;
+	}
+
+	public List<PIS> getFiles() {
+		return files;
 	}
 
 	/**

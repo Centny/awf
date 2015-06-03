@@ -45,7 +45,7 @@ public class ErrTest extends ActivityInstrumentationTestCase2<MainActivity> {
 		re.tid = 1;
 		re.toObjects(true);
 		try {
-			new HResp().init(null, null);
+			new HResp().init(null, (String) null);
 		} catch (Exception e) {
 
 		}

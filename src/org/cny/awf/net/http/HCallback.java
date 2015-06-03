@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.util.Map;
 
+import org.cny.awf.net.http.CBase.Policy;
 import org.cny.jwf.hook.Hooks;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +16,8 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 public interface HCallback {
+	void onCreateR(CBase c, HResp res, Policy pc) throws Exception;
+
 	void onCache(CBase c, HResp res) throws Exception;
 
 	void onProcess(CBase c, PIS pis, float rate);
@@ -82,6 +85,12 @@ public interface HCallback {
 		public String rdata() {
 			return this.tdata;
 		}
+
+		@Override
+		public void onCreateR(CBase c, HResp res, Policy pc) throws Exception {
+
+		}
+
 	}
 
 	public static abstract class HCacheCallback extends HDataCallback {
@@ -350,6 +359,11 @@ public interface HCallback {
 		public void onProcEnd(CBase c, HResp res, OutputStream o)
 				throws Exception {
 			this.target.onProcEnd(c, res, o);
+		}
+
+		@Override
+		public void onCreateR(CBase c, HResp res, Policy pc) throws Exception {
+			this.target.onCreateR(c, res, pc);
 		}
 
 		@Override

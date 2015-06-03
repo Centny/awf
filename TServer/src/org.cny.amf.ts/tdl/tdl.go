@@ -19,6 +19,7 @@ func Register() {
 	http.HandleFunc("/h_args", hdl_hs)
 	http.HandleFunc("/t_args", hdl_ts)
 	http.HandleFunc("/rec_f", rec_f)
+	http.HandleFunc("/rec_x", rec_x)
 	http.HandleFunc("/rec_sr", rec_sr)
 	http.HandleFunc("/res_j", res_j)
 	http.HandleFunc("/data_j", data_j)
@@ -217,6 +218,47 @@ func rec_f(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	fmt.Println("copy len:", wl)
+}
+func rec_x(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	var mv interface{}
+	defer func() {
+		bys, _ := json.Marshal(mv)
+		w.Write(bys)
+	}()
+	fmt.Println(r.PostForm, r.Form)
+	// fmt.Println(r.FormFile("sw"))
+	rf, fi, err := r.FormFile("file")
+	if err != nil {
+		mv = map[string]interface{}{
+			"code": 1,
+			"msg":  "get error:" + err.Error(),
+		}
+		return
+	}
+	fmt.Println(fi.Filename)
+	fpath := "data/www.txt"
+	tf, err := os.OpenFile(fpath, os.O_CREATE|os.O_RDWR, os.ModePerm)
+	if err != nil {
+		mv = map[string]interface{}{
+			"code": 1,
+			"msg":  "open error:" + err.Error(),
+		}
+		return
+	}
+	defer tf.Close()
+	_, err = io.Copy(tf, rf)
+	if err != nil {
+		mv = map[string]interface{}{
+			"code": 1,
+			"msg":  "copy error:" + err.Error(),
+		}
+		return
+	}
+	mv = map[string]interface{}{
+		"code": 0,
+		"data": "http://xxx.com/abc",
+	}
 }
 
 type Ab struct {

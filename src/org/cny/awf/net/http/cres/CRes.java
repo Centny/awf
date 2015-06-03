@@ -174,7 +174,11 @@ public class CRes<T> {
 		@SuppressWarnings("unchecked")
 		public CRes<T> fromJson(String data) throws Exception {
 			Gson gs = this.createGson();
-			return (CRes<T>) gs.fromJson(data, this.createToken());
+			try {
+				return (CRes<T>) gs.fromJson(data, this.createToken());
+			} catch (Exception e) {
+				throw new Exception(data, e);
+			}
 		}
 
 		@Override
@@ -246,6 +250,54 @@ public class CRes<T> {
 			return new TypeToken<CRes<String>>() {
 			}.getType();
 		}
+	}
+
+	public static class HResStrCallbackS extends HResStrCallback {
+		public Throwable err;
+		public CRes<String> data;
+
+		@Override
+		public void onError(CBase c, CRes<String> cache, Throwable err)
+				throws Exception {
+			this.data = cache;
+			this.err = err;
+
+		}
+
+		@Override
+		public void onSuccess(CBase c, HResp res, CRes<String> data)
+				throws Exception {
+			this.data = data;
+
+		}
+	}
+
+	public abstract static class HResNumCallback extends HResCallbackN<Number> {
+
+		@Override
+		protected Type createToken() throws Exception {
+			return new TypeToken<CRes<Number>>() {
+			}.getType();
+		}
+	}
+
+	public static class HResNumCallbackS extends HResNumCallback {
+		public Throwable err;
+		public CRes<Number> data;
+
+		@Override
+		public void onError(CBase c, CRes<Number> cache, Throwable err)
+				throws Exception {
+			this.data = cache;
+			this.err = err;
+		}
+
+		@Override
+		public void onSuccess(CBase c, HResp res, CRes<Number> data)
+				throws Exception {
+			this.data = data;
+		}
+
 	}
 
 	public static class HResCallbackNCaller<T> extends HResCallbackN<T> {
