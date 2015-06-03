@@ -1,5 +1,7 @@
 package org.cny.awf.mr;
 
+import java.util.List;
+
 import org.cny.awf.net.http.Args;
 import org.cny.awf.net.http.Args.V;
 import org.cny.awf.net.http.SyncH;
@@ -99,6 +101,36 @@ public class Mr {
 		}
 	}
 
+	public void push(String key, int v) {
+		this.push(key, "I", v);
+	}
+
+	public void push(String key, float v) {
+		this.push(key, "F", v);
+	}
+
+	public void push(String key, double v) {
+		this.push(key, "F", v);
+	}
+
+	public void push(String key, String v) {
+		this.push(key, "S", v);
+	}
+
+	public void push(String key, Object v) {
+		this.push(key, "J", new Gson().toJson(v));
+	}
+
+	public void push(String key, String type, Object v) {
+		CRes<String> res = this.strv(key,
+				Args.A("data", v).A("exec", "P").A("type", type));
+		if (res.code == 0) {
+			return;
+		} else {
+			throw new RuntimeException(res.toString());
+		}
+	}
+
 	public void del(String key) {
 		CRes<String> res = this.strv(key, Args.A("exec", "D"));
 		if (res.code == 0) {
@@ -135,15 +167,15 @@ public class Mr {
 		}
 	}
 
-	// public <T> List<T> objvs(String key, Class<? extends Resable<T>> cls) {
-	// CRes<List<T>> res = this.objv(key, Args.A("exec", "G").A("type", "J"),
-	// cls);
-	// if (res.code == 0) {
-	// return res.data;
-	// } else {
-	// throw new RuntimeException(res.toString());
-	// }
-	// }
+	public <T> List<T> objvs(String key, Class<? extends Resable<T>> cls) {
+		CRes<List<T>> res = this.objvs(key, Args.A("exec", "G").A("type", "J"),
+				cls);
+		if (res.code == 0) {
+			return res.data;
+		} else {
+			throw new RuntimeException(res.toString());
+		}
+	}
 
 	public CRes<Number> numv(String key, V args) {
 		args.A("id", this.id).A("_hc_", "NO");
@@ -175,16 +207,16 @@ public class Mr {
 		return res.data;
 	}
 
-	// public <T> CRes<List<T>> objvs(String key, V args,
-	// Class<? extends Resable<T>> cls) {
-	// args.A("id", this.id).A("_hc_", "NO");
-	// CRes.HResCallbackLS<T> res = new CRes.HResCallbackLS<T>(cls);
-	// SyncH.doGet(this.base + key, args, res);
-	// if (res.err != null) {
-	// throw new RuntimeException(res.err);
-	// }
-	// return res.data;
-	// }
+	public <T> CRes<List<T>> objvs(String key, V args,
+			Class<? extends Resable<T>> cls) {
+		args.A("id", this.id).A("_hc_", "NO");
+		CRes.HResCallbackLS<T> res = new CRes.HResCallbackLS<T>(cls);
+		SyncH.doGet(this.base + key, args, res);
+		if (res.err != null) {
+			throw new RuntimeException(res.err);
+		}
+		return res.data;
+	}
 
 	public void setBase(String base) {
 		if (base.charAt(base.length() - 1) == '/') {

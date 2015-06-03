@@ -1,5 +1,6 @@
 package org.cny.awf.mr;
 
+import java.util.Date;
 import java.util.List;
 
 import org.cny.awf.net.http.H;
@@ -47,7 +48,8 @@ public class MrTest extends ActivityInstrumentationTestCase2<MainActivity> {
 
 	public void testMr() {
 		H.CTX = this.getActivity();
-		Mr mr = new Mr("http://192.168.2.57:9904/mr/");
+		Mr mr = new Mr("http://192.168.2.57:9904/mr/", "mr-"
+				+ new Date().getTime());
 		mr.setBase("http://192.168.2.57:9904/mr");
 		mr.set("i", 1);
 		mr.set("f", 1.1f);
@@ -57,6 +59,13 @@ public class MrTest extends ActivityInstrumentationTestCase2<MainActivity> {
 		mr.inc("i", 2);
 		mr.inc("f", 2f);
 		mr.inc("d", 2d);
+		mr.push("is", 1);
+		mr.push("fs", 1.1f);
+		mr.push("ds", 1.2d);
+		mr.push("ss", "abc");
+		mr.push("js", new Mrv("adata0", "bdata0"));
+		mr.push("js", new Mrv("adata1", "bdata1"));
+		mr.push("js", new Mrv("adata2", "bdata2"));
 		// List<Mrv> ms;
 		// ms = new ArrayList<MrTest.Mrv>();
 		// ms.add(new Mrv("a1", "b1"));
@@ -72,6 +81,13 @@ public class MrTest extends ActivityInstrumentationTestCase2<MainActivity> {
 		Mrv m = mr.objv("j", Mrv.class);
 		assertEquals("adata", m.a);
 		assertEquals("bdata", m.b);
+		//
+		List<Mrv> ms = mr.objvs("js", Mrv.class);
+		assertEquals(3, ms.size());
+		for (int i = 0; i < 3; i++) {
+			assertEquals("adata" + i, ms.get(i).a);
+		}
+		//
 		mr.del("i");
 
 		Object err = null;
@@ -105,6 +121,13 @@ public class MrTest extends ActivityInstrumentationTestCase2<MainActivity> {
 		assertNotNull(err);
 		try {
 			err = null;
+			mr.objvs("xsdfsdj", Mrv.class);
+		} catch (Exception e) {
+			err = e;
+		}
+		assertNotNull(err);
+		try {
+			err = null;
 			mr.inc("sdfd", "S", "sdfsdf");
 		} catch (Exception e) {
 			err = e;
@@ -113,6 +136,13 @@ public class MrTest extends ActivityInstrumentationTestCase2<MainActivity> {
 		try {
 			err = null;
 			mr.set("sdfs", "I", "sdfsf");
+		} catch (Exception e) {
+			err = e;
+		}
+		assertNotNull(err);
+		try {
+			err = null;
+			mr.push("sdfs", "I", "sdfsf");
 		} catch (Exception e) {
 			err = e;
 		}
@@ -141,6 +171,14 @@ public class MrTest extends ActivityInstrumentationTestCase2<MainActivity> {
 		try {
 			err = null;
 			new Mr("http://192.168.2.57:9x904/", "sdd").objv("xsdfsdj",
+					Mrv.class);
+		} catch (Exception e) {
+			err = e;
+		}
+		assertNotNull(err);
+		try {
+			err = null;
+			new Mr("http://192.168.2.57:9x904/", "sdd").objvs("xsdfsdj",
 					Mrv.class);
 		} catch (Exception e) {
 			err = e;
