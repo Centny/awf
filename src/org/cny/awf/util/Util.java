@@ -21,11 +21,13 @@ import java.util.Map;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.cny.jwf.util.Utils;
 
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.BitmapFactory;
@@ -36,6 +38,7 @@ import android.graphics.PorterDuff.Mode;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.net.Uri;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Build;
@@ -360,5 +363,26 @@ public class Util {
 
 	public static String base64(byte[] bys) {
 		return Base64.encodeToString(bys, Base64.DEFAULT);
+	}
+
+	public static Uri findResUri(Context context, int res)
+			throws NameNotFoundException {
+		Context packageContext = context.createPackageContext(
+				context.getPackageName(), Context.CONTEXT_RESTRICTED);
+		Resources resources = packageContext.getResources();
+		String appPkg = packageContext.getPackageName();
+		String resPkg = resources.getResourcePackageName(res);
+		String type = resources.getResourceTypeName(res);
+		String name = resources.getResourceEntryName(res);
+		Uri.Builder uriBuilder = new Uri.Builder();
+		uriBuilder.scheme(ContentResolver.SCHEME_ANDROID_RESOURCE);
+		uriBuilder.encodedAuthority(appPkg);
+		uriBuilder.appendEncodedPath(type);
+		if (appPkg.equals(resPkg)) {
+			uriBuilder.appendEncodedPath(name);
+		} else {
+			uriBuilder.appendEncodedPath(resPkg + ":" + name);
+		}
+		return uriBuilder.build();
 	}
 }
