@@ -1,6 +1,9 @@
 #!/bin/bash
 set -e
 export PATH=$PATH:$GOROOT/bin:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools:$ANT_HOME/bin
+if [ ! -d assets ]; then
+ mkdir assets
+fi
 ./w_ts_ip
 case $1 in
  dev)
