@@ -16,9 +16,11 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.conn.util.InetAddressUtils;
 import org.cny.jwf.util.Utils;
 
 import android.content.ContentResolver;
@@ -138,6 +140,27 @@ public class Util {
 			}
 		} catch (SocketException ex) {
 			Log.e(Util.class.getName(), ex + "");
+		}
+		return null;
+	}
+
+	public static String localIpAddress() {
+		try {
+			List<NetworkInterface> interfaces = Collections
+					.list(NetworkInterface.getNetworkInterfaces());
+			for (NetworkInterface intf : interfaces) {
+				List<InetAddress> addrs = Collections.list(intf
+						.getInetAddresses());
+				for (InetAddress addr : addrs) {
+					if (!addr.isLoopbackAddress()) {
+						String sAddr = addr.getHostAddress().toUpperCase(
+								Locale.ENGLISH);
+						if (InetAddressUtils.isIPv4Address(sAddr))
+							return sAddr;
+					}
+				}
+			}
+		} catch (Exception ex) {
 		}
 		return null;
 	}

@@ -51,6 +51,14 @@ public class NetInfo {
 				.getSystemService(Context.CONNECTIVITY_SERVICE);
 		NetworkInfo info = conm.getActiveNetworkInfo();
 		if (info == null) {
+			for (NetworkInfo ni : conm.getAllNetworkInfo()) {
+				if (ni.isAvailable()) {
+					info = ni;
+					break;
+				}
+			}
+		}
+		if (info == null) {
 			this.available = false;
 			return;
 		}
@@ -60,7 +68,7 @@ public class NetInfo {
 		}
 		this.type = info.getType();
 		this.subtype = info.getSubtype();
-		this.ip = Util.localIpAddress(ctx, false);
+		this.ip = Util.localIpAddress();
 		if (this.type != ConnectivityManager.TYPE_WIFI) {
 			this.ntype = NT_WF;
 			return;
