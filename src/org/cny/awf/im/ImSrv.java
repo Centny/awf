@@ -91,7 +91,7 @@ public abstract class ImSrv extends BaseSrv implements MsgListener,
 	}
 
 	public void onRecon() {
-
+		this.imc.rcClear(new Exception("ImSrv Reconnecting..."));
 	}
 
 	public void begRun() {
