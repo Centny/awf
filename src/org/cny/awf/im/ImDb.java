@@ -10,11 +10,12 @@ import org.cny.jwf.im.Msg;
 import org.cny.jwf.util.Utils;
 
 import android.content.Context;
+import android.database.Cursor;
 
 public class ImDb {
 	public static final String DB_F_NAME = "_imdb_.dbf";
 	public static final String DB_SCRIPT_F = "_im_.sql";
-	public static final String COLS = "I,S,R,D,T,C,A,TIME,STATUS";
+	public static final String COLS = "I,IDX,S,R,D,T,C,A,TIME,STATUS";
 	// protected static ImDb IDB_;
 	//
 	// public static ImDb loadDb_(Context ctx) {
@@ -71,6 +72,22 @@ public class ImDb {
 		}
 	}
 
+	public synchronized long nmid() {
+		long name = 0;
+		String sql = "";
+		sql = "SELECT VAL FROM _IM_ENV_ WHERE NAME='_IM_M_I' AND TYPE='_IM_'";
+		Cursor cur = this.db_.Db().rawQuery(sql, null);
+		if (cur.moveToNext()) {
+			name = cur.getLong(0);
+			sql = "UPDATE _IM_ENV_ SET VAL=VAL+1 WHERE NAME='_IM_M_I' AND TYPE='_IM_'";
+		} else {
+			name = 0;
+			sql = "INSERT INTO _IM_ENV_ VALUES('_IM_M_I','1','_IM_')";
+		}
+		this.db_.exec(sql);
+		return name;
+	}
+
 	/**
 	 * store one message.
 	 * 
@@ -78,8 +95,9 @@ public class ImDb {
 	 *            the ImMsg.
 	 */
 	public void add(Msg m) {
+		m.idx = this.nmid();
 		this.db_.exec("INSERT INTO _IM_M_ (" + COLS
-				+ ") VALUES(?,?,?,?,?,?,?,?,?)", m.toObjects());
+				+ ") VALUES(?,?,?,?,?,?,?,?,?,?)", m.toObjects());
 	}
 
 	public void update(String i, int status) {
@@ -114,12 +132,13 @@ public class ImDb {
 	}
 
 	public List<Msg> listMsgS(String s) {
-		return this.db_.rawQuery("SELECT * FROM _IM_M_ WHERE S = ?", s,
-				Msg.class, true);
+		return this.db_.rawQuery(
+				"SELECT * FROM _IM_M_ WHERE S = ? ORDER BY IDX", s, Msg.class,
+				true);
 	}
 
 	public List<Msg> listMsgA(String a) {
-		return this.db_.rawQuery("SELECT * FROM _IM_M_ WHERE A=? ",
+		return this.db_.rawQuery("SELECT * FROM _IM_M_ WHERE A=? ORDER BY IDX",
 				new String[] { a }, Msg.class, true);
 	}
 
@@ -129,8 +148,9 @@ public class ImDb {
 	// }
 
 	public List<Msg> listMsgR(String r) {
-		return this.db_.rawQuery("SELECT * FROM _IM_M_ WHERE R LIKE ?", "%" + r
-				+ "%", Msg.class, true);
+		return this.db_.rawQuery(
+				"SELECT * FROM _IM_M_ WHERE R LIKE ? ORDER BY IDX", "%" + r
+						+ "%", Msg.class, true);
 	}
 
 	/**
@@ -142,7 +162,8 @@ public class ImDb {
 	 * @throws Exception
 	 */
 	public List<Msg> listMsgT(int t) {
-		return this.db_.rawQuery("SELECT * FROM _IM_M_ WHERE T = ?", "" + t,
+		return this.db_.rawQuery(
+				"SELECT * FROM _IM_M_ WHERE T = ? ORDER BY IDX", "" + t,
 				Msg.class, true);
 	}
 
