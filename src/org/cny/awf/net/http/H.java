@@ -363,6 +363,10 @@ public class H {
 		return CBase.checkCache(CTX, url, m);
 	}
 
+	public static HResp findCache2(String url, String m) {
+		return CBase.checkCache2(CTX, url, m);
+	}
+
 	public static String findCache(String url) {
 		return findCache(url, "GET");
 	}

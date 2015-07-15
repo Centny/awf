@@ -124,7 +124,23 @@ public abstract class CBase implements Runnable, PIS.PisH {
 			return null;
 		}
 		File fc = db.checkCacheF(res.path);
+		if (fc == null) {
+			return null;
+		}
 		return fc.getAbsolutePath();
+	}
+
+	public static HResp checkCache2(Context ctx, String url, String m) {
+		HDb db = HDb.loadDb_(ctx);
+		HResp res = findCache(db, url, m);
+		if (res == null || res.path == null) {
+			return null;
+		}
+		File fc = db.checkCacheF(res.path);
+		if (fc == null) {
+			return null;
+		}
+		return res;
 	}
 
 	public static HResp findCache(HDb db, String url, String m) {
