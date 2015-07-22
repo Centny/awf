@@ -26,4 +26,9 @@ public abstract class BaseSrv extends Service {
 	protected ComponentName createComponentName() {
 		return new ComponentName(this, this.getClass());
 	}
+
+	public ServiceInfo getInfo() {
+		return info;
+	}
+
 }
