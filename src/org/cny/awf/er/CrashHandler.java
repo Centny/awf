@@ -12,6 +12,7 @@ public class CrashHandler implements UncaughtExceptionHandler {
 
 	@Override
 	public void uncaughtException(Thread thr, Throwable e) {
+		e.printStackTrace();
 		Map<String, Object> kvs = new HashMap<String, Object>();
 		kvs.put("thr_id", thr.getId());
 		kvs.put("thr_name", thr.getName());
@@ -26,7 +27,6 @@ public class CrashHandler implements UncaughtExceptionHandler {
 		} catch (Exception e1) {
 			e1.printStackTrace();
 		}
-		e.printStackTrace();
 	}
 
 	private static CrashHandler CH_ = null;
