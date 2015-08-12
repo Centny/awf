@@ -55,6 +55,7 @@ public class BaseApp extends Application {
 					put("aid", pinfo.packageName);
 					put("ver", pinfo.versionName);
 					put("dev", dinfo.get("IMEI"));
+					put("rel", info.metaData.getString("sr-rel", ""));
 					put("exec", "A");
 					put("_hc_", "NO");
 				}

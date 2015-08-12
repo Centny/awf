@@ -73,6 +73,9 @@
             android:name="debug"
             android:value="true" />
         <meta-data
+            android:name="sr-rel"
+            android:value="www" />
+        <meta-data
             android:name="sr-srv"
             android:value="http://192.168.2.30:9904/sr" />
 
