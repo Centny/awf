@@ -1,5 +1,7 @@
 package org.cny.awf.net.http.f;
 
+import java.io.Serializable;
+
 import com.google.gson.Gson;
 
 /**
@@ -8,7 +10,11 @@ import com.google.gson.Gson;
  * @author cny
  *
  */
-public class FInfo {
+public class FInfo implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -5875836620905851685L;
 	protected String url;
 	protected String path;
 	protected String name;
