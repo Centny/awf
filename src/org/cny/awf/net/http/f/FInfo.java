@@ -9,12 +9,12 @@ import com.google.gson.Gson;
  *
  */
 public class FInfo {
-	private String url;
-	private String path;
-	private String name;
-	private String sha;
-	private long size;
-	private String type;
+	protected String url;
+	protected String path;
+	protected String name;
+	protected String sha;
+	protected long size;
+	protected String type;
 
 	public FInfo() {
 	}

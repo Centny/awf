@@ -182,6 +182,14 @@ public abstract class PIS extends InputStream {
 			return path;
 		}
 
+		/**
+		 * @param path
+		 *            the path to set
+		 */
+		public void setPath(String path) {
+			this.path = path;
+		}
+
 	}
 
 	public static class FileInputStream extends NProcInputStream {

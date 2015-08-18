@@ -50,6 +50,10 @@ public class FPis extends PathPis {
 	 * the cache file.
 	 */
 	protected File cf;// cache file.
+	/**
+	 * whether cache the input stream to file, default is true.
+	 */
+	protected boolean cached = true;
 
 	/**
 	 * create FPis by the input stream.
@@ -119,6 +123,7 @@ public class FPis extends PathPis {
 		this.ct = ContentType.DEFAULT_BINARY;
 		this.autoclose = true;
 		this.length = f.length();
+		this.path = f.getAbsolutePath();
 		this.in = new java.io.FileInputStream(f);
 	}
 
@@ -145,6 +150,28 @@ public class FPis extends PathPis {
 		this.in = new ByteArrayInputStream(out.toByteArray());
 	}
 
+	/**
+	 * create FPis by file info.
+	 * 
+	 * @param ctx
+	 *            content.
+	 * @param info
+	 *            file info.
+	 * @throws FileNotFoundException
+	 *             try open the path file error.
+	 */
+	public FPis(Context ctx, FInfo info) throws FileNotFoundException {
+		super();
+		this.ctx = ctx;
+		this.name = info.getName();
+		this.path = info.getPath();
+		this.sha1 = info.getSha();
+		this.length = info.getSize();
+		this.ct = ContentType.create(info.getType());
+		this.autoclose = true;
+		this.in = new java.io.FileInputStream(this.path);
+	}
+
 	@Override
 	protected InputStream createIn() throws IOException {
 		if (this.rin == null) {
@@ -159,24 +186,34 @@ public class FPis extends PathPis {
 	 * @throws IOException
 	 *             IOException for file process.
 	 */
-	public void doProc() throws IOException {
-		this.cf = HDb.loadDb_(this.ctx).newCacheF();
+	public void doProc() throws Exception {
 		FileOutputStream fos = null;
-		try {
-			fos = new FileOutputStream(this.cf);
-			this.path = this.cf.getAbsolutePath();
-			Hash hash = FUtil.sha1(this.in, fos);
-			this.sha1 = Util.base64(hash.hash);
-			this.length = hash.length;
-			fos.close();
-			this.autoclose = true;
-			this.rin = new java.io.FileInputStream(this.cf);
-		} catch (Exception e) {
-			this.cf.deleteOnExit();
-			if (fos != null) {
+		if (this.cached) {
+			this.cf = HDb.loadDb_(this.ctx).newCacheF();
+			try {
+				fos = new FileOutputStream(this.cf);
+				this.path = this.cf.getAbsolutePath();
+				Hash hash = FUtil.sha1(this.in, fos);
+				this.sha1 = Util.base64(hash.hash);
+				this.length = hash.length;
 				fos.close();
+				this.autoclose = true;
+				this.rin = new java.io.FileInputStream(this.cf);
+			} catch (Exception e) {
+				this.cf.deleteOnExit();
+				if (fos != null) {
+					fos.close();
+				}
+				throw new IOException(e);
 			}
-			throw new IOException(e);
+		} else {
+			if (Util.isNullOrEmpty(this.sha1)) {
+				Hash hash = FUtil.sha1(this.in, null);
+				this.sha1 = Util.base64(hash.hash);
+				this.length = hash.length;
+				this.in.reset();
+			}
+			this.rin = this.in;
 		}
 	}
 
@@ -231,5 +268,20 @@ public class FPis extends PathPis {
 	 */
 	public FInfo info() {
 		return new FInfo(this);
+	}
+
+	/**
+	 * @return the cached
+	 */
+	public boolean isCached() {
+		return cached;
+	}
+
+	/**
+	 * @param cached
+	 *            the cached to set
+	 */
+	public void setCached(boolean cached) {
+		this.cached = cached;
 	}
 }
