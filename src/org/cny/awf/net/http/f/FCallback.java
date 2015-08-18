@@ -97,7 +97,7 @@ public class FCallback implements HCallback {
 
 	@Override
 	public void onExecErr(CBase c, Throwable e) {
-		if (this.file == null) {
+		if (this.file != null) {
 			this.file.clear();
 		}
 		this.h.onExecErr(c, e);
@@ -105,7 +105,7 @@ public class FCallback implements HCallback {
 
 	@Override
 	public void onError(CBase c, Throwable err) throws Exception {
-		if (this.file == null) {
+		if (this.file != null) {
 			this.file.clear();
 		}
 		this.h.onError(c, err);
