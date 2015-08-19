@@ -6,6 +6,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Date;
 
 import org.apache.http.entity.ContentType;
 
@@ -15,12 +16,14 @@ public abstract class PIS extends InputStream {
 	private long readed = 0;
 	private InputStream in;
 	private PisH h;
+	private long last_proc;
 
 	protected String name;
 	protected String filename;
 	protected ContentType ct = ContentType.DEFAULT_BINARY;
 	protected boolean autoclose = true;
 	protected long length;
+	protected long delay = 1000;
 
 	protected PIS() {
 
@@ -159,13 +162,33 @@ public abstract class PIS extends InputStream {
 	protected abstract InputStream createIn() throws IOException;
 
 	protected void onProcess(PIS in, long t) {
-		if (this.h != null) {
+		if (this.h == null) {
+			return;
+		}
+		long now = new Date().getTime();
+		if (now - this.last_proc > this.delay || t == this.length) {
 			float rate = 0;
 			if (this.length > 0) {
 				rate = ((float) t) / ((float) this.length);
 			}
 			this.h.onProcess(this, rate);
+			this.last_proc = now;
 		}
+	}
+
+	/**
+	 * @return the delay
+	 */
+	public long getDelay() {
+		return delay;
+	}
+
+	/**
+	 * @param delay
+	 *            the delay to set
+	 */
+	public void setDelay(long delay) {
+		this.delay = delay;
 	}
 
 	public static interface PisH {
