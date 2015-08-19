@@ -14,6 +14,7 @@ import org.cny.awf.net.http.HDb;
 import org.cny.awf.net.http.HResp;
 import org.cny.awf.net.http.PIS.PathPis;
 import org.cny.awf.util.Util;
+import org.cny.jwf.util.Donable;
 import org.cny.jwf.util.FUtil;
 import org.cny.jwf.util.FUtil.Hash;
 
@@ -27,7 +28,7 @@ import android.graphics.Bitmap;
  * @author cny
  *
  */
-public class FPis extends PathPis {
+public class FPis extends PathPis implements Donable<InputStream> {
 
 	/**
 	 * the initial input stream
@@ -54,6 +55,11 @@ public class FPis extends PathPis {
 	 * whether cache the input stream to file, default is true.
 	 */
 	protected boolean cached = true;
+
+	/**
+	 * 
+	 */
+	protected Donable<FPis> doneh;
 
 	/**
 	 * create FPis by the input stream.
@@ -160,10 +166,12 @@ public class FPis extends PathPis {
 	 * @throws FileNotFoundException
 	 *             try open the path file error.
 	 */
-	public FPis(Context ctx, FInfo info) throws FileNotFoundException {
+	public FPis(Context ctx, FInfo info, String name)
+			throws FileNotFoundException {
 		super();
 		this.ctx = ctx;
-		this.name = info.getName();
+		this.name = name;
+		this.filename = info.getName();
 		this.path = info.getPath();
 		this.sha1 = info.getSha();
 		this.length = info.getSize();
@@ -187,33 +195,30 @@ public class FPis extends PathPis {
 	 *             IOException for file process.
 	 */
 	public void doProc() throws Exception {
-		FileOutputStream fos = null;
-		if (this.cached) {
-			this.cf = HDb.loadDb_(this.ctx).newCacheF();
-			try {
-				fos = new FileOutputStream(this.cf);
-				this.path = this.cf.getAbsolutePath();
-				Hash hash = FUtil.sha1(this.in, fos);
-				this.sha1 = Util.base64(hash.hash);
-				this.length = hash.length;
-				fos.close();
-				this.autoclose = true;
-				this.rin = new java.io.FileInputStream(this.cf);
-			} catch (Exception e) {
-				this.cf.deleteOnExit();
-				if (fos != null) {
-					fos.close();
-				}
-				throw new IOException(e);
-			}
-		} else {
-			if (Util.isNullOrEmpty(this.sha1)) {
-				Hash hash = FUtil.sha1(this.in, null);
-				this.sha1 = Util.base64(hash.hash);
-				this.length = hash.length;
-				this.in.reset();
-			}
+		if (Util.isNoEmpty(this.sha1)) {
 			this.rin = this.in;
+			return;
+		}
+		FileOutputStream fos = null;
+		this.cf = HDb.loadDb_(this.ctx).newCacheF();
+		try {
+			fos = new FileOutputStream(this.cf);
+			Hash hash = FUtil.sha1(this.in, fos, this);
+			this.sha1 = Util.base64(hash.hash);
+			this.length = hash.length;
+			fos.close();
+			if (this.cached) {
+				this.path = this.cf.getAbsolutePath();
+			}
+			this.rin = new java.io.FileInputStream(this.cf);
+			this.in.close();
+			this.autoclose = true;
+		} catch (Exception e) {
+			this.cf.deleteOnExit();
+			if (fos != null) {
+				fos.close();
+			}
+			throw new IOException(e);
 		}
 	}
 
@@ -284,4 +289,35 @@ public class FPis extends PathPis {
 	public void setCached(boolean cached) {
 		this.cached = cached;
 	}
+
+	/**
+	 * @return the doneh
+	 */
+	public Donable<FPis> getDoneh() {
+		return doneh;
+	}
+
+	/**
+	 * @param doneh
+	 *            the doneh to set
+	 */
+	public void setDoneh(Donable<FPis> doneh) {
+		this.doneh = doneh;
+	}
+
+	@Override
+	public void onProc(InputStream tg, long done) {
+		if (this.doneh != null) {
+			this.doneh.onProc(this, done);
+		}
+	}
+
+	@Override
+	public void close() throws IOException {
+		if (!this.cached && this.cf != null) {
+			this.cf.deleteOnExit();
+		}
+		super.close();
+	}
+
 }

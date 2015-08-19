@@ -71,6 +71,9 @@ public abstract class PIS extends InputStream {
 			this.in = this.createIn();
 		}
 		int rlen = this.in.read(buffer, byteOffset, byteCount);
+		if (rlen < 1) {
+			return rlen;
+		}
 		this.readed += rlen;
 		this.onProcess(this, this.readed);
 		return rlen;
@@ -82,6 +85,9 @@ public abstract class PIS extends InputStream {
 			this.in = this.createIn();
 		}
 		int rlen = this.in.read(buffer);
+		if (rlen < 1) {
+			return rlen;
+		}
 		this.readed += rlen;
 		this.onProcess(this, this.readed);
 		return rlen;

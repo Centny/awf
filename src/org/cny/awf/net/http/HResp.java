@@ -182,7 +182,7 @@ public class HResp {
 			this.in.close();
 			// }
 		} catch (Exception e) {
-			L.warn("closing stream error:", e.getMessage());
+			L.warn("closing stream error:", e);
 		}
 	}
 

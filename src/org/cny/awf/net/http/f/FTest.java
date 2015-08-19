@@ -1,4 +1,4 @@
-package org.cny.awf.net.http.f;
+ package org.cny.awf.net.http.f;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -74,4 +74,5 @@ public class FTest extends ActivityInstrumentationTestCase2<MainActivity> {
 		assertNull(this.rerr);
 		//
 	}
+	
 }

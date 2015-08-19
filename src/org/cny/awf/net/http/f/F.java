@@ -12,6 +12,7 @@ import org.cny.awf.net.http.H;
 import org.cny.awf.net.http.HAsyncTask;
 import org.cny.awf.net.http.HResp;
 import org.cny.awf.net.http.cres.CRes;
+import org.cny.awf.net.http.cres.ResException;
 import org.cny.awf.net.http.f.FCallback.FUrlH;
 
 import android.graphics.Bitmap;
@@ -41,7 +42,7 @@ public class F {
 			if (data.code == 0) {
 				this.url = data.data;
 			} else {
-				this.url = null;
+				throw new ResException(data);
 			}
 		}
 	}
