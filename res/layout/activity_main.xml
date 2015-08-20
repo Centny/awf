@@ -26,4 +26,16 @@
         android:onClick="toCrash"
         android:text="@string/image_view" />
 
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="toFUp"
+        android:text="@string/title_activity_fup" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="toImgList"
+        android:text="@string/title_activity_img_list" />
+
 </LinearLayout>

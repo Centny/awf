@@ -63,4 +63,12 @@ public class MainActivity extends BaseAty {
 	public void toCrash(View v) {
 		this.startActivity(new Intent(this, CrashAty.class));
 	}
+
+	public void toFUp(View v) {
+		this.startActivity(new Intent(this, FUpActivity.class));
+	}
+
+	public void toImgList(View v) {
+		this.startActivity(new Intent(this, ImgListActivity.class));
+	}
 }

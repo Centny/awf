@@ -10,5 +10,7 @@
     <string name="title_activity_image_view">ImageViewActivity</string>
     <string name="show">Show</string>
     <string name="title_activity_crash_aty">CrashAty</string>
+    <string name="title_activity_fup">FUp</string>
+    <string name="title_activity_img_list">ImgListActivity</string>
 
 </resources>
