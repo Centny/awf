@@ -5,10 +5,14 @@ import java.io.OutputStream;
 import java.util.Map;
 
 import org.cny.awf.net.http.CBase.Policy;
+import org.cny.awf.pool.BitmapPool;
+import org.cny.awf.pool.BitmapPool.UrlKey;
+import org.cny.awf.util.Util;
 import org.cny.jwf.hook.Hooks;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import android.graphics.Bitmap;
 import android.os.Handler;
 import android.os.Message;
 
@@ -104,6 +108,42 @@ public interface HCallback {
 		}
 
 		public abstract void onError(CBase c, String cache, Throwable err)
+				throws Exception;
+	}
+
+	public static abstract class HBitmapCallback extends HCacheCallback {
+		protected int roundCorner = 0;
+
+		public HBitmapCallback() {
+			super();
+		}
+
+		public HBitmapCallback(int roundCorner) {
+			super();
+			this.roundCorner = roundCorner;
+		}
+
+		@Override
+		public void onSuccess(CBase c, HResp res, String data) throws Exception {
+			this.onSuccess(c, res, BitmapPool.dol(new UrlKey(c.getUrl(), data),
+					this.roundCorner));
+		}
+
+		@Override
+		public void onError(CBase c, String cache, Throwable err)
+				throws Exception {
+			Bitmap img = null;
+			if (Util.isNoEmpty(cache)) {
+				img = BitmapPool.dol(new UrlKey(c.getUrl(), cache),
+						this.roundCorner);
+			}
+			this.onError(c, img, err);
+		}
+
+		public abstract void onSuccess(CBase c, HResp res, Bitmap img)
+				throws Exception;
+
+		public abstract void onError(CBase c, Bitmap cache, Throwable err)
 				throws Exception;
 	}
 
