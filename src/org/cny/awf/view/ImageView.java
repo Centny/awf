@@ -3,7 +3,7 @@ package org.cny.awf.view;
 import org.cny.awf.net.http.Args;
 import org.cny.awf.net.http.CBase;
 import org.cny.awf.net.http.H;
-import org.cny.awf.net.http.HCallback.HCacheCallback;
+import org.cny.awf.net.http.HCallback.HBitmapCallback;
 import org.cny.awf.net.http.HResp;
 import org.cny.awf.pool.BitmapPool;
 import org.cny.awf.util.Util;
@@ -11,8 +11,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
+import android.os.Handler;
+import android.os.Message;
 import android.util.AttributeSet;
+import android.util.Pair;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 
@@ -24,20 +28,28 @@ public class ImageView extends android.widget.ImageView {
 	 */
 	protected String url;
 	protected int roundCorner = 0;
-	protected int showTime = 500;
+	protected int showTime = 800;
 	protected Drawable bg;
-	protected final HCacheCallback cback = new HCacheCallback() {
 
-		@Override
-		public void onSuccess(CBase c, HResp res, String data) throws Exception {
-			ImageView.this.doAnimation(data);
-			// System.err.println("---->" + data);
+	protected class ImgCallback extends HBitmapCallback {
+
+		public ImgCallback(int roundCorner) {
+			super(roundCorner);
 		}
 
 		@Override
-		public void onError(CBase c, String cache, Throwable err)
+		public void onSuccess(CBase c, HResp res, Bitmap img) throws Exception {
+			if (c.getUrl().equals(url)) {
+				ImageView.this.doAnimationH(img);
+			}
+		}
+
+		@Override
+		public void onError(CBase c, Bitmap cache, Throwable err)
 				throws Exception {
-			L.debug("load image by url({}) err:", err.getMessage());
+			if (c.getUrl().equals(url) && cache != null) {
+				ImageView.this.doAnimationH(cache);
+			}
 		}
 	};
 
@@ -67,14 +79,8 @@ public class ImageView extends android.widget.ImageView {
 		try {
 			this.reset_bg();
 			this.url = url;
-			String curl = H.findCache(this.url);
-			if (curl == null) {
-				this.setImageDrawable(this.bg);
-				H.doGet(this.getContext(), this.url, Args.A("_hc_", "I"),
-						this.cback);
-			} else {
-				this.setImg(curl, this.roundCorner);
-			}
+			H.doGetNH(this.getContext(), this.url, Args.A("_hc_", "I"), null,
+					new ImgCallback(this.roundCorner));
 			return true;
 		} catch (Throwable e) {
 			return false;
@@ -84,7 +90,8 @@ public class ImageView extends android.widget.ImageView {
 	private void reset_bg() {
 		if (this.bg == null) {
 			this.bg = this.getBackground();
-			this.setBackgroundColor(0);
+		}
+		if (this.bg != null) {
 			this.setImageDrawable(this.bg);
 		}
 	}
@@ -121,18 +128,40 @@ public class ImageView extends android.widget.ImageView {
 		this.setImageBitmap(BitmapPool.dol(url, rc));
 	}
 
-	protected void doAnimation(String path) {
-		// this.setImageURI(Uri.fromFile(new File(path)));
-		// System.err.println(path + "---->");
+	public void doAnimation(Bitmap img) {
+		this.setImageBitmap(img);
+		this.doAnimation();
+	}
+
+	public void doAnimationH(Bitmap img) {
+		Message msg = new Message();
+		msg.obj = new Pair<ImageView, Bitmap>(ImageView.this, img);
+		h.sendMessage(msg);
+	}
+
+	public void doAnimation(String path) {
 		try {
 			this.setImg(path, this.roundCorner);
-			Animation an = new AlphaAnimation(0, ImageView.this.getAlpha());
-			an.setDuration(this.showTime);
-			this.startAnimation(an);
-			// this.setBackgroundColor(0);
+			this.doAnimation();
 		} catch (Throwable e) {
 			L.debug("read bitmap file err:{}", e.getMessage());
 		}
 	}
 
+	public void doAnimation() {
+		Animation an = new AlphaAnimation(0, ImageView.this.getAlpha());
+		an.setDuration(this.showTime);
+		this.startAnimation(an);
+	}
+
+	private static Handler h = new Handler() {
+
+		@Override
+		public void handleMessage(Message msg) {
+			@SuppressWarnings("unchecked")
+			Pair<ImageView, Bitmap> img = (Pair<ImageView, Bitmap>) msg.obj;
+			img.first.doAnimation(img.second);
+		}
+
+	};
 }
