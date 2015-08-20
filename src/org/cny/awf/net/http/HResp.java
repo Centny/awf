@@ -178,9 +178,9 @@ public class HResp {
 
 	public void close() {
 		try {
-			// if (this.in != null) {
-			this.in.close();
-			// }
+			if (this.in != null) {
+				this.in.close();
+			}
 		} catch (Exception e) {
 			L.warn("closing stream error:", e);
 		}
