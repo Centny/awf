@@ -29,10 +29,11 @@ public class BitmapPool extends ObjPool<Bitmap> {
 
 	@Override
 	protected Object createKey(Object key, Object[] args) {
+		String ks = super.createKey(key, args).toString();
 		if (args.length > 0) {
-			return key.toString() + ((Integer) args[0]);
+			return ks + ((Integer) args[0]);
 		} else {
-			return key.toString() + "0";
+			return ks + "0";
 		}
 	}
 
@@ -52,4 +53,25 @@ public class BitmapPool extends ObjPool<Bitmap> {
 		return img;
 	}
 
+	public static class UrlKey implements Key {
+		public String url;
+		public String loc;
+
+		public UrlKey(String url, String loc) {
+			super();
+			this.url = url;
+			this.loc = loc;
+		}
+
+		@Override
+		public String toString() {
+			return this.loc;
+		}
+
+		@Override
+		public Object findKey() {
+			return this.url;
+		}
+
+	}
 }
