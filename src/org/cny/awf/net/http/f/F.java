@@ -166,7 +166,7 @@ public class F {
 	 */
 	public static HAsyncTask doPost(String url, List<BasicNameValuePair> args,
 			List<BasicNameValuePair> heads, FPis pis, FUrlH h) {
-		return H.doPost(url, args, heads, pis, new FCallback(h));
+		return H.doPost(url, args, heads, pis, new FCallback(h, false));
 	}
 
 	protected F() {

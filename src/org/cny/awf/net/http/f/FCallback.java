@@ -68,16 +68,6 @@ public class FCallback implements HCallback {
 	protected boolean clearf;
 
 	/**
-	 * default constructor by FUrlH.
-	 * 
-	 * @param h
-	 *            the file URL handler.
-	 */
-	public FCallback(FUrlH h) {
-		this.h = h;
-	}
-
-	/**
 	 * constructor by FUrlH and clear FPis.
 	 * 
 	 * @param h
