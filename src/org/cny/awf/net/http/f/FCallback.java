@@ -8,8 +8,6 @@ import org.cny.awf.net.http.HCallback;
 import org.cny.awf.net.http.HResp;
 import org.cny.awf.net.http.PIS;
 import org.cny.awf.util.Util;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Extend class from http callback to upload the file.
@@ -54,7 +52,7 @@ public class FCallback implements HCallback {
 		void onFSuccess(CBase c, HResp res, FPis img, String url);
 	}
 
-	private static final Logger L = LoggerFactory.getLogger(FCallback.class);
+	// private static final Logger L = LoggerFactory.getLogger(FCallback.class);
 	/**
 	 * target file FPis.
 	 */
@@ -65,6 +63,11 @@ public class FCallback implements HCallback {
 	protected FUrlH h;
 
 	/**
+	 * if clear the FPis when upload error.
+	 */
+	protected boolean clearf;
+
+	/**
 	 * default constructor by FUrlH.
 	 * 
 	 * @param h
@@ -72,6 +75,19 @@ public class FCallback implements HCallback {
 	 */
 	public FCallback(FUrlH h) {
 		this.h = h;
+	}
+
+	/**
+	 * constructor by FUrlH and clear FPis.
+	 * 
+	 * @param h
+	 *            the file URL handler.
+	 * @param clearf
+	 *            if clear FPis when upload error.
+	 */
+	public FCallback(FUrlH h, boolean clearf) {
+		this.h = h;
+		this.clearf = clearf;
 	}
 
 	@Override
@@ -97,7 +113,7 @@ public class FCallback implements HCallback {
 
 	@Override
 	public void onExecErr(CBase c, Throwable e) {
-		if (this.file != null) {
+		if (this.clearf && this.file != null) {
 			this.file.clear();
 		}
 		this.h.onExecErr(c, e);
@@ -105,7 +121,7 @@ public class FCallback implements HCallback {
 
 	@Override
 	public void onError(CBase c, Throwable err) throws Exception {
-		if (this.file != null) {
+		if (this.clearf && this.file != null) {
 			this.file.clear();
 		}
 		this.h.onError(c, err);
@@ -135,15 +151,32 @@ public class FCallback implements HCallback {
 	public void onSuccess(CBase c, HResp res) throws Exception {
 		this.h.onSuccess(c, res);
 		if (this.file == null) {
-			L.warn("the image PIS is null");
-			return;
+			throw new Exception("the image PIS is null");
 		}
 		String url = this.h.createUrl(c, res, this.file);
 		if (Util.isNullOrEmpty(url)) {
-			this.file.clear();
-			return;
+			if (this.clearf) {
+				this.file.clear();
+			}
+			throw new Exception("create url is null or empty");
 		}
 		this.file.addCache(url);
 		this.h.onFSuccess(c, res, file, url);
 	}
+
+	/**
+	 * @return the clearf
+	 */
+	public boolean isClearf() {
+		return clearf;
+	}
+
+	/**
+	 * @param clearf
+	 *            the clearf to set
+	 */
+	public void setClearf(boolean clearf) {
+		this.clearf = clearf;
+	}
+
 }
