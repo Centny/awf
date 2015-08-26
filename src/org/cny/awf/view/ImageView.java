@@ -32,14 +32,16 @@ public class ImageView extends android.widget.ImageView {
 	protected Drawable bg;
 
 	protected class ImgCallback extends HBitmapCallback {
+		protected String turl;
 
-		public ImgCallback(int roundCorner) {
+		public ImgCallback(String url, int roundCorner) {
 			super(roundCorner);
+			this.turl = url;
 		}
 
 		@Override
 		public void onSuccess(CBase c, HResp res, Bitmap img) throws Exception {
-			if (c.getUrl().equals(url)) {
+			if (this.turl.equals(url)) {
 				ImageView.this.doAnimationH(img);
 			}
 		}
@@ -47,7 +49,7 @@ public class ImageView extends android.widget.ImageView {
 		@Override
 		public void onError(CBase c, Bitmap cache, Throwable err)
 				throws Exception {
-			if (c.getUrl().equals(url) && cache != null) {
+			if (this.turl.equals(url) && cache != null) {
 				ImageView.this.doAnimationH(cache);
 			}
 		}
@@ -80,7 +82,7 @@ public class ImageView extends android.widget.ImageView {
 			this.reset_bg();
 			this.url = url;
 			H.doGetNH(this.getContext(), this.url, Args.A("_hc_", "I"), null,
-					new ImgCallback(this.roundCorner));
+					new ImgCallback(this.url, this.roundCorner));
 			return true;
 		} catch (Throwable e) {
 			return false;
