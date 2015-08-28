@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Message;
@@ -49,8 +50,12 @@ public class ImageView extends android.widget.ImageView {
 		@Override
 		public void onError(CBase c, Bitmap cache, Throwable err)
 				throws Exception {
-			if (this.turl.equals(url) && cache != null) {
-				ImageView.this.doAnimationH(cache);
+			if (this.turl.equals(url)) {
+				if (cache == null) {
+					ImageView.this.reset_bg();
+				} else {
+					ImageView.this.doAnimationH(cache);
+				}
 			}
 		}
 	};
@@ -91,16 +96,19 @@ public class ImageView extends android.widget.ImageView {
 
 	private void reset_bg() {
 		if (this.bg == null) {
-			this.bg = this.getBackground();
+			this.bg = this.getDrawable();
 		}
 		if (this.bg != null) {
-			this.setImageDrawable(this.bg);
+			if (this.bg instanceof BitmapDrawable) {
+				this.setImageBitmap(((BitmapDrawable) this.bg).getBitmap());
+			} else {
+				this.setImageDrawable(this.bg);
+			}
 		}
 	}
 
 	public void clear() {
 		this.reset_bg();
-		this.setImageDrawable(this.bg);
 	}
 
 	public int getRoundCorner() {

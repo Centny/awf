@@ -265,6 +265,16 @@ public abstract class CBase implements Runnable, PIS.PisH {
 			}
 			this.onProcEnd(res, in, out);
 			this.onSuccess(res);
+			if (pc != Policy.NO) {
+				res.time = new Date().getTime();
+				if (res.tid > 0) {
+					this.slog("update cache for", pc);
+					this.db.update(res);
+				} else {
+					this.slog("adding cache for", pc);
+					this.db.add(res);
+				}
+			}
 		} catch (Exception e) {
 			this.onError(new Exception(this.url + "," + this.getMethod() + "->"
 					+ e.getMessage(), e));
@@ -394,17 +404,6 @@ public abstract class CBase implements Runnable, PIS.PisH {
 		}
 		if (err != null) {
 			throw err;
-		}
-		Policy pc = this.parsePolicy();
-		if (pc != Policy.NO) {
-			res.time = new Date().getTime();
-			if (res.tid > 0) {
-				this.slog("update cache for", pc);
-				this.db.update(res);
-			} else {
-				this.slog("adding cache for", pc);
-				this.db.add(res);
-			}
 		}
 	}
 

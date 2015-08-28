@@ -44,6 +44,9 @@ public class BitmapPool extends ObjPool<Bitmap> {
 			cr = ((Integer) args[0]);
 		}
 		Bitmap img = Util.readBitmap(key.toString());
+		if (img == null) {
+			throw new Exception("read bitmap error:" + key);
+		}
 		if (cr > 0) {
 			Bitmap timg = img;
 			img = Util.toRoundCorner(timg, cr);

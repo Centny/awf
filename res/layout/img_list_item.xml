@@ -8,6 +8,6 @@
         android:id="@+id/img_list_item_i"
         android:layout_width="200dp"
         android:layout_height="150dp"
-        android:background="@drawable/ic_launcher" />
+        android:src="@drawable/good" />
 
 </LinearLayout>
