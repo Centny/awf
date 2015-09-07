@@ -546,24 +546,25 @@ public class HTest extends ActivityInstrumentationTestCase2<MainActivity> {
 	// }
 
 	public void testData() throws Throwable {
-		final CountDownLatch cdl = new CountDownLatch(1);
-		H.doPostData("http://" + ts_ip + ":8000/data_j", "abc",
-				new HCacheCallback() {
+		final CountDownLatch cdl = new CountDownLatch(2);
+		HCacheCallback hc = new HCacheCallback() {
 
-					@Override
-					public void onSuccess(CBase c, HResp res, String data)
-							throws Exception {
-						cdl.countDown();
-						assertEquals("abc", data);
-					}
+			@Override
+			public void onSuccess(CBase c, HResp res, String data)
+					throws Exception {
+				cdl.countDown();
+				assertEquals("abc", data);
+			}
 
-					@Override
-					public void onError(CBase c, String cache, Throwable err)
-							throws Exception {
-						cdl.countDown();
-						assertNull(err);
-					}
-				}).getEntity();
+			@Override
+			public void onError(CBase c, String cache, Throwable err)
+					throws Exception {
+				cdl.countDown();
+				assertNull(err);
+			}
+		};
+		H.doPostData("http://" + ts_ip + ":8000/data_j", "abc", hc).getEntity();
+		H.doPostData("http://" + ts_ip + ":8000/data_j", Args.A("a", "v"), hc);
 		cdl.await();
 	}
 }

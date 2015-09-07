@@ -29,6 +29,11 @@ public class Args {
 			}
 			return this.A(name, new Gson().toJson(value));
 		}
+
+		@Override
+		public String toString() {
+			return new Gson().toJson(this);
+		}
 	}
 
 	public static V A(String name, Object value) {
@@ -42,5 +47,5 @@ public class Args {
 	protected Args() {
 
 	}
-	
+
 }

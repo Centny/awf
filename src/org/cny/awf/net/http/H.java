@@ -57,6 +57,24 @@ public class H {
 				new HCallback.HandlerCallback(cb));
 	}
 
+	/**
+	 * post JSON string to server.
+	 * 
+	 * @param url
+	 *            target URL.
+	 * @param args
+	 *            arguments to post.
+	 * @param cb
+	 *            callback.
+	 * @return task.
+	 * @throws UnsupportedEncodingException
+	 */
+	public static HAsyncTask doPostData(String url, Args.V args, HCallback cb)
+			throws UnsupportedEncodingException {
+		return doPostData(CTX, url, args.toString(),
+				new HCallback.HandlerCallback(cb));
+	}
+
 	public static HAsyncTask doPostData(String url, String data, HCallback cb)
 			throws UnsupportedEncodingException {
 		return doPostData(CTX, url, data, new HCallback.HandlerCallback(cb));
