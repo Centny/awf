@@ -69,20 +69,40 @@ public class H {
 	 * @return task.
 	 * @throws UnsupportedEncodingException
 	 */
-	public static HAsyncTask doPostData(String url, Args.V args, HCallback cb)
+	public static HAsyncTask doPostData(String url, Args.V json, HCallback cb)
 			throws UnsupportedEncodingException {
-		return doPostData(CTX, url, args.toString(),
+		return doPostDataNH(CTX, url, null, json.toString(),
+				new HCallback.HandlerCallback(cb));
+	}
+
+	public static HAsyncTask doPostData(String url, Args.V args, Args.V json,
+			HCallback cb) throws UnsupportedEncodingException {
+		return doPostDataNH(CTX, url, args, json.toString(),
 				new HCallback.HandlerCallback(cb));
 	}
 
 	public static HAsyncTask doPostData(String url, String data, HCallback cb)
 			throws UnsupportedEncodingException {
-		return doPostData(CTX, url, data, new HCallback.HandlerCallback(cb));
+		return doPostDataNH(CTX, url, null, data,
+				new HCallback.HandlerCallback(cb));
+	}
+
+	public static HAsyncTask doPostData(String url, Args.V args, String data,
+			HCallback cb) throws UnsupportedEncodingException {
+		return doPostDataNH(CTX, url, args, data,
+				new HCallback.HandlerCallback(cb));
 	}
 
 	public static HAsyncTask doPostData(Context ctx, String url, String data,
 			HCallback cb) throws UnsupportedEncodingException {
-		return doPostDataNH(ctx, url, data, new HCallback.HandlerCallback(cb));
+		return doPostDataNH(ctx, url, null, data,
+				new HCallback.HandlerCallback(cb));
+	}
+
+	public static HAsyncTask doPostData(Context ctx, String url, Args.V args,
+			String data, HCallback cb) throws UnsupportedEncodingException {
+		return doPostDataNH(ctx, url, args, data,
+				new HCallback.HandlerCallback(cb));
 	}
 
 	/**
@@ -130,14 +150,17 @@ public class H {
 
 	public static HAsyncTask doPostDataNH(String url, String data, HCallback cb)
 			throws UnsupportedEncodingException {
-		return doPostDataNH(CTX, url, data, cb);
+		return doPostDataNH(CTX, url, null, data, cb);
 	}
 
-	public static HAsyncTask doPostDataNH(Context ctx, String url, String data,
-			HCallback cb) throws UnsupportedEncodingException {
+	public static HAsyncTask doPostDataNH(Context ctx, String url, Args.V args,
+			String data, HCallback cb) throws UnsupportedEncodingException {
 		HAsyncTask hc = new HAsyncTask(ctx, url, cb);
 		if (Util.isNoEmpty(data)) {
 			hc.setEntity(new StringEntity(data));
+		}
+		if (args != null) {
+			hc.getArgs().addAll(args);
 		}
 		hc.setMethod("POST");
 		hc.asyncExec();
