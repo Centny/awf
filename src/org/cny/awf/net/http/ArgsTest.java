@@ -16,4 +16,10 @@ public class ArgsTest extends ActivityInstrumentationTestCase2<MainActivity> {
 		new Args();
 		Args.J("ab", null);
 	}
+
+	public void testJsonArgs() {
+		Args.V args = Args.A("a", "123").A("b", "xxx");
+		System.out.println(args.toString());
+		System.out.println(args.asAry().toString());
+	}
 }

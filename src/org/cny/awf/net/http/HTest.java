@@ -546,7 +546,7 @@ public class HTest extends ActivityInstrumentationTestCase2<MainActivity> {
 	// }
 
 	public void testData() throws Throwable {
-		final CountDownLatch cdl = new CountDownLatch(2);
+		final CountDownLatch cdl = new CountDownLatch(1);
 		HCacheCallback hc = new HCacheCallback() {
 
 			@Override
@@ -564,7 +564,48 @@ public class HTest extends ActivityInstrumentationTestCase2<MainActivity> {
 			}
 		};
 		H.doPostData("http://" + ts_ip + ":8000/data_j", "abc", hc).getEntity();
-		H.doPostData("http://" + ts_ip + ":8000/data_j", Args.A("a", "v"), hc);
+		cdl.await();
+	}
+
+	public class TestPostJsonCallback_ extends HCacheCallback {
+		public String data;
+		public CountDownLatch cdl;
+
+		public TestPostJsonCallback_(CountDownLatch cdl, String data) {
+			this.data = data;
+			this.cdl = cdl;
+		}
+
+		@Override
+		public void onSuccess(CBase c, HResp res, String data) throws Exception {
+			cdl.countDown();
+			assertEquals(this.data, data);
+		}
+
+		@Override
+		public void onError(CBase c, String cache, Throwable err)
+				throws Exception {
+			cdl.countDown();
+			assertNull(err);
+		}
+	}
+
+	public void testPostJson() throws Throwable {
+		final CountDownLatch cdl = new CountDownLatch(2);
+
+		// for json object.
+		Args.V args = Args.A("a", "1").A("b", "xx").A("c", "val");
+		H.doPostData("http://" + ts_ip + ":8000/data_j", args,
+				new TestPostJsonCallback_(cdl, args.toString()));
+
+		// for json array.
+		Args.VAry aary = new Args.VAry();
+		aary.A(args);
+		aary.A(Args.A("a1", "1").A("b", "xx"));
+		H.doPostData("http://" + ts_ip + ":8000/data_j", aary,
+				new TestPostJsonCallback_(cdl, args.toString()));
+
+		//
 		cdl.await();
 	}
 }

@@ -1,6 +1,9 @@
 package org.cny.awf.net.http;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.http.message.BasicNameValuePair;
 import org.slf4j.Logger;
@@ -32,7 +35,37 @@ public class Args {
 
 		@Override
 		public String toString() {
-			return new Gson().toJson(this);
+			return new Gson().toJson(this.asMap());
+		}
+
+		public Map<String, String> asMap() {
+			Map<String, String> args = new HashMap<String, String>();
+			for (BasicNameValuePair kv : this) {
+				args.put(kv.getName(), kv.getValue());
+			}
+			return args;
+		}
+
+		public VAry asAry() {
+			return new VAry().A(this);
+		}
+	}
+
+	public static class VAry extends ArrayList<V> {
+		private static final long serialVersionUID = 4104938699957042745L;
+
+		public VAry A(V args) {
+			this.add(args);
+			return this;
+		}
+
+		@Override
+		public String toString() {
+			List<Map<String, String>> args = new ArrayList<Map<String, String>>();
+			for (V arg : this) {
+				args.add(arg.asMap());
+			}
+			return new Gson().toJson(args);
 		}
 	}
 
