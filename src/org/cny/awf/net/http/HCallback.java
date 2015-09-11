@@ -123,10 +123,19 @@ public interface HCallback {
 			this.roundCorner = roundCorner;
 		}
 
+		protected String createUrl(CBase c) {
+			String url = c.getUrl();
+			String args = c.getQuery();
+			if (Util.isNoEmpty(args)) {
+				url += "?" + args;
+			}
+			return url;
+		}
+
 		@Override
 		public void onSuccess(CBase c, HResp res, String data) throws Exception {
-			this.onSuccess(c, res, BitmapPool.dol(new UrlKey(c.getUrl(), data),
-					this.roundCorner));
+			this.onSuccess(c, res, BitmapPool.dol(new UrlKey(this.createUrl(c),
+					data), this.roundCorner));
 		}
 
 		@Override
@@ -134,7 +143,7 @@ public interface HCallback {
 				throws Exception {
 			Bitmap img = null;
 			if (Util.isNoEmpty(cache)) {
-				img = BitmapPool.dol(new UrlKey(c.getUrl(), cache),
+				img = BitmapPool.dol(new UrlKey(this.createUrl(c), cache),
 						this.roundCorner);
 			}
 			this.onError(c, img, err);
