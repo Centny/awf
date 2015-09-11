@@ -134,6 +134,10 @@ public abstract class ImSrv extends BaseSrv implements MsgListener,
 		if (rec) {// already received.
 			return;
 		}
+		this.doNotify(m);
+	}
+
+	protected void doNotify(Msg m) {
 		Notification nt = this.createNotify(m);
 		if (nt == null) {
 			return;
