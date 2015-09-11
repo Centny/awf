@@ -110,7 +110,12 @@ public abstract class CBase implements Runnable, PIS.PisH {
 	}
 
 	public String getUrl() {
-		return this.url;
+		String args = this.getQuery();
+		if (Util.isNoEmpty(args)) {
+			return this.url + "?" + args;
+		} else {
+			return this.url;
+		}
 	}
 
 	public String getQuery() {
