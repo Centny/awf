@@ -81,8 +81,8 @@ public class ImDb {
 			name = cur.getLong(0);
 			sql = "UPDATE _IM_ENV_ SET VAL=VAL+1 WHERE NAME='_IM_M_I' AND TYPE='_IM_'";
 		} else {
-			name = 0;
-			sql = "INSERT INTO _IM_ENV_ VALUES('_IM_M_I','1','_IM_')";
+			name = 1;
+			sql = "INSERT INTO _IM_ENV_ VALUES('_IM_M_I','2','_IM_')";
 		}
 		this.db_.exec(sql);
 		return name;
