@@ -87,35 +87,54 @@ public class SQLite {
 	public <T> List<T> rawQuery(String sql, String[] args, Class<T> cls,
 			boolean toUpper) {
 		Cursor c = this.db_.rawQuery(sql, args);
-		List<T> ls = Orm.builds(new CursorOrmBuilder(c, toUpper), cls);
-		c.close();
-		return ls;
+		try {
+			return Orm.builds(new CursorOrmBuilder(c, toUpper), cls);
+		} catch (RuntimeException e) {
+			throw e;
+		} finally {
+			c.close();
+		}
 	}
 
 	public <T> T rawQueryOne(String sql, String[] args, Class<T> cls,
 			boolean toUpper) {
 		Cursor c = this.db_.rawQuery(sql, args);
-		T val = Orm.build(new CursorOrmBuilder(c, toUpper), cls);
-		c.close();
-		return val;
+		try {
+			return Orm.build(new CursorOrmBuilder(c, toUpper), cls);
+		} catch (RuntimeException e) {
+			throw e;
+		} finally {
+			c.close();
+		}
 	}
 
 	public List<Long> longQuery(String sql, String[] args) {
-		Cursor c = this.db_.rawQuery(sql, args);
 		List<Long> lv = new ArrayList<Long>();
-		while (c.moveToNext()) {
-			lv.add(c.getLong(0));
+		Cursor c = this.db_.rawQuery(sql, args);
+		try {
+			while (c.moveToNext()) {
+				lv.add(c.getLong(0));
+			}
+		} catch (RuntimeException e) {
+			throw e;
+		} finally {
+			c.close();
 		}
-		c.close();
 		return lv;
 	}
 
 	public Long longQueryOne(String sql, String[] args) {
 		Cursor c = this.db_.rawQuery(sql, args);
-		if (c.moveToNext()) {
-			return c.getLong(0);
-		} else {
-			return null;
+		try {
+			if (c.moveToNext()) {
+				return c.getLong(0);
+			} else {
+				return null;
+			}
+		} catch (RuntimeException e) {
+			throw e;
+		} finally {
+			c.close();
 		}
 	}
 
