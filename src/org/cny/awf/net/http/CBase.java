@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import android.content.Context;
+import android.util.Pair;
 
 public abstract class CBase implements Runnable, PIS.PisH {
 	public static enum Policy {
@@ -144,6 +145,21 @@ public abstract class CBase implements Runnable, PIS.PisH {
 	}
 
 	public static HResp findCache(HDb db, String url, String m) {
+		Pair<String, List<NameValuePair>> uargs = parseUrlArgs(url);
+		String args = parseQuery(uargs.second, "UTF-8");
+		return db.find(uargs.first, m, args);
+	}
+
+	public static String parseUrl(String url) {
+		Pair<String, List<NameValuePair>> uargs = parseUrlArgs(url);
+		if (uargs.second.isEmpty()) {
+			return uargs.first;
+		} else {
+			return uargs.first + "?" + parseQuery(uargs.second, "UTF-8");
+		}
+	}
+
+	public static Pair<String, List<NameValuePair>> parseUrlArgs(String url) {
 		String[] urls = url.split("\\?", 0);
 		List<NameValuePair> args_ = new ArrayList<NameValuePair>();
 		if (urls.length > 1) {
@@ -156,8 +172,7 @@ public abstract class CBase implements Runnable, PIS.PisH {
 			}
 
 		}
-		String args = parseQuery(args_, "UTF-8");
-		return db.find(urls[0], m, args);
+		return new Pair<String, List<NameValuePair>>(urls[0], args_);
 	}
 
 	public static String parseQuery(List<NameValuePair> args, String cencoding) {
