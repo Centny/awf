@@ -86,8 +86,13 @@ public class ImageView extends android.widget.ImageView {
 		try {
 			this.reset_bg();
 			this.url = url;
-			H.doGetNH(this.getContext(), this.url, Args.A("_hc_", "I"), null,
-					new ImgCallback(this.url, this.roundCorner));
+			Bitmap img = BitmapPool.cache(this.url, this.roundCorner);
+			if (img == null) {
+				H.doGetNH(this.getContext(), this.url, Args.A("_hc_", "I"),
+						null, new ImgCallback(this.url, this.roundCorner));
+			} else {
+				this.setImageBitmap(img);
+			}
 			return true;
 		} catch (Throwable e) {
 			return false;

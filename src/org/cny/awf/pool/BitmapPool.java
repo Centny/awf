@@ -24,6 +24,10 @@ public class BitmapPool extends ObjPool<Bitmap> {
 		return instance().load_(key, args);
 	}
 
+	public static Bitmap cache(Object key, Object... args) {
+		return instance().find(key, args);
+	}
+
 	public BitmapPool() {
 	}
 
