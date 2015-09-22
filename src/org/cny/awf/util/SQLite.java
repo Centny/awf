@@ -84,7 +84,7 @@ public class SQLite {
 		}
 	}
 
-	public <T> List<T> rawQuery(String sql, String[] args, Class<T> cls,
+	public synchronized <T> List<T> rawQuery(String sql, String[] args, Class<T> cls,
 			boolean toUpper) {
 		Cursor c = this.db_.rawQuery(sql, args);
 		try {
@@ -96,7 +96,7 @@ public class SQLite {
 		}
 	}
 
-	public <T> T rawQueryOne(String sql, String[] args, Class<T> cls,
+	public synchronized <T> T rawQueryOne(String sql, String[] args, Class<T> cls,
 			boolean toUpper) {
 		Cursor c = this.db_.rawQuery(sql, args);
 		try {
@@ -108,7 +108,7 @@ public class SQLite {
 		}
 	}
 
-	public List<Long> longQuery(String sql, String[] args) {
+	public synchronized List<Long> longQuery(String sql, String[] args) {
 		List<Long> lv = new ArrayList<Long>();
 		Cursor c = this.db_.rawQuery(sql, args);
 		try {
@@ -123,7 +123,7 @@ public class SQLite {
 		return lv;
 	}
 
-	public Long longQueryOne(String sql, String[] args) {
+	public synchronized Long longQueryOne(String sql, String[] args) {
 		Cursor c = this.db_.rawQuery(sql, args);
 		try {
 			if (c.moveToNext()) {
