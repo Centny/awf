@@ -78,6 +78,7 @@ public class ImageView extends android.widget.ImageView {
 
 	public boolean setUrl(String url) {
 		if (Util.isNullOrEmpty(url)) {
+			this.reset_bg();
 			return false;
 		}
 		if (this.url != null && this.url.equals(url)) {
