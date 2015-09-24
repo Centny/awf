@@ -7,6 +7,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Field;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
@@ -407,5 +408,22 @@ public class Util {
 			uriBuilder.appendEncodedPath(resPkg + ":" + name);
 		}
 		return uriBuilder.build();
+	}
+
+	public static int findRId(String id) {
+		try {
+			String[] all = id.split("\\.");
+			if (all.length < 3) {
+				throw new Exception("invalid class name");
+			}
+			Class<?> cls = Class.forName(Utils
+					.join(all, 0, all.length - 2, ".")
+					+ "$"
+					+ all[all.length - 2]);
+			Field f = cls.getField(all[all.length - 1]);
+			return f.getInt(cls);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 	}
 }
