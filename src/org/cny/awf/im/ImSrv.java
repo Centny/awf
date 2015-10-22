@@ -189,10 +189,27 @@ public abstract class ImSrv extends BaseSrv implements MsgListener, EvnListener,
 		}
 	}
 
+	protected int findMetaDataI(String key) {
+		return this.findMetaDataI(key, -1);
+	}
+
+	protected int findMetaDataI(String key, int defaultValue) {
+		int val = this.info.metaData.getInt(key, -1);
+		if (val == -1) {
+			if (defaultValue == -1) {
+				return this.getApplicationInfo().metaData.getInt(key);
+			} else {
+				return this.getApplicationInfo().metaData.getInt(key, defaultValue);
+			}
+		} else {
+			return val;
+		}
+	}
+
 	protected void create() {
 		this.host = this.findMetaData("host");
-		this.port = Integer.parseInt(this.findMetaData("port"));
-		this.retry = Integer.parseInt(this.findMetaData("retry", "8000"));
+		this.port = this.findMetaDataI("port");
+		this.retry = this.findMetaDataI("retry", 8000);
 		this.imc = new PbSckIMC(this, this, this.host, this.port);
 		this.con = new BroadcastReceiver() {
 
