@@ -26,8 +26,7 @@ import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.support.v4.content.LocalBroadcastManager;
 
-public abstract class ImSrv extends BaseSrv implements MsgListener,
-		EvnListener, Runnable {
+public abstract class ImSrv extends BaseSrv implements MsgListener, EvnListener, Runnable {
 	public static final String IMC_ACTION = "ON_IMC";
 	public static final String BC_MSG = "msg";
 	public static final String NOTIFY_TAG = "IMC";
@@ -67,8 +66,7 @@ public abstract class ImSrv extends BaseSrv implements MsgListener,
 
 	@Override
 	public void onStart(Intent intent, int startId) {
-		this.registerReceiver(this.con, new IntentFilter(
-				ConnectivityManager.CONNECTIVITY_ACTION));
+		this.registerReceiver(this.con, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
 		this.checkStart();
 	}
 
@@ -142,15 +140,13 @@ public abstract class ImSrv extends BaseSrv implements MsgListener,
 		if (nt == null) {
 			return;
 		}
-		NotificationManager nm = (NotificationManager) this
-				.getSystemService(NOTIFICATION_SERVICE);
+		NotificationManager nm = (NotificationManager) this.getSystemService(NOTIFICATION_SERVICE);
 		nm.notify(NOTIFY_TAG, NOTIFY_ID, this.createNotify(m));
 	}
 
 	@Override
 	public void run() {
-		L.debug("running im service on thread:{},{}", Thread.currentThread()
-				.getId(), Thread.currentThread().getName());
+		L.debug("running im service on thread:{},{}", Thread.currentThread().getId(), Thread.currentThread().getName());
 		this.running = true;
 		this.execing = true;
 		this.begRun();
@@ -176,10 +172,27 @@ public abstract class ImSrv extends BaseSrv implements MsgListener,
 
 	protected abstract ImDb Db();
 
+	protected String findMetaData(String key) {
+		return this.findMetaData(key, null);
+	}
+
+	protected String findMetaData(String key, String defaultValue) {
+		String val = this.info.metaData.getString(key, null);
+		if (val == null) {
+			if (defaultValue == null) {
+				return this.getApplicationInfo().metaData.getString(key);
+			} else {
+				return this.getApplicationInfo().metaData.getString(key, defaultValue);
+			}
+		} else {
+			return val;
+		}
+	}
+
 	protected void create() {
-		this.host = info.metaData.getString("host");
-		this.port = info.metaData.getInt("port");
-		this.retry = info.metaData.getInt("retry", 8000);
+		this.host = this.findMetaData("host");
+		this.port = Integer.parseInt(this.findMetaData("port"));
+		this.retry = Integer.parseInt(this.findMetaData("retry", "8000"));
 		this.imc = new PbSckIMC(this, this, this.host, this.port);
 		this.con = new BroadcastReceiver() {
 
