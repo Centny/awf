@@ -23,6 +23,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.support.v4.content.LocalBroadcastManager;
 
@@ -172,6 +174,14 @@ public abstract class ImSrv extends BaseSrv implements MsgListener, EvnListener,
 
 	protected abstract ImDb Db();
 
+	public ApplicationInfo getAppInfo() {
+		try {
+			return this.getPackageManager().getApplicationInfo(this.getPackageName(), PackageManager.GET_META_DATA);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
 	protected String findMetaData(String key) {
 		return this.findMetaData(key, null);
 	}
@@ -179,10 +189,11 @@ public abstract class ImSrv extends BaseSrv implements MsgListener, EvnListener,
 	protected String findMetaData(String key, String defaultValue) {
 		String val = this.info.metaData.getString(key, null);
 		if (val == null) {
+			ApplicationInfo ainfo = this.getAppInfo();
 			if (defaultValue == null) {
-				return this.getApplicationInfo().metaData.getString(key);
+				return ainfo.metaData.getString(key);
 			} else {
-				return this.getApplicationInfo().metaData.getString(key, defaultValue);
+				return ainfo.metaData.getString(key, defaultValue);
 			}
 		} else {
 			return val;
@@ -196,10 +207,11 @@ public abstract class ImSrv extends BaseSrv implements MsgListener, EvnListener,
 	protected int findMetaDataI(String key, int defaultValue) {
 		int val = this.info.metaData.getInt(key, -1);
 		if (val == -1) {
+			ApplicationInfo ainfo = this.getAppInfo();
 			if (defaultValue == -1) {
-				return this.getApplicationInfo().metaData.getInt(key);
+				return ainfo.metaData.getInt(key);
 			} else {
-				return this.getApplicationInfo().metaData.getInt(key, defaultValue);
+				return ainfo.metaData.getInt(key, defaultValue);
 			}
 		} else {
 			return val;
