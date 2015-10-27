@@ -43,11 +43,15 @@ public class BitmapPool extends ObjPool<Bitmap> {
 
 	@Override
 	protected Bitmap create(Object key, Object[] args) throws Exception {
-		int cr = 0;
+		int cr = 0, w = 0, h = 0;
 		if (args.length > 0) {
 			cr = ((Integer) args[0]);
 		}
-		Bitmap img = Util.readBitmap(key.toString());
+		if (args.length > 2) {
+			w = ((Integer) args[1]);
+			h = ((Integer) args[2]);
+		}
+		Bitmap img = Util.readBitmap(key.toString(), w, h);
 		if (img == null) {
 			throw new Exception("read bitmap error:" + key);
 		}
@@ -55,7 +59,7 @@ public class BitmapPool extends ObjPool<Bitmap> {
 			Bitmap timg = img;
 			img = Util.toRoundCorner(timg, cr);
 			timg.recycle();
-			System.gc();
+			// System.gc();
 		}
 		return img;
 	}

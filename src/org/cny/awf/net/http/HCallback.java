@@ -64,16 +64,14 @@ public interface HCallback {
 		}
 
 		@Override
-		public void onProcEnd(CBase c, HResp res, OutputStream o)
-				throws Exception {
+		public void onProcEnd(CBase c, HResp res, OutputStream o) throws Exception {
 		}
 
 		@Override
 		public void onSuccess(CBase c, HResp res) throws Exception {
 			this.tdata = new String(this.buf.toByteArray(), res.enc);
 			// sending hook
-			if (Hooks
-					.call(HDataCallback.class, "onSuccess", c, res, this.tdata) < 1) {
+			if (Hooks.call(HDataCallback.class, "onSuccess", c, res, this.tdata) < 1) {
 				this.onSuccess(c, res, this.tdata);
 			}
 		}
@@ -83,8 +81,7 @@ public interface HCallback {
 			e.printStackTrace();
 		}
 
-		public abstract void onSuccess(CBase c, HResp res, String data)
-				throws Exception;
+		public abstract void onSuccess(CBase c, HResp res, String data) throws Exception;
 
 		public String rdata() {
 			return this.tdata;
@@ -107,8 +104,7 @@ public interface HCallback {
 			}
 		}
 
-		public abstract void onError(CBase c, String cache, Throwable err)
-				throws Exception;
+		public abstract void onError(CBase c, String cache, Throwable err) throws Exception;
 	}
 
 	public static abstract class HBitmapCallback extends HCacheCallback {
@@ -134,26 +130,31 @@ public interface HCallback {
 
 		@Override
 		public void onSuccess(CBase c, HResp res, String data) throws Exception {
-			this.onSuccess(c, res, BitmapPool.dol(new UrlKey(this.createUrl(c),
-					data), this.roundCorner));
+			this.onSuccess(c, res, BitmapPool.dol(new UrlKey(this.createUrl(c), data), this.roundCorner,
+					this.getImgWidth(), this.getImgHeight()));
 		}
 
 		@Override
-		public void onError(CBase c, String cache, Throwable err)
-				throws Exception {
+		public void onError(CBase c, String cache, Throwable err) throws Exception {
 			Bitmap img = null;
 			if (Util.isNoEmpty(cache)) {
-				img = BitmapPool.dol(new UrlKey(this.createUrl(c), cache),
-						this.roundCorner);
+				img = BitmapPool.dol(new UrlKey(this.createUrl(c), cache), this.roundCorner, this.getImgWidth(),
+						this.getImgHeight());
 			}
 			this.onError(c, img, err);
 		}
 
-		public abstract void onSuccess(CBase c, HResp res, Bitmap img)
-				throws Exception;
+		public int getImgWidth() {
+			return 0;
+		}
 
-		public abstract void onError(CBase c, Bitmap cache, Throwable err)
-				throws Exception;
+		public int getImgHeight() {
+			return 0;
+		}
+
+		public abstract void onSuccess(CBase c, HResp res, Bitmap img) throws Exception;
+
+		public abstract void onError(CBase c, Bitmap cache, Throwable err) throws Exception;
 	}
 
 	public abstract class GDataCallback<T> extends HDataCallback {
@@ -194,8 +195,7 @@ public interface HCallback {
 
 		}
 
-		public abstract void onSuccess(CBase c, HResp res, T data)
-				throws Exception;
+		public abstract void onSuccess(CBase c, HResp res, T data) throws Exception;
 	}
 
 	public class GDataCallbackS<T> extends GDataCallback<T> {
@@ -254,8 +254,7 @@ public interface HCallback {
 		}
 
 		@Override
-		public void onError(CBase c, String cache, Throwable err)
-				throws Exception {
+		public void onError(CBase c, String cache, Throwable err) throws Exception {
 			T val = this.toT(cache, false);
 			if (Hooks.call(HCacheCallback.class, "onError", c, val, err) < 1) {
 				this.onError(c, val, err);
@@ -274,11 +273,9 @@ public interface HCallback {
 
 		}
 
-		public abstract void onError(CBase c, T cache, Throwable err)
-				throws Exception;
+		public abstract void onError(CBase c, T cache, Throwable err) throws Exception;
 
-		public abstract void onSuccess(CBase c, HResp res, T data)
-				throws Exception;
+		public abstract void onSuccess(CBase c, HResp res, T data) throws Exception;
 	}
 
 	public class GCacheCallbackS<T> extends GCacheCallback<T> {
@@ -303,8 +300,7 @@ public interface HCallback {
 
 	}
 
-	public abstract class GMapCallback extends
-			GCacheCallback<Map<String, Object>> {
+	public abstract class GMapCallback extends GCacheCallback<Map<String, Object>> {
 
 		public GMapCallback() {
 			super(Map.class);
@@ -318,8 +314,7 @@ public interface HCallback {
 	}
 
 	public static class HandlerCallback implements HCallback {
-		private static final Logger L = LoggerFactory
-				.getLogger(HandlerCallback.class);
+		private static final Logger L = LoggerFactory.getLogger(HandlerCallback.class);
 
 		public static int vvv = 0;
 		protected static Handler H = new Handler() {
@@ -351,8 +346,7 @@ public interface HCallback {
 						tg.onExecErr(c, (Throwable) args[2]);
 						break;
 					default:
-						throw new Exception("invalid message type for"
-								+ msg.what);
+						throw new Exception("invalid message type for" + msg.what);
 					}
 				} catch (Exception e) {
 					L.warn("exec H({}) HCallback({}) err", c, msg.what, e);
@@ -405,8 +399,7 @@ public interface HCallback {
 		}
 
 		@Override
-		public void onProcEnd(CBase c, HResp res, OutputStream o)
-				throws Exception {
+		public void onProcEnd(CBase c, HResp res, OutputStream o) throws Exception {
 			this.target.onProcEnd(c, res, o);
 		}
 

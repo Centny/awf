@@ -33,8 +33,11 @@ public class ImgListActivity extends Activity {
 
 		@Override
 		public Object getItem(int position) {
-			return String.format(Locale.ENGLISH,
-					"http://pb.dev.jxzy.com/img/F1%04d.jpg", position);
+			if (position % 3 == 1) {
+				return String.format(Locale.ENGLISH, "http://pb.dev.jxzy.com/img/F1%04d.jpg", position);
+			} else {
+				return "";
+			}
 		}
 
 		@Override
@@ -46,8 +49,7 @@ public class ImgListActivity extends Activity {
 		public View getView(int position, View cview, ViewGroup parent) {
 			ViewHolder vh = null;
 			if (cview == null) {
-				cview = LayoutInflater.from(getBaseContext()).inflate(
-						R.layout.img_list_item, parent, false);
+				cview = LayoutInflater.from(getBaseContext()).inflate(R.layout.img_list_item, parent, false);
 				vh = new ViewHolder();
 				vh.iv = (ImageView) cview.findViewById(R.id.img_list_item_i);
 				cview.setTag(vh);

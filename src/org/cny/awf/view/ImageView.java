@@ -29,7 +29,7 @@ public class ImageView extends android.widget.ImageView {
 	 */
 	protected String url;
 	protected int roundCorner = 0;
-	protected int showTime = 800;
+	protected int showTime = 500;
 	protected Drawable bg;
 
 	protected class ImgCallback extends HBitmapCallback {
@@ -48,8 +48,7 @@ public class ImageView extends android.widget.ImageView {
 		}
 
 		@Override
-		public void onError(CBase c, Bitmap cache, Throwable err)
-				throws Exception {
+		public void onError(CBase c, Bitmap cache, Throwable err) throws Exception {
 			if (this.turl.equals(url)) {
 				if (cache == null) {
 					ImageView.this.reset_bg();
@@ -58,6 +57,27 @@ public class ImageView extends android.widget.ImageView {
 				}
 			}
 		}
+
+		@Override
+		public int getImgWidth() {
+			int w = ImageView.this.getLayoutParams().width;
+			if (w > 0) {
+				return w;
+			} else {
+				return 0;
+			}
+		}
+
+		@Override
+		public int getImgHeight() {
+			int h = ImageView.this.getLayoutParams().height;
+			if (h > 0) {
+				return h;
+			} else {
+				return 0;
+			}
+		}
+
 	};
 
 	public ImageView(Context context) {
@@ -89,8 +109,8 @@ public class ImageView extends android.widget.ImageView {
 			this.url = url;
 			Bitmap img = BitmapPool.cache(this.url, this.roundCorner);
 			if (img == null) {
-				H.doGetNH(this.getContext(), this.url, Args.A("_hc_", "I"),
-						null, new ImgCallback(this.url, this.roundCorner));
+				H.doGetNH(this.getContext(), this.url, Args.A("_hc_", "I"), null,
+						new ImgCallback(this.url, this.roundCorner));
 			} else {
 				this.setImageBitmap(img);
 			}
@@ -101,6 +121,7 @@ public class ImageView extends android.widget.ImageView {
 	}
 
 	private void reset_bg() {
+		this.url = null;
 		if (this.bg == null) {
 			this.bg = this.getDrawable();
 		}

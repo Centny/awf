@@ -65,8 +65,7 @@ public class Util {
 
 	public static String listMac() throws SocketException {
 		List<String> macs = new ArrayList<String>();
-		for (Enumeration<NetworkInterface> en = NetworkInterface
-				.getNetworkInterfaces(); en.hasMoreElements();) {
+		for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements();) {
 			NetworkInterface itf = en.nextElement();
 			if (itf.isLoopback() || itf.isPointToPoint() || itf.isVirtual()) {
 				continue;
@@ -83,8 +82,7 @@ public class Util {
 
 	public static Map<String, String> listMacv() throws SocketException {
 		Map<String, String> macs = new HashMap<String, String>();
-		for (Enumeration<NetworkInterface> en = NetworkInterface
-				.getNetworkInterfaces(); en.hasMoreElements();) {
+		for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements();) {
 			NetworkInterface itf = en.nextElement();
 			if (itf.isLoopback() || itf.isPointToPoint() || itf.isVirtual()) {
 				continue;
@@ -128,11 +126,9 @@ public class Util {
 			if (onlyWifi) {
 				return null;
 			}
-			for (Enumeration<NetworkInterface> en = NetworkInterface
-					.getNetworkInterfaces(); en.hasMoreElements();) {
+			for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements();) {
 				NetworkInterface intf = en.nextElement();
-				for (Enumeration<InetAddress> enumIpAddr = intf
-						.getInetAddresses(); enumIpAddr.hasMoreElements();) {
+				for (Enumeration<InetAddress> enumIpAddr = intf.getInetAddresses(); enumIpAddr.hasMoreElements();) {
 					InetAddress inetAddress = enumIpAddr.nextElement();
 					if (!inetAddress.isLoopbackAddress()) {
 						return inetAddress.getHostAddress().toString();
@@ -147,15 +143,12 @@ public class Util {
 
 	public static String localIpAddress() {
 		try {
-			List<NetworkInterface> interfaces = Collections
-					.list(NetworkInterface.getNetworkInterfaces());
+			List<NetworkInterface> interfaces = Collections.list(NetworkInterface.getNetworkInterfaces());
 			for (NetworkInterface intf : interfaces) {
-				List<InetAddress> addrs = Collections.list(intf
-						.getInetAddresses());
+				List<InetAddress> addrs = Collections.list(intf.getInetAddresses());
 				for (InetAddress addr : addrs) {
 					if (!addr.isLoopbackAddress()) {
-						String sAddr = addr.getHostAddress().toUpperCase(
-								Locale.ENGLISH);
+						String sAddr = addr.getHostAddress().toUpperCase(Locale.ENGLISH);
 						if (InetAddressUtils.isIPv4Address(sAddr))
 							return sAddr;
 					}
@@ -174,14 +167,12 @@ public class Util {
 	 * @return the normal IP address.
 	 */
 	public static String intToIp(int i) {
-		return (i & 0xFF) + "." + ((i >> 8) & 0xFF) + "." + ((i >> 16) & 0xFF)
-				+ "." + ((i >> 24) & 0xFF);
+		return (i & 0xFF) + "." + ((i >> 8) & 0xFF) + "." + ((i >> 16) & 0xFF) + "." + ((i >> 24) & 0xFF);
 	}
 
 	public static Bitmap toRoundCorner(Bitmap bitmap, int pixels) {
 
-		Bitmap output = Bitmap.createBitmap(bitmap.getWidth(),
-				bitmap.getHeight(), Config.ARGB_8888);
+		Bitmap output = Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(), Config.ARGB_8888);
 		Canvas canvas = new Canvas(output);
 
 		final int color = 0xff424242;
@@ -216,18 +207,29 @@ public class Util {
 		return newbmp;
 	}
 
-	public static Bitmap readBitmap(String file) throws IOException {
-		InputStream is = null;
-		try {
-			is = new FileInputStream(file);
-			return BitmapFactory.decodeStream(is);
-		} catch (FileNotFoundException e) {
-			throw e;
-		} finally {
-			if (is != null) {
-				is.close();
+	public static Bitmap readBitmap(String file) throws FileNotFoundException {
+		return readBitmap(file, 0, 0);
+	}
+
+	public static Bitmap readBitmap(String file, int w, int h) throws FileNotFoundException {
+		if (w < 1 || h < 1) {
+			return BitmapFactory.decodeFile(file);
+		}
+		BitmapFactory.Options opts = new BitmapFactory.Options();
+		opts.inJustDecodeBounds = true;
+		BitmapFactory.decodeFile(file, opts);
+		if (opts.outWidth < 0) {
+			return null;
+		}
+		int inSampleSize = 1;
+		if (opts.outWidth > w || opts.outHeight > h) {
+			while ((opts.outHeight / inSampleSize) > h && (opts.outWidth / inSampleSize) > w) {
+				inSampleSize *= 2;
 			}
 		}
+		opts.inSampleSize = inSampleSize;
+		opts.inJustDecodeBounds = false;
+		return BitmapFactory.decodeFile(file, opts);
 	}
 
 	/**
@@ -273,8 +275,7 @@ public class Util {
 		if (u.getPort() < 0) {
 			return u.getScheme() + "://" + u.getHost() + u.getPath();
 		} else {
-			return u.getScheme() + "://" + u.getHost() + ":" + u.getPort()
-					+ u.getPath();
+			return u.getScheme() + "://" + u.getHost() + ":" + u.getPort() + u.getPath();
 		}
 	}
 
@@ -287,8 +288,7 @@ public class Util {
 	}
 
 	public static Map<String, String> DevInfo(Context ctx) {
-		TelephonyManager tm = (TelephonyManager) ctx
-				.getSystemService(Context.TELEPHONY_SERVICE);
+		TelephonyManager tm = (TelephonyManager) ctx.getSystemService(Context.TELEPHONY_SERVICE);
 		Map<String, String> kvs = new HashMap<String, String>();
 		kvs.put("IMEI", tm.getDeviceId());
 		kvs.put("dver", tm.getDeviceSoftwareVersion());
@@ -319,8 +319,7 @@ public class Util {
 		}
 	}
 
-	public static String AppVer_(Context ctx, String name)
-			throws NameNotFoundException {
+	public static String AppVer_(Context ctx, String name) throws NameNotFoundException {
 		PackageManager pm = ctx.getPackageManager();
 		PackageInfo pi = pm.getPackageInfo(name, 0);
 		return pi.versionName;
@@ -379,8 +378,7 @@ public class Util {
 	public static void sendTouch(View v) {
 		long downTime = SystemClock.uptimeMillis();
 		long eventTime = SystemClock.uptimeMillis() + 100;
-		MotionEvent env = MotionEvent.obtain(downTime, eventTime,
-				MotionEvent.ACTION_UP, 0, 0, 0);
+		MotionEvent env = MotionEvent.obtain(downTime, eventTime, MotionEvent.ACTION_UP, 0, 0, 0);
 		v.dispatchTouchEvent(env);
 		env.recycle();
 	}
@@ -389,10 +387,8 @@ public class Util {
 		return Base64.encodeToString(bys, Base64.DEFAULT);
 	}
 
-	public static Uri findResUri(Context context, int res)
-			throws NameNotFoundException {
-		Context packageContext = context.createPackageContext(
-				context.getPackageName(), Context.CONTEXT_RESTRICTED);
+	public static Uri findResUri(Context context, int res) throws NameNotFoundException {
+		Context packageContext = context.createPackageContext(context.getPackageName(), Context.CONTEXT_RESTRICTED);
 		Resources resources = packageContext.getResources();
 		String appPkg = packageContext.getPackageName();
 		String resPkg = resources.getResourcePackageName(res);
@@ -416,10 +412,7 @@ public class Util {
 			if (all.length < 3) {
 				throw new Exception("invalid class name");
 			}
-			Class<?> cls = Class.forName(Utils
-					.join(all, 0, all.length - 2, ".")
-					+ "$"
-					+ all[all.length - 2]);
+			Class<?> cls = Class.forName(Utils.join(all, 0, all.length - 2, ".") + "$" + all[all.length - 2]);
 			Field f = cls.getField(all[all.length - 1]);
 			return f.getInt(cls);
 		} catch (Exception e) {
