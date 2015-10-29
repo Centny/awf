@@ -35,10 +35,13 @@ public class BitmapPool extends ObjPool<Bitmap> {
 	protected Object createKey(Object key, Object[] args) {
 		String ks = super.createKey(key, args).toString();
 		if (args.length > 0) {
-			return ks + ((Integer) args[0]);
-		} else {
-			return ks + "0";
+			ks += "@" + ((Integer) args[0]);
 		}
+		if (args.length > 2) {
+			ks += "," + ((Integer) args[1]);
+			ks += "," + ((Integer) args[2]);
+		}
+		return ks;
 	}
 
 	@Override
