@@ -12,5 +12,6 @@
     <string name="title_activity_crash_aty">CrashAty</string>
     <string name="title_activity_fup">FUp</string>
     <string name="title_activity_img_list">ImgListActivity</string>
+    <string name="title_activity_cache_aty">CacheAty</string>
 
 </resources>

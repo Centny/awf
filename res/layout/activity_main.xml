@@ -38,4 +38,10 @@
         android:onClick="toImgList"
         android:text="@string/title_activity_img_list" />
 
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="toCache"
+        android:text="@string/title_activity_cache_aty" />
+
 </LinearLayout>

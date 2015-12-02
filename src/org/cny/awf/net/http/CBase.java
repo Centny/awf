@@ -118,6 +118,15 @@ public abstract class CBase implements Runnable, PIS.PisH {
 		return parseQuery(this.args, this.cencoding);
 	}
 
+	public String getFullUrl() {
+		String url = this.getUrl();
+		String args = this.getQuery();
+		if (Util.isNoEmpty(args)) {
+			url += "?" + args;
+		}
+		return url;
+	}
+
 	public static String checkCache(Context ctx, String url, String m) {
 		HDb db = HDb.loadDb_(ctx);
 		HResp res = findCache(db, url, m);
@@ -222,8 +231,7 @@ public abstract class CBase implements Runnable, PIS.PisH {
 		if (pc == Policy.NO) {
 			return null;
 		} else {
-			return this.db.find(this.getUrl(), this.getMethod(),
-					this.getQuery());
+			return this.db.find(this.getUrl(), this.getMethod(), this.getQuery());
 		}
 	}
 
@@ -247,8 +255,7 @@ public abstract class CBase implements Runnable, PIS.PisH {
 
 	private void slog(String msg, Policy pc) {
 		if (ShowLog) {
-			L.info("{} for {}:{}?{}({})", msg, this.getMethod(), this.getUrl(),
-					this.getQuery(), pc);
+			L.info("{} for {}:{}?{}({})", msg, this.getMethod(), this.getUrl(), this.getQuery(), pc);
 		}
 	}
 
@@ -265,6 +272,9 @@ public abstract class CBase implements Runnable, PIS.PisH {
 			}
 			res = this.createRes(res, pc);
 			in = res.getIn();
+			if (in == null) {
+				return;
+			}
 			out = this.createO(res, pc);
 			long clen = res.len;
 			long rsize = 0;
@@ -291,8 +301,7 @@ public abstract class CBase implements Runnable, PIS.PisH {
 				}
 			}
 		} catch (Exception e) {
-			this.onError(new Exception(this.url + "," + this.getMethod() + "->"
-					+ e.getMessage(), e));
+			this.onError(new Exception(this.url + "," + this.getMethod() + "->" + e.getMessage(), e));
 		} finally {
 			this.closea(res, in, out);
 		}
@@ -322,7 +331,7 @@ public abstract class CBase implements Runnable, PIS.PisH {
 	protected HResp createRes(HResp res, Policy pc) throws Exception {
 		HttpUriRequest uri;
 		boolean exist = this.db.CacheExist(res);
-		if (exist) {
+		if (exist && pc != Policy.NO) {
 			if (pc == Policy.C || pc == Policy.CN) {
 				res.code = 304;
 				this.slog("using cache", pc);
@@ -337,8 +346,7 @@ public abstract class CBase implements Runnable, PIS.PisH {
 			uri = this.createR();
 			if (pc == Policy.N) {
 				if (res.lmt > 0) {
-					uri.addHeader("If-Modified-Since",
-							HResp.formatLmt(new Date(res.lmt)));
+					uri.addHeader("If-Modified-Since", HResp.formatLmt(new Date(res.lmt)));
 				}
 				if (!Util.isNullOrEmpty(res.etag)) {
 					uri.addHeader("If-None-Match", res.etag);
@@ -357,14 +365,8 @@ public abstract class CBase implements Runnable, PIS.PisH {
 		HttpResponse resp = c.execute(uri);
 		if (resp.getStatusLine().getStatusCode() == 304 && exist) {
 			this.slog("using cache(304)", pc);
-			// switch (pc) {
-			// case I:
-			// res.code = 304;
-			// return res.initPathStream(this.db);
-			// default:
 			res.code = 304;
-			return res.initFileStream(this.db);
-			// }
+			return res;
 		} else {
 			res.code = resp.getStatusLine().getStatusCode();
 			res.init(resp, this.sencoding);
@@ -376,8 +378,8 @@ public abstract class CBase implements Runnable, PIS.PisH {
 	@SuppressWarnings("resource")
 	protected MultiOutputStream createO(HResp res, Policy pc) throws Exception {
 		if (res.code == 304) {
-			return new MultiOutputStream(null, this.cback.createO(this, res))
-					.mark(0, false);// not need download to file.
+			// not need download to file.
+			return new MultiOutputStream(null, this.cback.createO(this, res)).mark(0, false);
 		}
 		File cf = null;
 		if (this.db.CacheExist(res)) {
@@ -391,16 +393,13 @@ public abstract class CBase implements Runnable, PIS.PisH {
 			// in image policy,only write the path to call back
 			// output stream.
 			tout.write(cf.getAbsolutePath().getBytes());
-			return new MultiOutputStream(new FileOutputStream(cf), tout).mark(
-					1, false);
+			return new MultiOutputStream(new FileOutputStream(cf), tout).mark(1, false);
 		} else {
-			return new MultiOutputStream(new FileOutputStream(cf), tout).mark(
-					1, true);
+			return new MultiOutputStream(new FileOutputStream(cf), tout).mark(1, true);
 		}
 	}
 
-	protected void onProcEnd(HResp res, InputStream in, MultiOutputStream o)
-			throws Exception {
+	protected void onProcEnd(HResp res, InputStream in, MultiOutputStream o) throws Exception {
 		if (res.code == 304) {
 			this.cback.onProcEnd(this, res, o.at(1));
 			return;
@@ -431,7 +430,7 @@ public abstract class CBase implements Runnable, PIS.PisH {
 	}
 
 	protected void onCache(HResp res) throws Exception {
-
+		this.cback.onCache(this, res);
 	}
 
 	protected void onProcess(float rate) {

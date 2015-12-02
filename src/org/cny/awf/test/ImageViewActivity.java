@@ -8,6 +8,8 @@ import org.cny.awf.net.http.HResp;
 import org.cny.awf.net.http.cres.CRes;
 import org.cny.awf.view.ImageView;
 
+import com.google.gson.reflect.TypeToken;
+
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -15,8 +17,6 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-
-import com.google.gson.reflect.TypeToken;
 
 public class ImageViewActivity extends Activity {
 
@@ -50,11 +50,15 @@ public class ImageViewActivity extends Activity {
 
 	public void clkShow1(View v) {
 		this.tiv1.setUrl("http://f8.topit.me/8/29/96/119867884632a96298o.jpg");
+		// for (int i = 0; i < 10; i++) {
+		// this.tiv1.setUrl(String.format(Locale.ENGLISH,
+		// "http://pb.dev.jxzy.com/img/F1%04d.jpg", i));
+		// }
+		// this.tiv1.setUrl("");
 	}
 
 	public void clkUpload(View v) {
-		Bitmap bm = BitmapFactory.decodeResource(getResources(),
-				R.drawable.ic_launcher);
+		Bitmap bm = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
 		H.doPost(
 				"http://fs.dev.jxzy.com/Fsrv/srv/api/uload?token=ae2b1fca515949e5d54fb22b8ed95575-0072e836-cbf9-4027-9910-d489726ba48d&m=C&pub=1",
 				"file", bm, new CRes.HResCallbackN<String>() {
@@ -66,14 +70,12 @@ public class ImageViewActivity extends Activity {
 					}
 
 					@Override
-					public void onError(CBase c, CRes<String> cache,
-							Throwable err) throws Exception {
+					public void onError(CBase c, CRes<String> cache, Throwable err) throws Exception {
 
 					}
 
 					@Override
-					public void onSuccess(CBase c, HResp res, CRes<String> data)
-							throws Exception {
+					public void onSuccess(CBase c, HResp res, CRes<String> data) throws Exception {
 						tiv1.setUrl(data.data);
 					}
 

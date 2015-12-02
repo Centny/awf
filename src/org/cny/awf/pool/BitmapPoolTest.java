@@ -4,14 +4,16 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import org.cny.awf.test.MainActivity;
 import org.cny.jwf.util.Utils;
 
 import android.test.ActivityInstrumentationTestCase2;
+import junit.framework.Assert;
 
-public class BitmapPoolTest extends
-		ActivityInstrumentationTestCase2<MainActivity> {
+public class BitmapPoolTest extends ActivityInstrumentationTestCase2<MainActivity> {
 
 	public BitmapPoolTest() {
 		super(MainActivity.class);
@@ -22,8 +24,7 @@ public class BitmapPoolTest extends
 		for (String s : ss) {
 			System.err.println(s);
 		}
-		InputStream is = this.getActivity().getResources().getAssets()
-				.open("1.png");
+		InputStream is = this.getActivity().getResources().getAssets().open("1.png");
 		File tf1 = new File(this.getActivity().getExternalCacheDir(), "1.png");
 		FileOutputStream fos = new FileOutputStream(tf1);
 		// Utils.c
@@ -52,5 +53,14 @@ public class BitmapPoolTest extends
 		BitmapPool.dol(tf2.getAbsolutePath());
 		BitmapPool.free();
 		BitmapPool.dol(tf2.getAbsolutePath());
+	}
+
+	public void testUrlKey() {
+		Map<UrlKey, String> keys = new LinkedHashMap<UrlKey, String>();
+		keys.put(UrlKey.create("xxx", "lll"), "vvv");
+		keys.put(UrlKey.create("aaa", "bbb"), "ccc");
+		Assert.assertEquals("vvv", keys.get(UrlKey.create("xxx", null)));
+		Assert.assertEquals("vvv", keys.get(UrlKey.create(null, "lll")));
+		Assert.assertEquals("ccc", keys.get(UrlKey.create("aaa", "bbb")));
 	}
 }

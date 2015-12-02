@@ -6,18 +6,17 @@ import java.util.Map;
 
 import org.cny.awf.net.http.CBase.Policy;
 import org.cny.awf.pool.BitmapPool;
-import org.cny.awf.pool.BitmapPool.UrlKey;
-import org.cny.awf.util.Util;
+import org.cny.awf.pool.UrlKey;
 import org.cny.jwf.hook.Hooks;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
 import android.graphics.Bitmap;
 import android.os.Handler;
 import android.os.Message;
-
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 
 public interface HCallback {
 	void onCreateR(CBase c, HResp res, Policy pc) throws Exception;
@@ -91,7 +90,6 @@ public interface HCallback {
 		public void onCreateR(CBase c, HResp res, Policy pc) throws Exception {
 
 		}
-
 	}
 
 	public static abstract class HCacheCallback extends HDataCallback {
@@ -120,27 +118,23 @@ public interface HCallback {
 		}
 
 		protected String createUrl(CBase c) {
-			String url = c.getUrl();
-			String args = c.getQuery();
-			if (Util.isNoEmpty(args)) {
-				url += "?" + args;
-			}
-			return url;
+			return c.getFullUrl();
 		}
 
 		@Override
 		public void onSuccess(CBase c, HResp res, String data) throws Exception {
-			this.onSuccess(c, res, BitmapPool.dol(new UrlKey(this.createUrl(c), data), this.roundCorner,
-					this.getImgWidth(), this.getImgHeight()));
+			this.onSuccess(c, res, BitmapPool.dol(
+					UrlKey.create(this.createUrl(c), data, this.roundCorner, this.getImgWidth(), this.getImgHeight())));
 		}
 
 		@Override
 		public void onError(CBase c, String cache, Throwable err) throws Exception {
 			Bitmap img = null;
-			if (Util.isNoEmpty(cache)) {
-				img = BitmapPool.dol(new UrlKey(this.createUrl(c), cache), this.roundCorner, this.getImgWidth(),
-						this.getImgHeight());
-			}
+			// if (Util.isNoEmpty(cache)) {
+			// img = BitmapPool.dol(new UrlKey(this.createUrl(c), cache),
+			// this.roundCorner, this.getImgWidth(),
+			// this.getImgHeight());
+			// }
 			this.onError(c, img, err);
 		}
 
@@ -308,7 +302,7 @@ public interface HCallback {
 
 		@Override
 		protected Map<String, Object> toT(String data, boolean err) {
-			return this.gs.fromJson(data, new TypeToken<Map<String, String>>() {
+			return this.gs.fromJson(data, new TypeToken<Map<String, Object>>() {
 			}.getType());
 		}
 	}

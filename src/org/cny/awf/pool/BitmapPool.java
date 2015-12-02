@@ -1,17 +1,24 @@
 package org.cny.awf.pool;
 
-import org.cny.awf.util.Util;
-import org.cny.jwf.util.ObjPool;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import android.graphics.Bitmap;
+import android.support.v4.util.LruCache;
 
-public class BitmapPool extends ObjPool<Bitmap> {
+public class BitmapPool extends LruCache<UrlKey, Bitmap> {
+	private static final Logger L = LoggerFactory.getLogger(BitmapPool.class);
+	public static boolean ShowLog = false;
+
+	public BitmapPool(int maxSize) {
+		super(maxSize);
+	}
 
 	protected static BitmapPool POOL_;
 
 	public static BitmapPool instance() {
 		if (POOL_ == null) {
-			POOL_ = new BitmapPool();
+			POOL_ = new BitmapPool(5 * 1024 * 1024);
 		}
 		return POOL_;
 	}
@@ -20,72 +27,73 @@ public class BitmapPool extends ObjPool<Bitmap> {
 		POOL_ = null;
 	}
 
+	public static void init(int max) {
+		POOL_ = new BitmapPool(max);
+	}
+
+	public static UrlKey createKey(Object key, Object[] args) {
+		UrlKey tk;
+		if (key instanceof UrlKey) {
+			tk = (UrlKey) key;
+		} else {
+			tk = UrlKey.create(null, key.toString());
+		}
+		if (args != null) {
+			tk.initrc(args);
+		}
+		return tk;
+	}
+
 	public static Bitmap dol(Object key, Object... args) throws Exception {
-		return instance().load_(key, args);
+		return instance().load(createKey(key, args));
+	}
+
+	public static Bitmap dol(String path) throws Exception {
+		return instance().load(createKey(path, new Object[] {}));
+	}
+
+	public static Bitmap dol(String path, int roundCorner, int w, int h) throws Exception {
+		return instance().load(createKey(path, new Object[] { roundCorner, w, h }));
+	}
+
+	public static Bitmap dol(UrlKey key) throws Exception {
+		return instance().load(key);
 	}
 
 	public static Bitmap cache(Object key, Object... args) {
-		return instance().find(key, args);
+		return instance().get(createKey(key, args));
 	}
 
-	public BitmapPool() {
-	}
-
-	@Override
-	protected Object createKey(Object key, Object[] args) {
-		String ks = super.createKey(key, args).toString();
-		if (args.length > 0) {
-			ks += "@" + ((Integer) args[0]);
-		}
-		if (args.length > 2) {
-			ks += "," + ((Integer) args[1]);
-			ks += "," + ((Integer) args[2]);
-		}
-		return ks;
+	public static Bitmap cache(UrlKey key) {
+		return instance().get(key);
 	}
 
 	@Override
-	protected Bitmap create(Object key, Object[] args) throws Exception {
-		int cr = 0, w = 0, h = 0;
-		if (args.length > 0) {
-			cr = ((Integer) args[0]);
-		}
-		if (args.length > 2) {
-			w = ((Integer) args[1]);
-			h = ((Integer) args[2]);
-		}
-		Bitmap img = Util.readBitmap(key.toString(), w, h);
+	protected void entryRemoved(boolean evicted, UrlKey key, Bitmap oldValue, Bitmap newValue) {
+		super.entryRemoved(evicted, key, oldValue, newValue);
+		this.slog("remove bimap cache({}) on pool", key);
+	}
+
+	public synchronized Bitmap load(UrlKey key) throws Exception {
+		Bitmap img = this.get(key);
 		if (img == null) {
-			throw new Exception("read bitmap error:" + key);
-		}
-		if (cr > 0) {
-			Bitmap timg = img;
-			img = Util.toRoundCorner(timg, cr);
-			timg.recycle();
-			// System.gc();
+			img = key.read();
+			this.put(key, img);
+			this.slog("put bitmap({}) to pool", key);
+		} else {
+			this.slog("using cache for bitmap({}) on pool", key);
 		}
 		return img;
 	}
 
-	public static class UrlKey implements Key {
-		public String url;
-		public String loc;
+	@Override
+	protected int sizeOf(UrlKey key, Bitmap value) {
+		return value.getByteCount();
+	}
 
-		public UrlKey(String url, String loc) {
-			super();
-			this.url = url;
-			this.loc = loc;
+	protected void slog(String fmt, Object arg1) {
+		if (ShowLog) {
+			L.debug(fmt, arg1);
 		}
-
-		@Override
-		public String toString() {
-			return this.loc;
-		}
-
-		@Override
-		public Object findKey() {
-			return this.url;
-		}
-
 	}
 }

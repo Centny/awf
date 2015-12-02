@@ -18,11 +18,12 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.AttributeSet;
 import android.util.Pair;
+import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 
 public class ImageView extends android.widget.ImageView {
-	protected static final Logger L = LoggerFactory.getLogger(ImageView.class);
+	private static final Logger L = LoggerFactory.getLogger(ImageView.class);
 	// protected static final ColorDrawable CLS = new ColorDrawable();
 	/**
 	 * target URL.
@@ -35,6 +36,8 @@ public class ImageView extends android.widget.ImageView {
 	protected class ImgCallback extends HBitmapCallback {
 		protected String turl;
 
+		protected Bitmap img;
+
 		public ImgCallback(String url, int roundCorner) {
 			super(roundCorner);
 			this.turl = url;
@@ -43,24 +46,25 @@ public class ImageView extends android.widget.ImageView {
 		@Override
 		public void onSuccess(CBase c, HResp res, Bitmap img) throws Exception {
 			if (this.turl.equals(url)) {
-				ImageView.this.doAnimationH(img);
+				this.img = img;
+				ImageView.this.doAnimationH(this);
 			}
 		}
 
 		@Override
 		public void onError(CBase c, Bitmap cache, Throwable err) throws Exception {
 			if (this.turl.equals(url)) {
-				if (cache == null) {
-					ImageView.this.reset_bg();
-				} else {
-					ImageView.this.doAnimationH(cache);
-				}
+				ImageView.this.reset_bg_cbH(this);
 			}
 		}
 
 		@Override
 		public int getImgWidth() {
-			int w = ImageView.this.getLayoutParams().width;
+			ViewGroup.LayoutParams lo = ImageView.this.getLayoutParams();
+			if (lo == null) {
+				return 0;
+			}
+			int w = lo.width;
 			if (w > 0) {
 				return w;
 			} else {
@@ -70,7 +74,11 @@ public class ImageView extends android.widget.ImageView {
 
 		@Override
 		public int getImgHeight() {
-			int h = ImageView.this.getLayoutParams().height;
+			ViewGroup.LayoutParams lo = ImageView.this.getLayoutParams();
+			if (lo == null) {
+				return 0;
+			}
+			int h = lo.height;
 			if (h > 0) {
 				return h;
 			} else {
@@ -96,8 +104,17 @@ public class ImageView extends android.widget.ImageView {
 		return url;
 	}
 
+	public boolean isUrl(String turl) {
+		if (this.url == null) {
+			return turl == null;
+		} else {
+			return this.url.equals(turl);
+		}
+	}
+
 	public boolean setUrl(String url) {
 		if (Util.isNullOrEmpty(url)) {
+			this.url = "";
 			this.reset_bg();
 			return false;
 		}
@@ -108,7 +125,8 @@ public class ImageView extends android.widget.ImageView {
 			this.reset_bg();
 			this.url = url;
 			ImgCallback imgc = new ImgCallback(this.url, this.roundCorner);
-			Bitmap img = BitmapPool.cache(this.url, this.roundCorner, imgc.getImgWidth(), imgc.getImgHeight());
+			Bitmap img = BitmapPool.cache(org.cny.awf.pool.UrlKey.create(CBase.parseUrl(this.url), null,
+					this.roundCorner, imgc.getImgWidth(), imgc.getImgHeight()));
 			if (img == null) {
 				H.doGetNH(this.getContext(), this.url, Args.A("_hc_", "I"), null, imgc);
 			} else {
@@ -120,7 +138,7 @@ public class ImageView extends android.widget.ImageView {
 		}
 	}
 
-	private void reset_bg() {
+	protected void reset_bg() {
 		this.url = null;
 		if (this.bg == null) {
 			this.bg = this.getDrawable();
@@ -132,6 +150,19 @@ public class ImageView extends android.widget.ImageView {
 				this.setImageDrawable(this.bg);
 			}
 		}
+	}
+
+	protected void reset_bg_cb(ImgCallback cb) {
+		if (cb.turl.equals(this.url)) {
+			this.reset_bg();
+		}
+	}
+
+	protected void reset_bg_cbH(ImgCallback cb) {
+		Message msg = new Message();
+		msg.what = 3;
+		msg.obj = new Pair<ImageView, ImgCallback>(ImageView.this, cb);
+		h.sendMessage(msg);
 	}
 
 	public void clear() {
@@ -170,9 +201,24 @@ public class ImageView extends android.widget.ImageView {
 		this.doAnimation();
 	}
 
+	protected void doAnimation(ImgCallback cb) {
+		if (cb.turl.equals(url)) {
+			this.setImageBitmap(cb.img);
+			this.doAnimation();
+		}
+	}
+
 	public void doAnimationH(Bitmap img) {
 		Message msg = new Message();
+		msg.what = 1;
 		msg.obj = new Pair<ImageView, Bitmap>(ImageView.this, img);
+		h.sendMessage(msg);
+	}
+
+	protected void doAnimationH(ImgCallback cb) {
+		Message msg = new Message();
+		msg.what = 2;
+		msg.obj = new Pair<ImageView, ImgCallback>(ImageView.this, cb);
 		h.sendMessage(msg);
 	}
 
@@ -181,7 +227,7 @@ public class ImageView extends android.widget.ImageView {
 			this.setImg(path, this.roundCorner);
 			this.doAnimation();
 		} catch (Throwable e) {
-			L.debug("read bitmap file err:{}", e.getMessage());
+			L.error("read bitmap file err:{}", e.getMessage());
 		}
 	}
 
@@ -194,10 +240,22 @@ public class ImageView extends android.widget.ImageView {
 	private static Handler h = new Handler() {
 
 		@Override
+		@SuppressWarnings("unchecked")
 		public void handleMessage(Message msg) {
-			@SuppressWarnings("unchecked")
-			Pair<ImageView, Bitmap> img = (Pair<ImageView, Bitmap>) msg.obj;
-			img.first.doAnimation(img.second);
+			switch (msg.what) {
+			case 1:
+				Pair<ImageView, Bitmap> img = (Pair<ImageView, Bitmap>) msg.obj;
+				img.first.doAnimation(img.second);
+				break;
+			case 2:
+				Pair<ImageView, ImgCallback> cb = (Pair<ImageView, ImgCallback>) msg.obj;
+				cb.first.doAnimation(cb.second);
+				break;
+			case 3:
+				cb = (Pair<ImageView, ImgCallback>) msg.obj;
+				cb.first.reset_bg_cb(cb.second);
+				break;
+			}
 		}
 
 	};

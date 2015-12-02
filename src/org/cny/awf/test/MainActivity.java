@@ -24,17 +24,15 @@ public class MainActivity extends BaseAty {
 		// throw new RuntimeException();
 		System.err.println(Util.DevInfo(this));
 		System.err.println(Util.SysInfo(this));
-		LocalBroadcastManager.getInstance(this).registerReceiver(
-				new BroadcastReceiver() {
+		LocalBroadcastManager.getInstance(this).registerReceiver(new BroadcastReceiver() {
 
-					@Override
-					public void onReceive(Context arg0, Intent arg1) {
-						System.err.println("----->");
-						addm("Broadcast", "a", "val");
-					}
-				}, new IntentFilter("sss"));
-		System.out.println(LocalBroadcastManager.getInstance(this)
-				.sendBroadcast(new Intent("sss")));
+			@Override
+			public void onReceive(Context arg0, Intent arg1) {
+				System.err.println("----->");
+				addm("Broadcast", "a", "val");
+			}
+		}, new IntentFilter("sss"));
+		System.out.println(LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent("sss")));
 	}
 
 	@Override
@@ -70,5 +68,9 @@ public class MainActivity extends BaseAty {
 
 	public void toImgList(View v) {
 		this.startActivity(new Intent(this, ImgListActivity.class));
+	}
+
+	public void toCache(View v) {
+		this.startActivity(new Intent(this, CacheAty.class));
 	}
 }

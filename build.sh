@@ -4,7 +4,7 @@ export PATH=$PATH:$GOROOT/bin:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools:$
 if [ ! -d assets ]; then
  mkdir assets
 fi
-./w_ts_ip
+#./w_ts_ip
 case $1 in
  dev)
   ant clear_cls stop_ts start_ts uninstall emma debug install test fetch-test-report stop_ts

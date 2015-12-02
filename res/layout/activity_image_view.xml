@@ -18,7 +18,7 @@
         android:id="@+id/tiv1"
         android:layout_width="320dp"
         android:layout_height="220dp"
-        android:background="#555555" />
+        android:src="#555555" />
 
     <Button
         android:layout_width="wrap_content"
