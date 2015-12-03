@@ -273,6 +273,7 @@ public abstract class CBase implements Runnable, PIS.PisH {
 			res = this.createRes(res, pc);
 			in = res.getIn();
 			if (in == null) {
+				this.onSuccess(res);
 				return;
 			}
 			out = this.createO(res, pc);

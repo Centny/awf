@@ -68,7 +68,11 @@ public interface HCallback {
 
 		@Override
 		public void onSuccess(CBase c, HResp res) throws Exception {
-			this.tdata = new String(this.buf.toByteArray(), res.enc);
+			if (this.buf.size() > 0) {
+				this.tdata = new String(this.buf.toByteArray(), res.enc);
+			} else {
+				this.tdata = null;
+			}
 			// sending hook
 			if (Hooks.call(HDataCallback.class, "onSuccess", c, res, this.tdata) < 1) {
 				this.onSuccess(c, res, this.tdata);
