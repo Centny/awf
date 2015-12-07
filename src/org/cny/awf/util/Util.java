@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -268,6 +269,17 @@ public class Util {
 			fis.close();
 		}
 
+	}
+
+	public static void write(File f, byte[] bys) throws Exception {
+		FileOutputStream fis = new FileOutputStream(f);
+		try {
+			fis.write(bys);
+		} catch (Exception e) {
+			throw e;
+		} finally {
+			fis.close();
+		}
 	}
 
 	public static String uri(HttpUriRequest r) {

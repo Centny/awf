@@ -5,6 +5,8 @@ import java.util.List;
 
 import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicNameValuePair;
+import org.cny.awf.net.http.dlm.DLM;
+import org.cny.awf.net.http.dlm.DlmCallback;
 import org.cny.awf.util.Util;
 
 import android.content.Context;
@@ -40,21 +42,18 @@ public class H {
 	 *            HTTP call back instance.
 	 * @return the HTTPAsyncTask.
 	 */
-	public static HAsyncTask doPost(Context ctx, String url,
-			List<BasicNameValuePair> args, PIS pis, HCallback cb) {
+	public static HAsyncTask doPost(Context ctx, String url, List<BasicNameValuePair> args, PIS pis, HCallback cb) {
 		return doPost(ctx, url, args, null, pis, cb);
 	}
 
-	public static HAsyncTask doPost(String url, List<BasicNameValuePair> args,
-			List<BasicNameValuePair> heads, PIS pis, HCallback cb) {
+	public static HAsyncTask doPost(String url, List<BasicNameValuePair> args, List<BasicNameValuePair> heads, PIS pis,
+			HCallback cb) {
 		return doPost(CTX, url, args, heads, pis, cb);
 	}
 
-	public static HAsyncTask doPost(Context ctx, String url,
-			List<BasicNameValuePair> args, List<BasicNameValuePair> heads,
-			PIS pis, HCallback cb) {
-		return doPostNH(ctx, url, args, heads, pis,
-				new HCallback.HandlerCallback(cb));
+	public static HAsyncTask doPost(Context ctx, String url, List<BasicNameValuePair> args,
+			List<BasicNameValuePair> heads, PIS pis, HCallback cb) {
+		return doPostNH(ctx, url, args, heads, pis, new HCallback.HandlerCallback(cb));
 	}
 
 	/**
@@ -69,40 +68,32 @@ public class H {
 	 * @return task.
 	 * @throws UnsupportedEncodingException
 	 */
-	public static HAsyncTask doPostData(String url, Args.V json, HCallback cb)
+	public static HAsyncTask doPostData(String url, Args.V json, HCallback cb) throws UnsupportedEncodingException {
+		return doPostDataNH(CTX, url, null, json.toString(), new HCallback.HandlerCallback(cb));
+	}
+
+	public static HAsyncTask doPostData(String url, Args.V args, Args.V json, HCallback cb)
 			throws UnsupportedEncodingException {
-		return doPostDataNH(CTX, url, null, json.toString(),
-				new HCallback.HandlerCallback(cb));
+		return doPostDataNH(CTX, url, args, json.toString(), new HCallback.HandlerCallback(cb));
 	}
 
-	public static HAsyncTask doPostData(String url, Args.V args, Args.V json,
-			HCallback cb) throws UnsupportedEncodingException {
-		return doPostDataNH(CTX, url, args, json.toString(),
-				new HCallback.HandlerCallback(cb));
+	public static HAsyncTask doPostData(String url, Object data, HCallback cb) throws UnsupportedEncodingException {
+		return doPostDataNH(CTX, url, null, data.toString(), new HCallback.HandlerCallback(cb));
 	}
 
-	public static HAsyncTask doPostData(String url, Object data, HCallback cb)
+	public static HAsyncTask doPostData(String url, Args.V args, Object data, HCallback cb)
 			throws UnsupportedEncodingException {
-		return doPostDataNH(CTX, url, null, data.toString(),
-				new HCallback.HandlerCallback(cb));
+		return doPostDataNH(CTX, url, args, data.toString(), new HCallback.HandlerCallback(cb));
 	}
 
-	public static HAsyncTask doPostData(String url, Args.V args, Object data,
-			HCallback cb) throws UnsupportedEncodingException {
-		return doPostDataNH(CTX, url, args, data.toString(),
-				new HCallback.HandlerCallback(cb));
+	public static HAsyncTask doPostData(Context ctx, String url, Object data, HCallback cb)
+			throws UnsupportedEncodingException {
+		return doPostDataNH(ctx, url, null, data.toString(), new HCallback.HandlerCallback(cb));
 	}
 
-	public static HAsyncTask doPostData(Context ctx, String url, Object data,
-			HCallback cb) throws UnsupportedEncodingException {
-		return doPostDataNH(ctx, url, null, data.toString(),
-				new HCallback.HandlerCallback(cb));
-	}
-
-	public static HAsyncTask doPostData(Context ctx, String url, Args.V args,
-			Object data, HCallback cb) throws UnsupportedEncodingException {
-		return doPostDataNH(ctx, url, args, data.toString(),
-				new HCallback.HandlerCallback(cb));
+	public static HAsyncTask doPostData(Context ctx, String url, Args.V args, Object data, HCallback cb)
+			throws UnsupportedEncodingException {
+		return doPostDataNH(ctx, url, args, data.toString(), new HCallback.HandlerCallback(cb));
 	}
 
 	/**
@@ -120,19 +111,16 @@ public class H {
 	 *            HTTP call back instance.
 	 * @return the HTTPAsyncTask.
 	 */
-	public static HAsyncTask doPostNH(Context ctx, String url,
-			List<BasicNameValuePair> args, PIS pis, HCallback cb) {
+	public static HAsyncTask doPostNH(Context ctx, String url, List<BasicNameValuePair> args, PIS pis, HCallback cb) {
 		return doPostNH(ctx, url, args, null, pis, cb);
 	}
 
-	public static HAsyncTask doPostNH(String url,
-			List<BasicNameValuePair> args, PIS pis, HCallback cb) {
+	public static HAsyncTask doPostNH(String url, List<BasicNameValuePair> args, PIS pis, HCallback cb) {
 		return doPostNH(CTX, url, args, null, pis, cb);
 	}
 
-	public static HAsyncTask doPostNH(Context ctx, String url,
-			List<BasicNameValuePair> args, List<BasicNameValuePair> heads,
-			PIS pis, HCallback cb) {
+	public static HAsyncTask doPostNH(Context ctx, String url, List<BasicNameValuePair> args,
+			List<BasicNameValuePair> heads, PIS pis, HCallback cb) {
 		HAsyncTask hc = new HAsyncTask(ctx, url, cb);
 		if (args != null) {
 			hc.getArgs().addAll(args);
@@ -148,13 +136,12 @@ public class H {
 		return hc;
 	}
 
-	public static HAsyncTask doPostDataNH(String url, String data, HCallback cb)
-			throws UnsupportedEncodingException {
+	public static HAsyncTask doPostDataNH(String url, String data, HCallback cb) throws UnsupportedEncodingException {
 		return doPostDataNH(CTX, url, null, data, cb);
 	}
 
-	public static HAsyncTask doPostDataNH(Context ctx, String url, Args.V args,
-			String data, HCallback cb) throws UnsupportedEncodingException {
+	public static HAsyncTask doPostDataNH(Context ctx, String url, Args.V args, String data, HCallback cb)
+			throws UnsupportedEncodingException {
 		HAsyncTask hc = new HAsyncTask(ctx, url, cb);
 		if (Util.isNoEmpty(data)) {
 			hc.setEntity(new StringEntity(data));
@@ -180,8 +167,7 @@ public class H {
 	 *            HTTP call back instance.
 	 * @return the HTTPAsyncTask.
 	 */
-	public static HAsyncTask doPost(Context ctx, String url,
-			List<BasicNameValuePair> args, HCallback cb) {
+	public static HAsyncTask doPost(Context ctx, String url, List<BasicNameValuePair> args, HCallback cb) {
 		return doPost(ctx, url, args, null, cb);
 	}
 
@@ -211,8 +197,7 @@ public class H {
 	 *            HTTP call back instance.
 	 * @return the HTTPAsyncTask.
 	 */
-	public static HAsyncTask doPost(Context ctx, String url, PIS pis,
-			HCallback cb) {
+	public static HAsyncTask doPost(Context ctx, String url, PIS pis, HCallback cb) {
 		return doPost(ctx, url, null, pis, cb);
 
 	}
@@ -230,8 +215,7 @@ public class H {
 	 *            HTTP call back instance.
 	 * @return the HTTPAsyncTask.
 	 */
-	public static HAsyncTask doPost(String url, List<BasicNameValuePair> args,
-			PIS pis, HCallback cb) {
+	public static HAsyncTask doPost(String url, List<BasicNameValuePair> args, PIS pis, HCallback cb) {
 		return doPost(CTX, url, args, pis, cb);
 	}
 
@@ -246,8 +230,7 @@ public class H {
 	 *            HTTP call back instance.
 	 * @return the HTTPAsyncTask.
 	 */
-	public static HAsyncTask doPost(String url, List<BasicNameValuePair> args,
-			HCallback cb) {
+	public static HAsyncTask doPost(String url, List<BasicNameValuePair> args, HCallback cb) {
 		return doPost(CTX, url, args, cb);
 	}
 
@@ -279,8 +262,7 @@ public class H {
 		return doPost(url, null, pis, cb);
 	}
 
-	public static HAsyncTask doPost(String url, String name, Bitmap bm,
-			HCallback cb) {
+	public static HAsyncTask doPost(String url, String name, Bitmap bm, HCallback cb) {
 		return doPost(url, null, PIS.create(name, bm), cb);
 	}
 
@@ -297,19 +279,17 @@ public class H {
 	 *            HTTP call back instance.
 	 * @return the HTTPAsyncTask.
 	 */
-	public static HAsyncTask doGet(Context ctx, String url,
-			List<BasicNameValuePair> args, HCallback cb) {
+	public static HAsyncTask doGet(Context ctx, String url, List<BasicNameValuePair> args, HCallback cb) {
 		return doGet(ctx, url, args, null, cb);
 	}
 
-	public static HAsyncTask doGet(String url, List<BasicNameValuePair> args,
-			List<BasicNameValuePair> heads, HCallback cb) {
+	public static HAsyncTask doGet(String url, List<BasicNameValuePair> args, List<BasicNameValuePair> heads,
+			HCallback cb) {
 		return doGet(CTX, url, args, heads, cb);
 	}
 
-	public static HAsyncTask doGet(Context ctx, String url,
-			List<BasicNameValuePair> args, List<BasicNameValuePair> heads,
-			HCallback cb) {
+	public static HAsyncTask doGet(Context ctx, String url, List<BasicNameValuePair> args,
+			List<BasicNameValuePair> heads, HCallback cb) {
 		return doGetNH(ctx, url, args, heads, new HCallback.HandlerCallback(cb));
 	}
 
@@ -326,19 +306,17 @@ public class H {
 	 *            HTTP call back instance.
 	 * @return the HTTPAsyncTask.
 	 */
-	public static HAsyncTask doGetNH(String url, List<BasicNameValuePair> args,
-			HCallback cb) {
+	public static HAsyncTask doGetNH(String url, List<BasicNameValuePair> args, HCallback cb) {
 		return doGetNH(CTX, url, args, null, cb);
 	}
 
-	public static HAsyncTask doGetNH(String url, List<BasicNameValuePair> args,
-			List<BasicNameValuePair> heads, HCallback cb) {
+	public static HAsyncTask doGetNH(String url, List<BasicNameValuePair> args, List<BasicNameValuePair> heads,
+			HCallback cb) {
 		return doGetNH(CTX, url, args, heads, cb);
 	}
 
-	public static HAsyncTask doGetNH(Context ctx, String url,
-			List<BasicNameValuePair> args, List<BasicNameValuePair> heads,
-			HCallback cb) {
+	public static HAsyncTask doGetNH(Context ctx, String url, List<BasicNameValuePair> args,
+			List<BasicNameValuePair> heads, HCallback cb) {
 		HAsyncTask hc = new HAsyncTask(ctx, url, cb);
 		if (args != null) {
 			hc.getArgs().addAll(args);
@@ -361,8 +339,7 @@ public class H {
 	 *            HTTP call back instance.
 	 * @return the HTTPAsyncTask.
 	 */
-	public static HAsyncTask doGet(String url, List<BasicNameValuePair> args,
-			HCallback cb) {
+	public static HAsyncTask doGet(String url, List<BasicNameValuePair> args, HCallback cb) {
 		return doGet(CTX, url, args, cb);
 	}
 
@@ -410,5 +387,44 @@ public class H {
 
 	public static String findCache(String url) {
 		return findCache(url, "GET");
+	}
+
+	//
+	protected static DLM _DLM_;
+
+	public static DLM dlm() {
+		if (_DLM_ == null) {
+			_DLM_ = new DLM(0, 3, 100);
+		}
+		return _DLM_;
+	}
+
+	public static void initDlm(int corePoolSize, int maximumPoolSize, long keepAliveTime) {
+		if (_DLM_ != null) {
+			_DLM_.shutdown();
+		}
+		_DLM_ = new DLM(corePoolSize, maximumPoolSize, keepAliveTime);
+	}
+
+	public static String doGet(String url, String spath, List<BasicNameValuePair> args, List<BasicNameValuePair> heads,
+			DlmCallback cback) {
+		return dlm().put(CTX, url, "GET", spath, args, heads, cback);
+	}
+
+	public static String doGet(String url, String spath, DlmCallback cback) {
+		return dlm().put(CTX, url, "GET", spath, null, null, cback);
+	}
+
+	public static String doPost(String url, String spath, List<BasicNameValuePair> args, List<BasicNameValuePair> heads,
+			DlmCallback cback) {
+		return dlm().put(CTX, url, "POST", spath, args, heads, cback);
+	}
+
+	public static String doPost(String url, String spath, DlmCallback cback) {
+		return dlm().put(CTX, url, "POST", spath, null, null, cback);
+	}
+
+	public static String doPost(String url, String spath, List<BasicNameValuePair> args, DlmCallback cback) {
+		return dlm().put(CTX, url, "POST", spath, args, null, cback);
 	}
 }

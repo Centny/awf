@@ -3,6 +3,7 @@ package org.cny.awf.net.http;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -11,21 +12,25 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
-import junit.framework.Assert;
-
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.message.BasicNameValuePair;
 import org.cny.awf.net.http.HCallback.HCacheCallback;
+import org.cny.awf.net.http.dlm.DlmC;
+import org.cny.awf.net.http.dlm.DlmCallback;
 import org.cny.awf.test.MainActivity;
 import org.cny.awf.test.R;
 import org.cny.awf.util.CDL;
 import org.cny.awf.util.MultiOutputStream;
+import org.cny.jwf.util.FUtil;
+import org.cny.jwf.util.FUtil.Hash;
+import org.cny.jwf.util.Utils;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Environment;
 import android.test.ActivityInstrumentationTestCase2;
+import junit.framework.Assert;
 
 public class HTest extends ActivityInstrumentationTestCase2<MainActivity> {
 
@@ -91,8 +96,7 @@ public class HTest extends ActivityInstrumentationTestCase2<MainActivity> {
 		}
 
 		@Override
-		public void onError(CBase c, String cache, Throwable err)
-				throws Exception {
+		public void onError(CBase c, String cache, Throwable err) throws Exception {
 			this.cdl.countDown();
 		}
 
@@ -114,8 +118,7 @@ public class HTest extends ActivityInstrumentationTestCase2<MainActivity> {
 		}
 
 		@Override
-		public void onError(CBase c, String cache, Throwable err)
-				throws Exception {
+		public void onError(CBase c, String cache, Throwable err) throws Exception {
 			cdl.countDown();
 			rerr = err;
 			err.printStackTrace();
@@ -222,12 +225,9 @@ public class HTest extends ActivityInstrumentationTestCase2<MainActivity> {
 		final CDL cdl = new CDL(35);
 
 		// 1
-		H.doGet("http://" + ts_ip + ":8000/g_args?a=1&b=abc&c=这是中文", new Abc(
-				cdl, "1"));
+		H.doGet("http://" + ts_ip + ":8000/g_args?a=1&b=abc&c=这是中文", new Abc(cdl, "1"));
 		// 1-1
-		H.doGet("http://"
-				+ ts_ip
-				+ ":8000/g_args?param={\"pa\":{\"pn\":1,\"ps\":5},\"filter\":\"\"}&a=1&b=abc&c=这是中文",
+		H.doGet("http://" + ts_ip + ":8000/g_args?param={\"pa\":{\"pn\":1,\"ps\":5},\"filter\":\"\"}&a=1&b=abc&c=这是中文",
 				new Abc(cdl, "1-1"));
 		// 1-2
 		H.doGet("http://" + ts_ip + ":8000/g_args?", new None(cdl, "1-2"));
@@ -238,73 +238,53 @@ public class HTest extends ActivityInstrumentationTestCase2<MainActivity> {
 		// 2
 		List<BasicNameValuePair> args = new ArrayList<BasicNameValuePair>();
 		args.add(new BasicNameValuePair("a", "1"));
-		H.doGet("http://" + ts_ip + ":8000/g_args?b=abc&c=这是中文", args, new Abc(
-				cdl, "2"));
+		H.doGet("http://" + ts_ip + ":8000/g_args?b=abc&c=这是中文", args, new Abc(cdl, "2"));
 		// 2-1
-		H.doGet("http://" + ts_ip + ":8000/g_args?b=abc&c=这是中文&_hc_=N", args,
-				new Abc(cdl, "2-1"));
+		H.doGet("http://" + ts_ip + ":8000/g_args?b=abc&c=这是中文&_hc_=N", args, new Abc(cdl, "2-1"));
 		// 2-2
-		H.doGet("http://" + ts_ip + ":8000/g_args?b=abc&c=这是中文&_hc_=C", args,
-				new Abc(cdl, "2-2"));
+		H.doGet("http://" + ts_ip + ":8000/g_args?b=abc&c=这是中文&_hc_=C", args, new Abc(cdl, "2-2"));
 		// 2-3
-		H.doGet("http://" + ts_ip + ":8000/g_args?b=abc&c=这是中文&_hc_=CN", args,
-				new Abc(cdl, "2"));
+		H.doGet("http://" + ts_ip + ":8000/g_args?b=abc&c=这是中文&_hc_=CN", args, new Abc(cdl, "2"));
 		// 2-4
-		H.doGet("http://" + ts_ip + ":8000/g_args?b=abc&c=这是中文&_hc_=CN", args,
-				new Abc(cdl, "2"));
+		H.doGet("http://" + ts_ip + ":8000/g_args?b=abc&c=这是中文&_hc_=CN", args, new Abc(cdl, "2"));
 		// 2-5
-		H.doGet("http://" + ts_ip + ":8000/g_args?b=abc&c=这是中文&_hc_=NO", args,
-				new Abc(cdl, "2"));
+		H.doGet("http://" + ts_ip + ":8000/g_args?b=abc&c=这是中文&_hc_=NO", args, new Abc(cdl, "2"));
 		// 2-6
-		H.doGet("http://" + ts_ip + ":8000/g_args?b=abc&c=这是中文&_hc_=NO", args,
-				new Abc(cdl, "2"));
+		H.doGet("http://" + ts_ip + ":8000/g_args?b=abc&c=这是中文&_hc_=NO", args, new Abc(cdl, "2"));
 		// 2-7
-		H.doGet("http://" + ts_ip + ":8000/g_args?b=abc&c=这是中文&_hc_=I", args,
-				new Abc2(cdl, "2"));
+		H.doGet("http://" + ts_ip + ":8000/g_args?b=abc&c=这是中文&_hc_=I", args, new Abc2(cdl, "2"));
 		// 2-8
-		H.doGet("http://" + ts_ip + ":8000/g_args?b=abc&c=这是中文&_hc_=I", args,
-				new Abc2(cdl, "2"));
+		H.doGet("http://" + ts_ip + ":8000/g_args?b=abc&c=这是中文&_hc_=I", args, new Abc2(cdl, "2"));
 		// 2-9
-		H.doGet("http://" + ts_ip + ":8000/g_argsc?_hc_=N", args, new Abc(cdl,
-				"2-9"));
+		H.doGet("http://" + ts_ip + ":8000/g_argsc?_hc_=N", args, new Abc(cdl, "2-9"));
 		// 2-10
-		H.doGet("http://" + ts_ip + ":8000/g_argsc?_hc_=N", args, new Abc(cdl,
-				"2-10"));
+		H.doGet("http://" + ts_ip + ":8000/g_argsc?_hc_=N", args, new Abc(cdl, "2-10"));
 		// 2-11
-		H.doGet("http://" + ts_ip + ":8000/g_argsc?_hc_=I", args, new Abc2(cdl,
-				"2-11"));
+		H.doGet("http://" + ts_ip + ":8000/g_argsc?_hc_=I", args, new Abc2(cdl, "2-11"));
 		// 2-12
-		H.doGet("http://" + ts_ip + ":8000/g_argsc?ssdfs=sfs&sfs=1&_hc_=C",
-				args, new None(cdl, "2-12"));
+		H.doGet("http://" + ts_ip + ":8000/g_argsc?ssdfs=sfs&sfs=1&_hc_=C", args, new None(cdl, "2-12"));
 		// 3
 		args.add(new BasicNameValuePair("b", "abc"));
-		H.doGet("http://" + ts_ip + ":8000/g_args?c=这是中文", args, new Abc(cdl,
-				"3"));
+		H.doGet("http://" + ts_ip + ":8000/g_args?c=这是中文", args, new Abc(cdl, "3"));
 		// 3-1
-		H.doGet(this.getActivity(), "http://" + ts_ip + ":8000/g_args?c=这是中文",
-				args, new None(cdl, "3"));
+		H.doGet(this.getActivity(), "http://" + ts_ip + ":8000/g_args?c=这是中文", args, new None(cdl, "3"));
 		// 3-2
 		H.doGet("http://" + ts_ip + ":8000/g_args?c=这是中文", new None(cdl, "3-2"));
 		// 3-3
-		H.doGet(this.getActivity(), "http://" + ts_ip + ":8000/g_args?c=这是中文",
-				new None(cdl, "3-3"));
+		H.doGet(this.getActivity(), "http://" + ts_ip + ":8000/g_args?c=这是中文", new None(cdl, "3-3"));
 		// 4
 		args.add(new BasicNameValuePair("c", "这是中文"));
 		H.doGet("http://" + ts_ip + ":8000/g_args", args, new Abc(cdl, "4"));
 		// 5
-		H.doPost("http://" + ts_ip + ":8000/g_args?c=这是中文", args, new Abc(cdl,
-				"5"));
+		H.doPost("http://" + ts_ip + ":8000/g_args?c=这是中文", args, new Abc(cdl, "5"));
 		// 5-1
-		H.doPost(this.getActivity(), "http://" + ts_ip + ":8000/g_args?c=这是中文",
-				new None(cdl, "5-1"));
+		H.doPost(this.getActivity(), "http://" + ts_ip + ":8000/g_args?c=这是中文", new None(cdl, "5-1"));
 		// 5-2
-		H.doPost("http://" + ts_ip + ":8000/g_args?c=这是中文",
-				new None(cdl, "5-2"));
+		H.doPost("http://" + ts_ip + ":8000/g_args?c=这是中文", new None(cdl, "5-2"));
 		//
 		HAsyncTask dc;
 		// 6
-		dc = new HAsyncTask(this.getActivity(), "http://" + ts_ip
-				+ ":8000/g_args", new Abc(cdl, "6"));
+		dc = new HAsyncTask(this.getActivity(), "http://" + ts_ip + ":8000/g_args", new Abc(cdl, "6"));
 		dc.addArg("a", "1");
 		dc.addArg("b", "abc");
 		dc.addArg("c", "这是中文");
@@ -313,24 +293,21 @@ public class HTest extends ActivityInstrumentationTestCase2<MainActivity> {
 		dc.setMethod("GET");
 		dc.asyncExec();
 		// 7
-		dc = new HAsyncTask(this.getActivity(), "http://" + ts_ip
-				+ ":8000/h_args", new Abc(cdl, "7"));
+		dc = new HAsyncTask(this.getActivity(), "http://" + ts_ip + ":8000/h_args", new Abc(cdl, "7"));
 		dc.getHeaders().addAll(args);
 		Assert.assertEquals("这是中文", dc.findHead("c"));
 		Assert.assertEquals("", dc.findHead("csfdsfs"));
 		dc.setMethod("GET");
 		dc.asyncExec();
 		// 8
-		dc = new HAsyncTask(this.getActivity(), "http://" + ts_ip
-				+ ":8000/h_args", new Abc(cdl, "8"));
+		dc = new HAsyncTask(this.getActivity(), "http://" + ts_ip + ":8000/h_args", new Abc(cdl, "8"));
 		dc.getHeaders().addAll(args);
 		dc.setMethod("POST");
 		assertEquals("POST", dc.getMethod());
 		dc.setCencoding("UTF-8");
 		dc.asyncExec();
 		// 9
-		dc = new HAsyncTask(this.getActivity(), "http://" + ts_ip
-				+ ":8000/h_args", new Abc(cdl, "9"));
+		dc = new HAsyncTask(this.getActivity(), "http://" + ts_ip + ":8000/h_args", new Abc(cdl, "9"));
 		dc.addHead("a", "1");
 		dc.addHead("b", "abc");
 		dc.addHead("c", "这是中文");
@@ -348,16 +325,14 @@ public class HTest extends ActivityInstrumentationTestCase2<MainActivity> {
 		// 12
 		H.doGet("http://" + ts_ip + ":8000/res_j", args, new TJson(cdl, "12"));
 		// 12-1
-		H.doGet("http://" + ts_ip + ":8000/res_j", args,
-				new TJson2(cdl, "12-1"));
+		H.doGet("http://" + ts_ip + ":8000/res_j", args, new TJson2(cdl, "12-1"));
 		//
 		cdl.await();
 		if (this.rerr != null) {
 			this.rerr.printStackTrace();
 			assertNull(this.rerr.getMessage(), this.rerr);
 		}
-		String res = H.findCache("http://" + ts_ip
-				+ ":8000/g_args?a=1&b=abc&c=这是中文");
+		String res = H.findCache("http://" + ts_ip + ":8000/g_args?a=1&b=abc&c=这是中文");
 		assertNotNull(res);
 		new H();
 	}
@@ -365,13 +340,11 @@ public class HTest extends ActivityInstrumentationTestCase2<MainActivity> {
 	public void testErr() throws URISyntaxException {
 		final CountDownLatch cdl = new CountDownLatch(17);
 		try {
-			new HAsyncTask(HDb.loadDb_(getActivity()), new String(new byte[] {
-					1, 2, 3 }), new Abc(cdl, "9"));
+			new HAsyncTask(HDb.loadDb_(getActivity()), new String(new byte[] { 1, 2, 3 }), new Abc(cdl, "9"));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		new HAsyncTask(HDb.loadDb_(getActivity()), "http://www.baidu.com",
-				new Abc(cdl, "9"));
+		new HAsyncTask(HDb.loadDb_(getActivity()), "http://www.baidu.com", new Abc(cdl, "9"));
 		new C(this.getActivity(), "", null) {
 
 			@Override
@@ -393,19 +366,17 @@ public class HTest extends ActivityInstrumentationTestCase2<MainActivity> {
 		}.readCache();
 		//
 
-		new HAsyncTask(HDb.loadDb_(getActivity()), "http://www.baidu.com",
-				new Abc(cdl, "9")) {
+		new HAsyncTask(HDb.loadDb_(getActivity()), "http://www.baidu.com", new Abc(cdl, "9")) {
 
 			@Override
-			protected void onProcess(long rsize, long clen) {
-				super.onProcess(rsize, clen);
+			protected void onProcess(HResp res, long rsize, long clen) {
+				super.onProcess(res, rsize, clen);
 				this.running = false;
 			}
 
 		}.run();
 		//
-		HAsyncTask at = new HAsyncTask(HDb.loadDb_(getActivity()),
-				"http://www.baidu.com", new None(cdl, ""));
+		HAsyncTask at = new HAsyncTask(HDb.loadDb_(getActivity()), "http://www.baidu.com", new None(cdl, ""));
 		at.setArgs(at.getArgs());
 		at.setBsize(at.getBsize());
 		at.setCback(at.getCback());
@@ -483,11 +454,9 @@ public class HTest extends ActivityInstrumentationTestCase2<MainActivity> {
 	public void testUpload() throws Exception {
 		this.rerr = null;
 		final CountDownLatch cdl = new CountDownLatch(1);
-		ByteArrayInputStream bais = new ByteArrayInputStream(
-				"abc\n这是中文\n".getBytes());
-		H.doPost(
-				"http://" + ts_ip + ":8000/rec_f?sw=testing&abc=这是中文2&_hc_=NO",
-				PIS.create("file", "abc.txt", bais), new Abc3(cdl, "tu1"));
+		ByteArrayInputStream bais = new ByteArrayInputStream("abc\n这是中文\n".getBytes());
+		H.doPost("http://" + ts_ip + ":8000/rec_f?sw=testing&abc=这是中文2&_hc_=NO", PIS.create("file", "abc.txt", bais),
+				new Abc3(cdl, "tu1"));
 		Thread.sleep(200);
 		cdl.await();
 		assertNull(this.rerr);
@@ -496,11 +465,8 @@ public class HTest extends ActivityInstrumentationTestCase2<MainActivity> {
 	public void testUploadBm() throws Exception {
 		this.rerr = null;
 		final CountDownLatch cdl = new CountDownLatch(1);
-		Bitmap bm = BitmapFactory.decodeResource(this.getActivity()
-				.getResources(), R.drawable.ic_launcher);
-		H.doPost(
-				"http://" + ts_ip + ":8000/rec_f?sw=testing&abc=这是中文2&_hc_=NO",
-				"file", bm, new Abc3(cdl, "tu2"));
+		Bitmap bm = BitmapFactory.decodeResource(this.getActivity().getResources(), R.drawable.ic_launcher);
+		H.doPost("http://" + ts_ip + ":8000/rec_f?sw=testing&abc=这是中文2&_hc_=NO", "file", bm, new Abc3(cdl, "tu2"));
 		Thread.sleep(200);
 		cdl.await();
 		assertNull(this.rerr);
@@ -550,15 +516,13 @@ public class HTest extends ActivityInstrumentationTestCase2<MainActivity> {
 		HCacheCallback hc = new HCacheCallback() {
 
 			@Override
-			public void onSuccess(CBase c, HResp res, String data)
-					throws Exception {
+			public void onSuccess(CBase c, HResp res, String data) throws Exception {
 				cdl.countDown();
 				assertEquals("abc", data);
 			}
 
 			@Override
-			public void onError(CBase c, String cache, Throwable err)
-					throws Exception {
+			public void onError(CBase c, String cache, Throwable err) throws Exception {
 				cdl.countDown();
 				assertNull(err);
 			}
@@ -583,8 +547,7 @@ public class HTest extends ActivityInstrumentationTestCase2<MainActivity> {
 		}
 
 		@Override
-		public void onError(CBase c, String cache, Throwable err)
-				throws Exception {
+		public void onError(CBase c, String cache, Throwable err) throws Exception {
 			cdl.countDown();
 			assertNull(err);
 		}
@@ -595,17 +558,93 @@ public class HTest extends ActivityInstrumentationTestCase2<MainActivity> {
 
 		// for json object.
 		Args.V args = Args.A("a", "1").A("b", "xx").A("c", "val");
-		H.doPostData("http://" + ts_ip + ":8000/data_j", args,
-				new TestPostJsonCallback_(cdl, args.toString()));
+		H.doPostData("http://" + ts_ip + ":8000/data_j", args, new TestPostJsonCallback_(cdl, args.toString()));
 
 		// for json array.
 		Args.VAry aary = new Args.VAry();
 		aary.A(args);
 		aary.A(Args.A("a1", "1").A("b", "xx"));
-		H.doPostData("http://" + ts_ip + ":8000/data_j", aary,
-				new TestPostJsonCallback_(cdl, args.toString()));
+		H.doPostData("http://" + ts_ip + ":8000/data_j", aary, new TestPostJsonCallback_(cdl, args.toString()));
 
 		//
 		cdl.await();
+	}
+
+	public void testDlm() throws Throwable {
+		CDL cdl = new CDL(2);
+		File sdir = this.getActivity().getExternalFilesDir("dd");
+		String tf = sdir.getAbsolutePath() + File.separator + "22.png";
+		Utils.del(new File(tf));
+		Utils.del(new File(tf + ".awf.tmp"));
+		String did;
+		Hash hash;
+		FileInputStream fis;
+		//
+		did = H.doGet("http://" + ts_ip + ":8000/22.png", tf, new DlmBack(cdl, 2));
+		cdl.waitc(1);
+		while (H.dlm().find(did) != null) {
+			Thread.sleep(200);
+		}
+		fis = new FileInputStream(tf);
+		hash = FUtil.sha1(fis, null);
+		fis.close();
+		Assert.assertEquals(false,
+				"c19441db790b519c33fbb775e82695c27e7afed4".equalsIgnoreCase(Utils.byte2hex(hash.hash)));
+		did = H.doGet("http://" + ts_ip + ":8000/22.png", tf, new DlmBack(cdl, -1));
+		cdl.await();
+		while (H.dlm().find(did) != null) {
+			Thread.sleep(200);
+		}
+		fis = new FileInputStream(tf);
+		hash = FUtil.sha1(fis, null);
+		fis.close();
+		Assert.assertEquals(true,
+				"c19441db790b519c33fbb775e82695c27e7afed4".equalsIgnoreCase(Utils.byte2hex(hash.hash)));
+
+		// cdl.await();
+	}
+
+	public class DlmBack implements DlmCallback {
+		CDL cdl;
+		int times = -1;
+		int times_ = 0;
+
+		public DlmBack(CDL cdl, int times) {
+			this.cdl = cdl;
+			this.times = times;
+		}
+
+		@Override
+		public void onProcess(DlmC c, float rate) {
+			System.err.println(c.getFullUrl() + "->" + rate);
+			this.times_++;
+			if (this.times == this.times_) {
+				this.cdl.countDown();
+			}
+		}
+
+		@Override
+		public void onProcEnd(DlmC c, HResp res) throws Exception {
+			System.err.println(c.getFullUrl() + "->end->");
+		}
+
+		@Override
+		public void onSuccess(DlmC c, HResp res) throws Exception {
+			System.err.println(c.getFullUrl() + "->OK->");
+			this.cdl.countDown();
+		}
+
+		@Override
+		public void onError(DlmC c, Throwable err) throws Exception {
+			System.err.println(c.getFullUrl() + "->ERR->" + err.getMessage());
+			if (this.times != this.times_) {
+				this.cdl.countDown();
+			}
+		}
+
+		@Override
+		public void onExecErr(DlmC c, Throwable e) {
+			System.err.println(c.getFullUrl() + "->ExecErr->" + e.getMessage());
+		}
 	}
 }

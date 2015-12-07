@@ -40,6 +40,11 @@ public class HResp {
 	long lmt;
 	String etag;
 	//
+	// range
+	long rg_beg = 0;
+	long rg_end = 0;
+	long rg_len = 0;
+	//
 	InputStream in = null;
 	String filename;
 	Map<String, String> headers = new HashMap<String, String>();
@@ -143,7 +148,23 @@ public class HResp {
 				this.filename = encoding(cnv.getValue());
 			}
 		}
-
+		h = res.getFirstHeader("Content-Range");
+		if (h == null) {
+			this.rg_beg = -1;
+			this.rg_end = -1;
+			this.rg_len = -1;
+		} else {
+			String[] rgs;
+			String range;
+			range = h.getValue();
+			range = range.replace("bytes", "");
+			range.trim();
+			rgs = range.split("-");
+			this.rg_beg = Long.valueOf(rgs[0].trim(), 10);
+			rgs = rgs[1].split("/");
+			this.rg_end = Long.valueOf(rgs[0].trim(), 10);
+			this.rg_len = Long.valueOf(rgs[1].trim(), 10);
+		}
 		for (Header hd : res.getAllHeaders()) {
 			String cval = encoding(hd.getValue());
 			if (cval == null) {
@@ -154,8 +175,7 @@ public class HResp {
 		return this;
 	}
 
-	public HResp initHttpStream(HttpResponse res) throws IllegalStateException,
-			IOException {
+	public HResp initHttpStream(HttpResponse res) throws IllegalStateException, IOException {
 		this.in = res.getEntity().getContent();
 		return this;
 	}
@@ -188,19 +208,17 @@ public class HResp {
 
 	@Override
 	public String toString() {
-		return "u:" + this.u + ",m:" + this.m + ",arg:" + this.arg + ",lmt:"
-				+ this.lmt + ",etag:" + this.etag + ",path:" + this.path;
+		return "u:" + this.u + ",m:" + this.m + ",arg:" + this.arg + ",lmt:" + this.lmt + ",etag:" + this.etag
+				+ ",path:" + this.path;
 	}
 
 	public Object[] toObjects(boolean id_) {
 		if (id_) {
-			return new Object[] { this.tid > 0 ? this.tid : null, this.u,
-					this.m, this.arg, this.lmt, this.etag, this.type, this.len,
-					this.enc, this.path, this.time };
+			return new Object[] { this.tid > 0 ? this.tid : null, this.u, this.m, this.arg, this.lmt, this.etag,
+					this.type, this.len, this.enc, this.path, this.time };
 		} else {
-			return new Object[] { this.u, this.m, this.arg, this.lmt,
-					this.etag, this.type, this.len, this.enc, this.path,
-					this.time };
+			return new Object[] { this.u, this.m, this.arg, this.lmt, this.etag, this.type, this.len, this.enc,
+					this.path, this.time };
 		}
 	}
 
@@ -362,6 +380,18 @@ public class HResp {
 		return headers;
 	}
 
+	public long getRg_beg() {
+		return rg_beg;
+	}
+
+	public long getRg_end() {
+		return rg_end;
+	}
+
+	public long getRg_len() {
+		return rg_len;
+	}
+
 	public static long parseLmt(String gmt) throws ParseException {
 		if (gmt == null) {
 			return 0;
@@ -370,8 +400,7 @@ public class HResp {
 		if (gmt.isEmpty()) {
 			return 0;
 		}
-		SimpleDateFormat sdf = new SimpleDateFormat(
-				"EEE, d MMM yyyy HH:mm:ss 'GMT'", Locale.US);
+		SimpleDateFormat sdf = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss 'GMT'", Locale.US);
 		sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
 		return sdf.parse(gmt).getTime();
 	}
@@ -380,8 +409,7 @@ public class HResp {
 		if (gmt == null) {
 			return "";
 		}
-		SimpleDateFormat sdf = new SimpleDateFormat(
-				"EEE, d MMM yyyy HH:mm:ss 'GMT'", Locale.US);
+		SimpleDateFormat sdf = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss 'GMT'", Locale.US);
 		sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
 		return sdf.format(gmt);
 	}

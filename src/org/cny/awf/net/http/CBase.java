@@ -284,7 +284,7 @@ public abstract class CBase implements Runnable, PIS.PisH {
 			while ((length = in.read(buf)) != -1) {
 				out.write(buf, 0, length);
 				rsize += length;
-				this.onProcess(rsize, clen);
+				this.onProcess(res, rsize, clen);
 				if (!this.running) {
 					throw new InterruptedException("Transfter file stopped");
 				}
@@ -420,6 +420,10 @@ public abstract class CBase implements Runnable, PIS.PisH {
 		if (err != null) {
 			throw err;
 		}
+	}
+
+	protected void onProcess(HResp res, long rsize, long clen) {
+		this.onProcess(rsize, clen);
 	}
 
 	protected void onProcess(long rsize, long clen) {
