@@ -106,6 +106,15 @@ public interface HCallback {
 			}
 		}
 
+		@Override
+		public void onCache(CBase c, HResp res) throws Exception {
+			this.onCache(c, res, c.readCache());
+		}
+
+		public void onCache(CBase c, HResp res, String cache) throws Exception {
+
+		}
+
 		public abstract void onError(CBase c, String cache, Throwable err) throws Exception;
 	}
 
