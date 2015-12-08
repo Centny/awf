@@ -12,4 +12,22 @@ public interface DlmCallback {
 	void onError(DlmC c, Throwable err) throws Exception;
 
 	void onExecErr(DlmC c, Throwable e);
+
+	public static abstract class DlmBaseCallback implements DlmCallback {
+
+		@Override
+		public void onProcess(DlmC c, float rate) {
+		}
+
+		@Override
+		public void onProcEnd(DlmC c, HResp res) throws Exception {
+		}
+
+		@Override
+		public void onExecErr(DlmC c, Throwable e) {
+			System.err.println("DlmC exec error->");
+			e.printStackTrace();
+		}
+
+	}
 }
