@@ -25,6 +25,7 @@ public class DlmC extends C {
 	protected String tpath;
 	protected DlmTmp tmp;
 	protected DLM dlm;
+	protected long loaded = 0;
 
 	public DlmC(Context ctx, String url, String spath, HCallback cback) {
 		super(ctx, url, cback);
@@ -55,6 +56,7 @@ public class DlmC extends C {
 		if (this.tmp == null) {
 			this.tmp = new DlmTmp(furl, 0);
 		}
+		this.loaded = this.tmp.range;
 		if (!furl.equals(this.tmp.url)) {
 			throw new Exception("url is not equal to saved awf.tmp.url, must set new file path to new url");
 		}
@@ -85,7 +87,7 @@ public class DlmC extends C {
 
 	@Override
 	protected void onProcess(HResp res, long rsize, long clen) {
-		this.tmp.range += rsize;
+		this.tmp.range = this.loaded + rsize;
 		this.saveTmp();
 		if (res.getRg_len() > 0) {
 			super.onProcess(res, this.tmp.range, res.getRg_len());

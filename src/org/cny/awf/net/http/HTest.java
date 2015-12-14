@@ -585,6 +585,7 @@ public class HTest extends ActivityInstrumentationTestCase2<MainActivity> {
 		while (H.dlm().find(did) != null) {
 			Thread.sleep(200);
 		}
+		assertNull(this.rerr);
 		fis = new FileInputStream(tf);
 		hash = FUtil.sha1(fis, null);
 		fis.close();
@@ -600,7 +601,7 @@ public class HTest extends ActivityInstrumentationTestCase2<MainActivity> {
 		fis.close();
 		Assert.assertEquals(true,
 				"c19441db790b519c33fbb775e82695c27e7afed4".equalsIgnoreCase(Utils.byte2hex(hash.hash)));
-
+		assertNull(this.rerr);
 		// cdl.await();
 	}
 
@@ -618,6 +619,9 @@ public class HTest extends ActivityInstrumentationTestCase2<MainActivity> {
 		public void onProcess(DlmC c, float rate) {
 			System.err.println(c.getFullUrl() + "->" + rate);
 			this.times_++;
+			if (rate > 1) {
+				rerr = new Exception("rate is " + rate);
+			}
 			if (this.times == this.times_) {
 				this.cdl.countDown();
 			}
@@ -640,11 +644,13 @@ public class HTest extends ActivityInstrumentationTestCase2<MainActivity> {
 			if (this.times != this.times_) {
 				this.cdl.countDown();
 			}
+			rerr = err;
 		}
 
 		@Override
 		public void onExecErr(DlmC c, Throwable e) {
 			System.err.println(c.getFullUrl() + "->ExecErr->" + e.getMessage());
+			rerr = e;
 		}
 	}
 }
