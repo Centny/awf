@@ -34,9 +34,9 @@ public class ImageView extends android.widget.ImageView {
 	protected Drawable bg;
 
 	protected class ImgCallback extends HBitmapCallback {
-		protected String turl;
+		public String turl;
 
-		protected Bitmap img;
+		public Bitmap img;
 
 		public ImgCallback(String url, int roundCorner) {
 			super(roundCorner);
@@ -112,7 +112,7 @@ public class ImageView extends android.widget.ImageView {
 		}
 	}
 
-	public boolean setUrl(String url) {
+	public synchronized boolean setUrl(String url) {
 		if (Util.isNullOrEmpty(url)) {
 			this.url = "";
 			this.reset_bg();
