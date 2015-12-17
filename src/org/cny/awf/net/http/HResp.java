@@ -158,12 +158,19 @@ public class HResp {
 			String range;
 			range = h.getValue();
 			range = range.replace("bytes", "");
-			range.trim();
-			rgs = range.split("-");
-			this.rg_beg = Long.valueOf(rgs[0].trim(), 10);
-			rgs = rgs[1].split("/");
-			this.rg_end = Long.valueOf(rgs[0].trim(), 10);
-			this.rg_len = Long.valueOf(rgs[1].trim(), 10);
+			range = range.trim();
+			if (range.contains("-")) {
+				rgs = range.split("-");
+				this.rg_beg = Long.valueOf(rgs[0].trim(), 10);
+				rgs = rgs[1].split("/");
+				this.rg_end = Long.valueOf(rgs[0].trim(), 10);
+				this.rg_len = Long.valueOf(rgs[1].trim(), 10);
+			} else {
+				rgs = range.split("/");
+				this.rg_len = Long.valueOf(rgs[1].trim(), 10);
+				this.rg_end = this.rg_len - 1;
+				this.rg_beg = 0;
+			}
 		}
 		for (Header hd : res.getAllHeaders()) {
 			String cval = encoding(hd.getValue());

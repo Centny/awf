@@ -605,6 +605,23 @@ public class HTest extends ActivityInstrumentationTestCase2<MainActivity> {
 		// cdl.await();
 	}
 
+	public void testDlm2() throws Exception {
+		String url = "http://adload.kuxiao.cn/armeabi-v7a/libxwalkcore.zip";
+		CDL cdl = new CDL(2);
+		File sdir = this.getActivity().getExternalFilesDir("dd");
+		String tf = sdir.getAbsolutePath() + File.separator + "xx.zip";
+		Utils.del(new File(tf));
+		Utils.del(new File(tf + ".awf.tmp"));
+		String did;
+		//
+		did = H.doGet(url, tf, new DlmBack(cdl, 2));
+		cdl.waitc(1);
+		while (H.dlm().find(did) != null) {
+			Thread.sleep(200);
+		}
+		assertNull(this.rerr);
+	}
+
 	public class DlmBack implements DlmCallback {
 		CDL cdl;
 		int times = -1;
