@@ -2,6 +2,7 @@ package org.cny.awf.net.http;
 
 import java.io.UnsupportedEncodingException;
 import java.util.List;
+import java.util.concurrent.Executor;
 
 import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicNameValuePair;
@@ -318,6 +319,19 @@ public class H {
 	public static HAsyncTask doGetNH(Context ctx, String url, List<BasicNameValuePair> args,
 			List<BasicNameValuePair> heads, HCallback cb) {
 		HAsyncTask hc = new HAsyncTask(ctx, url, cb);
+		if (args != null) {
+			hc.getArgs().addAll(args);
+		}
+		if (heads != null) {
+			hc.getHeaders().addAll(heads);
+		}
+		hc.asyncExec();
+		return hc;
+	}
+
+	public static HAsyncTask doGetNH(Context ctx, Executor ec, String url, List<BasicNameValuePair> args,
+			List<BasicNameValuePair> heads, HCallback cb) {
+		HAsyncTask hc = new HAsyncTask(ctx, ec, url, cb);
 		if (args != null) {
 			hc.getArgs().addAll(args);
 		}

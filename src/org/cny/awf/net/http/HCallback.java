@@ -100,9 +100,9 @@ public interface HCallback {
 
 		@Override
 		public void onError(CBase c, Throwable err) throws Exception {
-			String cache = c.readCache();
-			if (Hooks.call(HCacheCallback.class, "onError", c, cache, err) < 1) {
-				this.onError(c, cache, err);
+			// String cache = c.readCache();
+			if (Hooks.call(HCacheCallback.class, "onError", c, null, err) < 1) {
+				this.onError(c, null, err);
 			}
 		}
 
@@ -135,6 +135,15 @@ public interface HCallback {
 		}
 
 		@Override
+		public OutputStream createO(CBase c, HResp res) throws Exception {
+			if (res.code == 200) {
+				return super.createO(c, res);
+			} else {
+				throw new Exception("response code is " + res.code);
+			}
+		}
+
+		@Override
 		public void onSuccess(CBase c, HResp res, String data) throws Exception {
 			this.onSuccess(c, res, BitmapPool.dol(
 					UrlKey.create(this.createUrl(c), data, this.roundCorner, this.getImgWidth(), this.getImgHeight())));
@@ -143,11 +152,6 @@ public interface HCallback {
 		@Override
 		public void onError(CBase c, String cache, Throwable err) throws Exception {
 			Bitmap img = null;
-			// if (Util.isNoEmpty(cache)) {
-			// img = BitmapPool.dol(new UrlKey(this.createUrl(c), cache),
-			// this.roundCorner, this.getImgWidth(),
-			// this.getImgHeight());
-			// }
 			this.onError(c, img, err);
 		}
 

@@ -1,5 +1,13 @@
 package org.cny.awf.view;
 
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Executor;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.cny.awf.net.http.Args;
 import org.cny.awf.net.http.CBase;
 import org.cny.awf.net.http.H;
@@ -32,6 +40,18 @@ public class ImageView extends android.widget.ImageView {
 	protected int roundCorner = 0;
 	protected int showTime = 500;
 	protected Drawable bg;
+	//
+	private static final ThreadFactory sThreadFactory = new ThreadFactory() {
+		private final AtomicInteger mCount = new AtomicInteger(1);
+
+		public Thread newThread(Runnable r) {
+			return new Thread(r, "ImgTask #" + mCount.getAndIncrement());
+		}
+	};
+	private static final BlockingQueue<Runnable> sPoolWorkQueue = new LinkedBlockingQueue<Runnable>(128);
+
+	public static Executor IMG_POOL_EXECUTOR = new ThreadPoolExecutor(1, 3, 3, TimeUnit.SECONDS, sPoolWorkQueue,
+			sThreadFactory);
 
 	protected class ImgCallback extends HBitmapCallback {
 		public String turl;
@@ -128,7 +148,7 @@ public class ImageView extends android.widget.ImageView {
 			Bitmap img = BitmapPool.cache(org.cny.awf.pool.UrlKey.create(CBase.parseUrl(this.url), null,
 					this.roundCorner, imgc.getImgWidth(), imgc.getImgHeight()));
 			if (img == null) {
-				H.doGetNH(this.getContext(), this.url, Args.A("_hc_", "I"), null, imgc);
+				H.doGetNH(this.getContext(), IMG_POOL_EXECUTOR, this.url, Args.A("_hc_", "I"), null, imgc);
 			} else {
 				this.setImageBitmap(img);
 			}

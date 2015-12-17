@@ -1,5 +1,7 @@
 package org.cny.awf.net.http;
 
+import java.util.concurrent.Executor;
+
 import android.content.Context;
 import android.os.AsyncTask;
 
@@ -11,6 +13,7 @@ import android.os.AsyncTask;
  */
 public class HAsyncTask extends C {
 	private ATask atsk;
+	protected Executor executor;
 
 	/**
 	 * The default constructor by URL and call back.
@@ -22,11 +25,25 @@ public class HAsyncTask extends C {
 	 */
 	public HAsyncTask(HDb db, String url, HCallback cback) {
 		super(db, url, cback);
+		this.executor = AsyncTask.THREAD_POOL_EXECUTOR;
 		this.atsk = new ATask();
 	}
 
 	public HAsyncTask(Context aty, String url, HCallback cback) {
 		super(aty, url, cback);
+		this.executor = AsyncTask.THREAD_POOL_EXECUTOR;
+		this.atsk = new ATask();
+	}
+
+	public HAsyncTask(HDb db, Executor executor, String url, HCallback cback) {
+		super(db, url, cback);
+		this.executor = executor;
+		this.atsk = new ATask();
+	}
+
+	public HAsyncTask(Context aty, Executor executor, String url, HCallback cback) {
+		super(aty, url, cback);
+		this.executor = executor;
 		this.atsk = new ATask();
 	}
 
@@ -71,7 +88,6 @@ public class HAsyncTask extends C {
 	 * Start the asynchronous task.
 	 */
 	public void asyncExec() {
-		this.atsk.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,
-				new HAsyncTask[] { this });
+		this.atsk.executeOnExecutor(this.executor, new HAsyncTask[] { this });
 	}
 }
