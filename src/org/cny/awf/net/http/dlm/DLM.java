@@ -1,6 +1,7 @@
 package org.cny.awf.net.http.dlm;
 
 import java.io.File;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -8,6 +9,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.http.message.BasicNameValuePair;
 import org.cny.awf.net.http.CBase.Policy;
+import org.cny.awf.util.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,11 +25,20 @@ public class DLM extends ThreadPoolExecutor {
 		this.queue = new DlmQueue();
 	}
 
-	public synchronized String put(Context ctx, String url, String method, String spath, List<BasicNameValuePair> args,
+	public String put(Context ctx, String url, String method, String spath, List<BasicNameValuePair> args,
 			List<BasicNameValuePair> heads, DlmCallback cback) {
+		return this.put(ctx, null, url, method, spath, args, heads, cback);
+	}
+
+	public synchronized String put(Context ctx, String tid, String url, String method, String spath,
+			List<BasicNameValuePair> args, List<BasicNameValuePair> heads, DlmCallback cback) {
 		DlmHCallback cb = new DlmHCallback(this, cback);
 		DlmC c = new DlmC(ctx, url, spath, cb);
-		c.id = "C_" + idc++;
+		if (Util.isNullOrEmpty(tid)) {
+			c.id = "C_" + new Date().getTime() + "" + idc++;
+		} else {
+			c.id = tid;
+		}
 		cb.c = c;
 		c.dlm = this;
 		c.setMethod(method);

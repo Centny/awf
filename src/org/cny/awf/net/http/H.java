@@ -441,4 +441,27 @@ public class H {
 	public static String doPost(String url, String spath, List<BasicNameValuePair> args, DlmCallback cback) {
 		return dlm().put(CTX, url, "POST", spath, args, null, cback);
 	}
+
+	public static String doGet(String tid, String url, String spath, List<BasicNameValuePair> args,
+			List<BasicNameValuePair> heads, DlmCallback cback) {
+		return dlm().put(CTX, tid, url, "GET", spath, args, heads, cback);
+	}
+
+	public static String doGet(String tid, String url, String spath, DlmCallback cback) {
+		return dlm().put(CTX, tid, url, "GET", spath, null, null, cback);
+	}
+
+	public static String doPost(String tid, String url, String spath, List<BasicNameValuePair> args,
+			List<BasicNameValuePair> heads, DlmCallback cback) {
+		return dlm().put(CTX, tid, url, "POST", spath, args, heads, cback);
+	}
+
+	public static String doPost(String tid, String url, String spath, DlmCallback cback) {
+		return dlm().put(CTX, tid, url, "POST", spath, null, null, cback);
+	}
+
+	public static String doPost(String tid, String url, String spath, List<BasicNameValuePair> args,
+			DlmCallback cback) {
+		return dlm().put(CTX, tid, url, "POST", spath, args, null, cback);
+	}
 }
