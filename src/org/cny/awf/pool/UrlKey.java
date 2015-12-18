@@ -10,15 +10,17 @@ public class UrlKey {
 	public String url;
 	public String loc;
 	public int roundCorner;
-	public int w, h;
+	public int w, h, maxw, maxh;
 
-	public UrlKey(String url, String loc, int roundCorner, int w, int h) {
+	public UrlKey(String url, String loc, int roundCorner, int w, int h, int maxw, int maxh) {
 		super();
 		this.url = url;
 		this.loc = loc;
 		this.roundCorner = roundCorner;
 		this.w = w;
 		this.h = h;
+		this.maxw = maxw;
+		this.maxh = maxh;
 	}
 
 	protected void initrc(Object[] args) {
@@ -65,20 +67,24 @@ public class UrlKey {
 		return String.format(Locale.ENGLISH, "%d-%d-%d", this.roundCorner, this.w, this.h).hashCode();
 	}
 
+	public static UrlKey create(String url, String loc, int roundCorner, int w, int h, int maxw, int maxh) {
+		return new UrlKey(url, loc, roundCorner, w, h, maxw, maxh);
+	}
+
 	public static UrlKey create(String url, String loc, int roundCorner, int w, int h) {
-		return new UrlKey(url, loc, roundCorner, w, h);
+		return new UrlKey(url, loc, roundCorner, w, h, 0, 0);
 	}
 
 	public static UrlKey create(String loc, int roundCorner, int w, int h) {
-		return new UrlKey(null, loc, roundCorner, w, h);
+		return new UrlKey(null, loc, roundCorner, w, h, 0, 0);
 	}
 
 	public static UrlKey create(String loc) {
-		return new UrlKey(null, loc, 0, 0, 0);
+		return new UrlKey(null, loc, 0, 0, 0, 0, 0);
 	}
 
 	public static UrlKey create(String url, String loc) {
-		return new UrlKey(url, loc, 0, 0, 0);
+		return new UrlKey(url, loc, 0, 0, 0, 0, 0);
 	}
 
 	@Override

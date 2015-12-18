@@ -33,6 +33,17 @@ public class DlmC extends C {
 		this.tpath = spath + ".awf.tmp";
 	}
 
+	@Override
+	protected void exec() throws Exception {
+		try {
+			super.exec();
+		} catch (Exception e) {
+			throw e;
+		} finally {
+			this.dlm.queue.del(this);
+		}
+	}
+
 	protected DlmTmp readTmp() {
 		return DlmTmp.read(this.tpath);
 	}

@@ -606,8 +606,8 @@ public class HTest extends ActivityInstrumentationTestCase2<MainActivity> {
 	}
 
 	public void testDlm2() throws Exception {
-		String url = "http://adload.kuxiao.cn/armeabi-v7a/libxwalkcore.zip";
-		CDL cdl = new CDL(2);
+		String url = "http://pb.dev.jxzy.com/img/F11211.jpg";
+		CDL cdl = new CDL(1);
 		File sdir = this.getActivity().getExternalFilesDir("dd");
 		String tf = sdir.getAbsolutePath() + File.separator + "xx.zip";
 		Utils.del(new File(tf));
@@ -615,6 +615,7 @@ public class HTest extends ActivityInstrumentationTestCase2<MainActivity> {
 		String did;
 		//
 		did = H.doGet(url, tf, new DlmBack(cdl, 2));
+		assertNotNull(H.dlm().find(did));
 		cdl.waitc(1);
 		while (H.dlm().find(did) != null) {
 			Thread.sleep(200);

@@ -136,7 +136,7 @@ public interface HCallback {
 
 		@Override
 		public OutputStream createO(CBase c, HResp res) throws Exception {
-			if (res.code == 200) {
+			if (res.code == 200 || res.code == 304) {
 				return super.createO(c, res);
 			} else {
 				throw new Exception("response code is " + res.code);
@@ -145,14 +145,20 @@ public interface HCallback {
 
 		@Override
 		public void onSuccess(CBase c, HResp res, String data) throws Exception {
-			this.onSuccess(c, res, BitmapPool.dol(
-					UrlKey.create(this.createUrl(c), data, this.roundCorner, this.getImgWidth(), this.getImgHeight())));
+			int w = 0, h = 0, maxw = 0, maxh = 0;
+			w = this.getImgWidth();
+			h = this.getImgHeight();
+			if (w < 1 || h < 1) {
+				maxw = this.getImgMaxWidth();
+				maxh = this.getImgMaxHeight();
+			}
+			this.onSuccess(c, res,
+					BitmapPool.dol(UrlKey.create(this.createUrl(c), data, this.roundCorner, w, h, maxw, maxh)));
 		}
 
 		@Override
 		public void onError(CBase c, String cache, Throwable err) throws Exception {
-			Bitmap img = null;
-			this.onError(c, img, err);
+			this.onError(c, (Bitmap) null, err);
 		}
 
 		public int getImgWidth() {
@@ -160,6 +166,14 @@ public interface HCallback {
 		}
 
 		public int getImgHeight() {
+			return 0;
+		}
+
+		public int getImgMaxWidth() {
+			return 0;
+		}
+
+		public int getImgMaxHeight() {
 			return 0;
 		}
 

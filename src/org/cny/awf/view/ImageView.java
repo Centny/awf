@@ -27,6 +27,7 @@ import android.os.Message;
 import android.util.AttributeSet;
 import android.util.Pair;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 
@@ -104,6 +105,20 @@ public class ImageView extends android.widget.ImageView {
 			} else {
 				return 0;
 			}
+		}
+
+		@Override
+		@SuppressWarnings("deprecation")
+		public int getImgMaxWidth() {
+			WindowManager wm = (WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE);
+			return wm.getDefaultDisplay().getWidth();
+		}
+
+		@Override
+		@SuppressWarnings("deprecation")
+		public int getImgMaxHeight() {
+			WindowManager wm = (WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE);
+			return wm.getDefaultDisplay().getHeight();
 		}
 
 	};

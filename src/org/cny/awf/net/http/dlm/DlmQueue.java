@@ -4,45 +4,33 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.LinkedBlockingQueue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DlmQueue extends LinkedBlockingQueue<Runnable> {
+public class DlmQueue {
 	private static Logger L = LoggerFactory.getLogger(DlmQueue.class);
-	protected Map<String, Runnable> cs = new HashMap<String, Runnable>();
+	protected Map<String, DlmC> cs = new HashMap<String, DlmC>();
 	protected Set<String> cs_url = new HashSet<String>();
 	protected Set<String> cs_loc = new HashSet<String>();
-	private static final long serialVersionUID = 7930207852923527667L;
 
-	public DlmQueue(int capacity) {
-		super(capacity);
-	}
-
-	@Override
-	public boolean add(Runnable e) {
-		DlmC c = (DlmC) e;
+	public void add(DlmC c) {
 		String id = c.id;
 		L.debug("add task({}) to queue", id);
-		this.cs.put(id, e);
+		this.cs.put(id, c);
 		this.cs_url.add(c.getFullUrl());
 		this.cs_loc.add(c.spath);
-		return super.add(e);
 	}
 
-	@Override
-	public boolean remove(Object o) {
-		DlmC c = (DlmC) o;
+	public void del(DlmC c) {
 		String id = c.id;
 		L.debug("remove task({}) from queue", id);
 		this.cs.remove(id);
 		this.cs_url.remove(c.getFullUrl());
 		this.cs_loc.remove(c.spath);
-		return super.remove(o);
 	}
 
-	public Runnable find(Object key) {
+	public DlmC find(String key) {
 		return this.cs.get(key);
 	}
 

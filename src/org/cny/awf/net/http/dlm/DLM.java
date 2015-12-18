@@ -2,6 +2,7 @@ package org.cny.awf.net.http.dlm;
 
 import java.io.File;
 import java.util.List;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -18,8 +19,8 @@ public class DLM extends ThreadPoolExecutor {
 	protected DlmQueue queue;
 
 	public DLM(int corePoolSize, int maximumPoolSize, long keepAliveTime) {
-		super(corePoolSize, maximumPoolSize, keepAliveTime, TimeUnit.SECONDS, new DlmQueue(100));
-		this.queue = (DlmQueue) this.getQueue();
+		super(corePoolSize, maximumPoolSize, keepAliveTime, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(100));
+		this.queue = new DlmQueue();
 	}
 
 	public synchronized String put(Context ctx, String url, String method, String spath, List<BasicNameValuePair> args,
@@ -53,6 +54,7 @@ public class DLM extends ThreadPoolExecutor {
 		}
 		L.info("add task({}) to poll by url->{}", c.id, c.getFullUrl());
 		this.execute(c);
+		this.queue.add(c);
 		return c.id;
 	}
 
@@ -67,8 +69,8 @@ public class DLM extends ThreadPoolExecutor {
 		}
 	}
 
-	public DlmC find(Object key) {
-		return (DlmC) this.queue.find(key);
+	public DlmC find(String key) {
+		return this.queue.find(key);
 	}
 
 	public boolean isExistUrl(String key) {
