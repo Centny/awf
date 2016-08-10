@@ -44,4 +44,10 @@
         android:onClick="toCache"
         android:text="@string/title_activity_cache_aty" />
 
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="toDlm"
+        android:text="@string/title_activity_dlm_aty" />
+
 </LinearLayout>

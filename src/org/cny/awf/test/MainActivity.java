@@ -73,4 +73,8 @@ public class MainActivity extends BaseAty {
 	public void toCache(View v) {
 		this.startActivity(new Intent(this, CacheAty.class));
 	}
+
+	public void toDlm(View v) {
+		this.startActivity(new Intent(this, DlmAty.class));
+	}
 }

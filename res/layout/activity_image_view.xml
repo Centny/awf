@@ -16,8 +16,8 @@
 
     <org.cny.awf.view.ImageView
         android:id="@+id/tiv1"
-        android:layout_width="320dp"
-        android:layout_height="220dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:src="#555555" />
 
     <Button

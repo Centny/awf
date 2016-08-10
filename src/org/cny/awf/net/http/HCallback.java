@@ -97,18 +97,19 @@ public interface HCallback {
 	}
 
 	public static abstract class HCacheCallback extends HDataCallback {
+		public String cache;
 
 		@Override
 		public void onError(CBase c, Throwable err) throws Exception {
-			// String cache = c.readCache();
 			if (Hooks.call(HCacheCallback.class, "onError", c, null, err) < 1) {
-				this.onError(c, null, err);
+				this.onError(c, this.cache, err);
 			}
 		}
 
 		@Override
 		public void onCache(CBase c, HResp res) throws Exception {
-			this.onCache(c, res, c.readCache());
+			this.cache = c.readCache();
+			this.onCache(c, res, this.cache);
 		}
 
 		public void onCache(CBase c, HResp res, String cache) throws Exception {

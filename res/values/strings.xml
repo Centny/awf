@@ -13,5 +13,6 @@
     <string name="title_activity_fup">FUp</string>
     <string name="title_activity_img_list">ImgListActivity</string>
     <string name="title_activity_cache_aty">CacheAty</string>
+    <string name="title_activity_dlm_aty">DlmAty</string>
 
 </resources>

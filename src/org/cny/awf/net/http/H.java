@@ -145,7 +145,7 @@ public class H {
 			throws UnsupportedEncodingException {
 		HAsyncTask hc = new HAsyncTask(ctx, url, cb);
 		if (Util.isNoEmpty(data)) {
-			hc.setEntity(new StringEntity(data));
+			hc.setEntity(new StringEntity(data, "UTF-8"));
 		}
 		if (args != null) {
 			hc.getArgs().addAll(args);

@@ -34,7 +34,7 @@ public class UrlKey {
 	}
 
 	public Bitmap read() throws Exception {
-		Bitmap img = Util.readBitmap(this.loc, w, h);
+		Bitmap img = Util.readBitmap(this.loc, this.w, this.h, this.maxw, this.maxh);
 		if (img == null) {
 			throw new Exception("read bitmap error from" + this.loc);
 		}

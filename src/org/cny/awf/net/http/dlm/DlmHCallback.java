@@ -52,16 +52,19 @@ public class DlmHCallback implements HCallback {
 
 	@Override
 	public void onSuccess(CBase c, HResp res) throws Exception {
+		this.dlm.queue.del(this.c);
 		this.cback.onSuccess(this.c, res);
 	}
 
 	@Override
 	public void onError(CBase c, Throwable err) throws Exception {
+		this.dlm.queue.del(this.c);
 		this.cback.onError(this.c, err);
 	}
 
 	@Override
 	public void onExecErr(CBase c, Throwable e) {
+		this.dlm.queue.del(this.c);
 		this.cback.onExecErr(this.c, e);
 	}
 

@@ -14,8 +14,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 public class SQLite {
-	public static SQLite loadDb(Context ctx, String name, String tname,
-			String script) {
+	public static SQLite loadDb(Context ctx, String name, String tname, String script) {
 		SQLite db = new SQLite(ctx, name, Context.MODE_PRIVATE);
 		if (!db.check(tname)) {
 			db.execS(script);
@@ -75,8 +74,7 @@ public class SQLite {
 		return this.rawQuery(sql, (String) null, cls, toUpper);
 	}
 
-	public <T> List<T> rawQuery(String sql, String args, Class<T> cls,
-			boolean toUpper) {
+	public <T> List<T> rawQuery(String sql, String args, Class<T> cls, boolean toUpper) {
 		if (args == null) {
 			return this.rawQuery(sql, (String[]) null, cls, toUpper);
 		} else {
@@ -84,8 +82,7 @@ public class SQLite {
 		}
 	}
 
-	public synchronized <T> List<T> rawQuery(String sql, String[] args, Class<T> cls,
-			boolean toUpper) {
+	public synchronized <T> List<T> rawQuery(String sql, String[] args, Class<T> cls, boolean toUpper) {
 		Cursor c = this.db_.rawQuery(sql, args);
 		try {
 			return Orm.builds(new CursorOrmBuilder(c, toUpper), cls);
@@ -96,8 +93,7 @@ public class SQLite {
 		}
 	}
 
-	public synchronized <T> T rawQueryOne(String sql, String[] args, Class<T> cls,
-			boolean toUpper) {
+	public synchronized <T> T rawQueryOne(String sql, String[] args, Class<T> cls, boolean toUpper) {
 		Cursor c = this.db_.rawQuery(sql, args);
 		try {
 			return Orm.build(new CursorOrmBuilder(c, toUpper), cls);
@@ -123,11 +119,41 @@ public class SQLite {
 		return lv;
 	}
 
+	public synchronized List<String> stringQuery(String sql, String[] args) {
+		List<String> lv = new ArrayList<String>();
+		Cursor c = this.db_.rawQuery(sql, args);
+		try {
+			while (c.moveToNext()) {
+				lv.add(c.getString(0));
+			}
+		} catch (RuntimeException e) {
+			throw e;
+		} finally {
+			c.close();
+		}
+		return lv;
+	}
+
 	public synchronized Long longQueryOne(String sql, String[] args) {
 		Cursor c = this.db_.rawQuery(sql, args);
 		try {
 			if (c.moveToNext()) {
 				return c.getLong(0);
+			} else {
+				return null;
+			}
+		} catch (RuntimeException e) {
+			throw e;
+		} finally {
+			c.close();
+		}
+	}
+
+	public synchronized String stringQueryOne(String sql, String[] args) {
+		Cursor c = this.db_.rawQuery(sql, args);
+		try {
+			if (c.moveToNext()) {
+				return c.getString(0);
 			} else {
 				return null;
 			}

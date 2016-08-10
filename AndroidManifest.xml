@@ -128,6 +128,10 @@
             android:name=".CacheAty"
             android:label="@string/title_activity_cache_aty" >
         </activity>
+        <activity
+            android:name=".DlmAty"
+            android:label="@string/title_activity_dlm_aty" >
+        </activity>
     </application>
 
 </manifest>

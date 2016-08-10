@@ -27,6 +27,7 @@ public class ImageViewActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_image_view);
 		this.tiv1 = (ImageView) this.findViewById(R.id.tiv1);
+		this.tiv1.setUrl("http://u.chk.jxzy.com/moNxDt==");
 	}
 
 	@Override
@@ -49,7 +50,7 @@ public class ImageViewActivity extends Activity {
 	}
 
 	public void clkShow1(View v) {
-		this.tiv1.setUrl("http://f8.topit.me/8/29/96/119867884632a96298o.jpg");
+		this.tiv1.setUrl("http://u.chk.jxzy.com/moNxDt==");
 		// for (int i = 0; i < 10; i++) {
 		// this.tiv1.setUrl(String.format(Locale.ENGLISH,
 		// "http://pb.dev.jxzy.com/img/F1%04d.jpg", i));

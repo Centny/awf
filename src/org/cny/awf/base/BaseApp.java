@@ -45,8 +45,7 @@ public class BaseApp extends Application {
 			return;
 		}
 		try {
-			final PackageInfo pinfo = this.getPackageManager().getPackageInfo(
-					this.getPackageName(), 0);
+			final PackageInfo pinfo = this.getPackageManager().getPackageInfo(this.getPackageName(), 0);
 			final Map<String, String> dinfo = Util.DevInfo(this);
 			new SR(this).dou(srSrv, new HashMap<String, String>() {
 				private static final long serialVersionUID = 1L;
@@ -71,8 +70,8 @@ public class BaseApp extends Application {
 		// initial meta info
 		// this.info = this.getApplicationInfo();
 		try {
-			this.info = this.getPackageManager().getApplicationInfo(
-					this.getPackageName(), PackageManager.GET_META_DATA);
+			this.info = this.getPackageManager().getApplicationInfo(this.getPackageName(),
+					PackageManager.GET_META_DATA);
 		} catch (NameNotFoundException e) {
 			e.printStackTrace();
 		}
@@ -81,8 +80,7 @@ public class BaseApp extends Application {
 		}
 		// initial logger.
 		try {
-			SR.initSimpleLog(this,
-					this.info.metaData.getBoolean("debug", false));
+			SR.initSimpleLog(this, this.info.metaData.getBoolean("debug", false));
 		} catch (Exception e1) {
 			e1.printStackTrace();
 		}
@@ -90,7 +88,7 @@ public class BaseApp extends Application {
 		try {
 			this.erInit();
 		} catch (Exception e) {
-			L.warn("the ER init err:", e);
+			System.err.println("the ER init err:" + e.getMessage());
 		}
 		// CBase.ShowLog = true;
 		// upload the SR data.
@@ -100,8 +98,8 @@ public class BaseApp extends Application {
 		//
 		super.onCreate();
 		L = LoggerFactory.getLogger(this.getClass());
-		L.debug("running application on thread:{},{}", Thread.currentThread()
-				.getId(), Thread.currentThread().getName());
+		L.debug("running application on thread:{},{}", Thread.currentThread().getId(),
+				Thread.currentThread().getName());
 		ER.writem(this.getClass(), ER.ACT_IN, ActType.APP.getVal());
 	}
 
