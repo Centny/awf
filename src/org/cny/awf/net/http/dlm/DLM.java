@@ -91,4 +91,8 @@ public class DLM extends ThreadPoolExecutor {
 	public boolean isExistLoc(String key) {
 		return this.queue.isExistLoc(key);
 	}
+
+	public DlmQueue Queue() {
+		return this.queue;
+	}
 }

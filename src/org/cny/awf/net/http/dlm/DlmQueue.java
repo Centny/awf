@@ -41,4 +41,8 @@ public class DlmQueue {
 	public boolean isExistLoc(String key) {
 		return this.cs_loc.contains(key);
 	}
+
+	public int size() {
+		return this.cs.size();
+	}
 }
