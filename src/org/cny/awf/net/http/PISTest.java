@@ -82,9 +82,8 @@ public class PISTest extends ActivityInstrumentationTestCase2<MainActivity> {
 	}
 
 	public void testBm() {
-		Bitmap bm = BitmapFactory.decodeResource(this.getActivity()
-				.getResources(), R.drawable.ic_launcher);
+		Bitmap bm = BitmapFactory.decodeResource(this.getActivity().getResources(), R.drawable.ic_launcher);
 		PIS.create("file", bm);
-		PIS.create("file", bm, true);
+		PIS.create("file", bm, true, 0, 0, 30);
 	}
 }

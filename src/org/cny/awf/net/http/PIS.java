@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.util.Date;
 
 import org.apache.http.entity.ContentType;
+import org.cny.awf.util.Util;
 
 import android.graphics.Bitmap;
 
@@ -29,8 +30,7 @@ public abstract class PIS extends InputStream {
 
 	}
 
-	public PIS(String name, String filename, ContentType ct, boolean autoclose,
-			long length) {
+	public PIS(String name, String filename, ContentType ct, boolean autoclose, long length) {
 		super();
 		this.name = name;
 		this.filename = filename;
@@ -68,8 +68,7 @@ public abstract class PIS extends InputStream {
 	}
 
 	@Override
-	public int read(byte[] buffer, int byteOffset, int byteCount)
-			throws IOException {
+	public int read(byte[] buffer, int byteOffset, int byteCount) throws IOException {
 		if (this.in == null) {
 			this.in = this.createIn();
 		}
@@ -202,8 +201,7 @@ public abstract class PIS extends InputStream {
 			super();
 		}
 
-		public PathPis(String name, String filename, ContentType ct,
-				boolean autoclose, long length) {
+		public PathPis(String name, String filename, ContentType ct, boolean autoclose, long length) {
 			super(name, filename, ct, autoclose, length);
 		}
 
@@ -252,69 +250,70 @@ public abstract class PIS extends InputStream {
 		return create(name, filename, in, true);
 	}
 
-	public static PIS create(String name, String filename, InputStream in,
-			boolean autoclose) {
+	public static PIS create(String name, String filename, InputStream in, boolean autoclose) {
 		return create(name, filename, in, 0, autoclose);
 	}
 
-	public static PIS create(String name, String filename, InputStream in,
-			long length) {
-		return create(name, filename, in, length, ContentType.DEFAULT_BINARY,
-				true);
+	public static PIS create(String name, String filename, InputStream in, long length) {
+		return create(name, filename, in, length, ContentType.DEFAULT_BINARY, true);
 	}
 
-	public static PIS create(String name, String filename, InputStream in,
-			long length, boolean autoclose) {
-		return create(name, filename, in, length, ContentType.DEFAULT_BINARY,
-				autoclose);
+	public static PIS create(String name, String filename, InputStream in, long length, boolean autoclose) {
+		return create(name, filename, in, length, ContentType.DEFAULT_BINARY, autoclose);
 	}
 
-	public static PIS create(String name, String filename, InputStream in,
-			long length, String mimeType) {
+	public static PIS create(String name, String filename, InputStream in, long length, String mimeType) {
 		return create(name, filename, in, length, mimeType, true);
 	}
 
-	public static PIS create(String name, String filename, InputStream in,
-			long length, String mimeType, boolean autoclose) {
-		return create(name, filename, in, length, ContentType.create(mimeType),
-				autoclose);
+	public static PIS create(String name, String filename, InputStream in, long length, String mimeType,
+			boolean autoclose) {
+		return create(name, filename, in, length, ContentType.create(mimeType), autoclose);
 	}
 
-	public static PIS create(String name, String filename, InputStream in,
-			long length, ContentType mimeType) {
+	public static PIS create(String name, String filename, InputStream in, long length, ContentType mimeType) {
 		return create(name, filename, in, length, mimeType, true);
 	}
 
 	public static PIS create(String name, Bitmap bm) {
-		return create(name, bm, false);
+		return create(name, bm, 0, 0, 30);
 	}
 
-	public static PIS create(String name, Bitmap bm, boolean isjpg) {
+	public static PIS create(String name, Bitmap bm, int maxWidth, int maxHeight, int quality) {
+		return create(name, bm, !bm.hasAlpha(), maxWidth, maxHeight, quality);
+	}
+
+	public static PIS create(String name, Bitmap bm, boolean isjpg, int maxWidth, int maxHeight, int quality) {
 		if (isjpg) {
-			return create(name, "u.jpg", bm, isjpg);
+			return create(name, "u.jpg", bm, isjpg, maxWidth, maxHeight, quality);
 		} else {
-			return create(name, "u.png", bm, isjpg);
+			return create(name, "u.png", bm, isjpg, maxWidth, maxHeight, quality);
 		}
 	}
 
-	public static PIS create(String name, String filename, Bitmap bm,
-			boolean isjpg) {
+	public static PIS create(String name, String filename, Bitmap bm, boolean isjpg, int maxWidth, int maxHeight,
+			int quality) {
+		Bitmap tmp = bm;
+		if (maxWidth > 0 && maxHeight > 0) {
+			tmp = Util.zoomBitmap(bm, maxWidth, maxHeight);
+		}
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		String mimeType;
 		if (isjpg) {
 			mimeType = "image/jpeg";
-			bm.compress(Bitmap.CompressFormat.JPEG, 30, out);
+			tmp.compress(Bitmap.CompressFormat.JPEG, quality, out);
 		} else {
 			mimeType = "image/png";
-			bm.compress(Bitmap.CompressFormat.PNG, 30, out);
+			tmp.compress(Bitmap.CompressFormat.PNG, quality, out);
 		}
-		return create(name, filename,
-				new ByteArrayInputStream(out.toByteArray()), out.size(),
-				mimeType, false);
+		if (tmp != bm && !tmp.isRecycled()) {
+			tmp.recycle();
+		}
+		return create(name, filename, new ByteArrayInputStream(out.toByteArray()), out.size(), mimeType, false);
 	}
 
-	public static PIS create(String name, String filename, InputStream in,
-			long length, ContentType mimeType, boolean autoclose) {
+	public static PIS create(String name, String filename, InputStream in, long length, ContentType mimeType,
+			boolean autoclose) {
 		NProcInputStream pis = new NProcInputStream();
 		pis.nin = in;
 		pis.name = name;
@@ -341,13 +340,11 @@ public abstract class PIS extends InputStream {
 		return create(name, filename, f, ContentType.DEFAULT_BINARY);
 	}
 
-	public static PIS create(String name, String filename, File f,
-			String mimeType) {
+	public static PIS create(String name, String filename, File f, String mimeType) {
 		return create(name, filename, f, ContentType.create(mimeType));
 	}
 
-	public static PIS create(String name, String filename, File f,
-			ContentType mimeType) {
+	public static PIS create(String name, String filename, File f, ContentType mimeType) {
 		FileInputStream pis = new FileInputStream();
 		pis.f = f;
 		pis.name = name;
