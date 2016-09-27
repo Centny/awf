@@ -35,7 +35,7 @@ public abstract class CBase implements Runnable, PIS.PisH {
 	}
 
 	public static boolean ShowLog = false;
-	public static final int BUF_SIZE = 1024;
+	public static final int BUF_SIZE = 1024 * 100;
 	private static Logger L = LoggerFactory.getLogger(CBase.class);
 	protected List<NameValuePair> headers = new ArrayList<NameValuePair>();
 	protected List<NameValuePair> args = new ArrayList<NameValuePair>();
