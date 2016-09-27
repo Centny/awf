@@ -38,7 +38,7 @@ public class DlmAty extends Activity {
 
 				@Override
 				public void onProcess(DlmC c, float speed, float rate) {
-					System.err.println(c.id + "->" + rate + "---->");
+					System.err.println(c.id + "-->" + (speed * 1000 / 1024) + "->" + rate + "---->");
 				}
 
 				@Override

@@ -54,6 +54,7 @@ public class DlmHCallback implements HCallback {
 			speed = (float) perid / (float) (now - this.lastProc);
 		}
 		this.cback.onProcess(this.c, speed, rate);
+		this.lastProc = now;
 	}
 
 	@Override
