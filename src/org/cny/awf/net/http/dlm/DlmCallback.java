@@ -3,7 +3,7 @@ package org.cny.awf.net.http.dlm;
 import org.cny.awf.net.http.HResp;
 
 public interface DlmCallback {
-	void onProcess(DlmC c, float rate);
+	void onProcess(DlmC c, float speed, float rate);
 
 	void onProcEnd(DlmC c, HResp res) throws Exception;
 
@@ -16,7 +16,7 @@ public interface DlmCallback {
 	public static abstract class DlmBaseCallback implements DlmCallback {
 
 		@Override
-		public void onProcess(DlmC c, float rate) {
+		public void onProcess(DlmC c, float speed, float rate) {
 		}
 
 		@Override

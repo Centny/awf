@@ -27,7 +27,7 @@ public interface HCallback {
 
 	OutputStream createO(CBase c, HResp res) throws Exception;
 
-	void onProcess(CBase c, float rate);
+	void onProcess(CBase c, long clen, long rsize, long period);
 
 	void onProcEnd(CBase c, HResp res, OutputStream o) throws Exception;
 
@@ -52,14 +52,15 @@ public interface HCallback {
 		}
 
 		@Override
-		public OutputStream createO(CBase c, HResp res) throws Exception {
-			this.buf.reset();
-			return this.buf;
+		public void onProcess(CBase c, long clen, long rsize, long period) {
+			// TODO Auto-generated method stub
+
 		}
 
 		@Override
-		public void onProcess(CBase c, float rate) {
-
+		public OutputStream createO(CBase c, HResp res) throws Exception {
+			this.buf.reset();
+			return this.buf;
 		}
 
 		@Override
@@ -356,9 +357,9 @@ public interface HCallback {
 					case 0:
 						tg.onProcess(c, (PIS) args[2], (Float) args[3]);
 						break;
-					case 1:
-						tg.onProcess(c, (Float) args[2]);
-						break;
+					// case 1:
+					// tg.onProcess(c, (Float) args[2]);
+					// break;
 					case 2:
 						tg.onSuccess(c, (HResp) args[2]);
 						break;
@@ -396,11 +397,8 @@ public interface HCallback {
 		}
 
 		@Override
-		public void onProcess(CBase c, float rate) {
-			Message msg = new Message();
-			msg.what = 1;
-			msg.obj = new Object[] { this.target, c, (Float) rate };
-			H.sendMessage(msg);
+		public void onProcess(CBase c, long clen, long rsize, long period) {
+			this.target.onProcess(c, clen, rsize, period);
 		}
 
 		@Override

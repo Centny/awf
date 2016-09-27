@@ -2,6 +2,7 @@ package org.cny.awf.net.http.dlm;
 
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
+import java.util.Date;
 
 import org.cny.awf.net.http.CBase;
 import org.cny.awf.net.http.CBase.Policy;
@@ -13,11 +14,13 @@ public class DlmHCallback implements HCallback {
 	protected DLM dlm;
 	protected DlmC c;
 	protected DlmCallback cback;
+	protected long lastProc;
 
 	public DlmHCallback(DLM dlm, DlmCallback cback) {
 		super();
 		this.dlm = dlm;
 		this.cback = cback;
+		this.lastProc = 0;
 	}
 
 	@Override
@@ -41,8 +44,16 @@ public class DlmHCallback implements HCallback {
 	}
 
 	@Override
-	public void onProcess(CBase c, float rate) {
-		this.cback.onProcess(this.c, rate);
+	public void onProcess(CBase c, long clen, long rsize, long perid) {
+		float rate = 0, speed = 0;
+		if (clen > 0) {
+			rate = (float) rsize / (float) clen;
+		}
+		long now = new Date().getTime();
+		if (this.lastProc > 0 & (now - this.lastProc) > 0) {
+			speed = (float) perid / (float) (now - this.lastProc);
+		}
+		this.cback.onProcess(this.c, speed, rate);
 	}
 
 	@Override

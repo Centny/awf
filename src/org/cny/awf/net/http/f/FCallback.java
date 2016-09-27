@@ -128,8 +128,8 @@ public class FCallback implements HCallback {
 	}
 
 	@Override
-	public void onProcess(CBase c, float rate) {
-		this.h.onProcess(c, rate);
+	public void onProcess(CBase c, long clen, long rsize, long perid) {
+		this.h.onProcess(c, clen, rsize, perid);
 	}
 
 	@Override

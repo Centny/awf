@@ -71,7 +71,7 @@ public class HAsyncTask extends C {
 
 		@Override
 		protected void onProgressUpdate(Float... values) {
-			cback.onProcess(HAsyncTask.this, values[0]);
+			// cback.onProcess(HAsyncTask.this, values[0]);
 		}
 
 		public void onProcess(float rate) {
@@ -79,10 +79,10 @@ public class HAsyncTask extends C {
 		}
 	};
 
-	@Override
-	public void onProcess(float rate) {
-		this.atsk.onProcess(rate);
-	}
+	// @Override
+	// public void onProcess(float rate) {
+	// this.atsk.onProcess(rate);
+	// }
 
 	/**
 	 * Start the asynchronous task.

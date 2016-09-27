@@ -1,6 +1,7 @@
 package org.cny.awf.test;
 
 import java.io.File;
+import java.util.Locale;
 
 import org.cny.awf.net.http.H;
 import org.cny.awf.net.http.HResp;
@@ -24,38 +25,43 @@ public class DlmAty extends Activity {
 
 	public void start(View v) {
 
-		File xx = new File(Environment.getExternalStorageDirectory(), "xxx");
-		this.did = H.doGet("http://pb.dev.jxzy.com/armeabi-v7a/libxwalkcore.zip?", xx.getAbsolutePath(),
-				new DlmCallback() {
+		for (int i = 0; i < 10; i++) {
+			File xx = new File(Environment.getExternalStorageDirectory(), "xxx" + i);
+			xx.delete();
+			String url = String.format(Locale.ENGLISH, "http://pb.dev.jxzy.com/img/F100%02d.jpg", i);
+			this.did = H.doGet(url, xx.getAbsolutePath(), new DlmCallback() {
 
-					@Override
-					public void onSuccess(DlmC c, HResp res) throws Exception {
-						System.err.println("success" + "---->");
-					}
+				@Override
+				public void onSuccess(DlmC c, HResp res) throws Exception {
+					System.err.println("success" + "---->");
+				}
 
-					@Override
-					public void onProcess(DlmC c, float rate) {
-						System.err.println(rate + "---->");
-					}
+				@Override
+				public void onProcess(DlmC c, float speed, float rate) {
+					System.err.println(c.id + "->" + rate + "---->");
+				}
 
-					@Override
-					public void onProcEnd(DlmC c, HResp res) throws Exception {
-						System.err.println("end" + "---->");
-					}
+				@Override
+				public void onProcEnd(DlmC c, HResp res) throws Exception {
+					System.err.println("end" + "---->");
+				}
 
-					@Override
-					public void onExecErr(DlmC c, Throwable e) {
-						System.err.println("exe_err" + "---->");
-					}
+				@Override
+				public void onExecErr(DlmC c, Throwable e) {
+					System.err.println("exe_err" + "---->");
+					e.printStackTrace();
+				}
 
-					@Override
-					public void onError(DlmC c, Throwable err) throws Exception {
-						System.err.println("err" + "---->");
-					}
-				});
+				@Override
+				public void onError(DlmC c, Throwable err) throws Exception {
+					System.err.println("err" + "---->");
+					err.printStackTrace();
+				}
+			});
+		}
 	}
-	
-	public void stop(View v){
+
+	public void stop(View v) {
 		H.dlm().poll(this.did);
 	}
 }

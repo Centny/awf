@@ -49,6 +49,7 @@ public abstract class CBase implements Runnable, PIS.PisH {
 	protected String url;
 	protected HDb db;
 	protected HCallback cback;
+	protected long lastProcess;
 
 	public CBase(String url, HDb db, HCallback cback) {
 		this.setUrl(url);
@@ -284,7 +285,7 @@ public abstract class CBase implements Runnable, PIS.PisH {
 			while ((length = in.read(buf)) != -1) {
 				out.write(buf, 0, length);
 				rsize += length;
-				this.onProcess(res, rsize, clen);
+				this.onProcess(res, clen, rsize, length);
 				if (!this.running) {
 					throw new InterruptedException("Transfter file stopped");
 				}
@@ -422,25 +423,25 @@ public abstract class CBase implements Runnable, PIS.PisH {
 		}
 	}
 
-	protected void onProcess(HResp res, long rsize, long clen) {
-		this.onProcess(rsize, clen);
+	protected void onProcess(HResp res, long clen, long rsize, long period) {
+		this.cback.onProcess(this, clen, rsize, period);
 	}
 
-	protected void onProcess(long rsize, long clen) {
-		if (clen > 0) {
-			this.onProcess((float) (((double) rsize) / ((double) clen)));
-		} else {
-			this.onProcess((float) 0);
-		}
-	}
+	// protected void onProcess(long rsize, long clen) {
+	// if (clen > 0) {
+	// this.onProcess((float) (((double) rsize) / ((double) clen)));
+	// } else {
+	// this.onProcess((float) 0);
+	// }
+	// }
 
 	protected void onCache(HResp res) throws Exception {
 		this.cback.onCache(this, res);
 	}
-
-	protected void onProcess(float rate) {
-		this.cback.onProcess(this, rate);
-	}
+	//
+	// protected void onProcess(float rate) {
+	// this.cback.onProcess(this, rate);
+	// }
 
 	protected void onSuccess(HResp res) throws Exception {
 		this.cback.onSuccess(this, res);

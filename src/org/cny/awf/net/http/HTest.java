@@ -10,6 +10,7 @@ import java.io.InputStreamReader;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.CountDownLatch;
 
 import org.apache.http.client.HttpClient;
@@ -369,8 +370,8 @@ public class HTest extends ActivityInstrumentationTestCase2<MainActivity> {
 		new HAsyncTask(HDb.loadDb_(getActivity()), "http://www.baidu.com", new Abc(cdl, "9")) {
 
 			@Override
-			protected void onProcess(HResp res, long rsize, long clen) {
-				super.onProcess(res, rsize, clen);
+			protected void onProcess(HResp res, long clen, long rsize, long period) {
+				super.onProcess(res, clen, rsize, period);
 				this.running = false;
 			}
 
@@ -407,7 +408,7 @@ public class HTest extends ActivityInstrumentationTestCase2<MainActivity> {
 
 		};
 		cb.onProcess(null, 100);
-		cb.onProcess(100);
+		// cb.onProcess(100);
 		try {
 			cb.onProcEnd(new HResp(), new InputStream() {
 
@@ -466,7 +467,8 @@ public class HTest extends ActivityInstrumentationTestCase2<MainActivity> {
 		this.rerr = null;
 		final CountDownLatch cdl = new CountDownLatch(1);
 		Bitmap bm = BitmapFactory.decodeResource(this.getActivity().getResources(), R.drawable.ic_launcher);
-		H.doPost("http://" + ts_ip + ":8000/rec_f?sw=testing&abc=这是中文2&_hc_=NO", "file", bm, new Abc3(cdl, "tu2"));
+		H.doPost("http://" + ts_ip + ":8000/rec_f?sw=testing&abc=这是中文2&_hc_=NO", "file", bm, 300, 300, 30,
+				new Abc3(cdl, "tu2"));
 		Thread.sleep(200);
 		cdl.await();
 		assertNull(this.rerr);
@@ -580,6 +582,8 @@ public class HTest extends ActivityInstrumentationTestCase2<MainActivity> {
 		Hash hash;
 		FileInputStream fis;
 		//
+		assertFalse(new File(tf).exists());
+		//
 		did = H.doGet("http://" + ts_ip + ":8000/22.png", tf, new DlmBack(cdl, 2));
 		cdl.waitc(1);
 		while (H.dlm().find(did) != null) {
@@ -589,20 +593,21 @@ public class HTest extends ActivityInstrumentationTestCase2<MainActivity> {
 		fis = new FileInputStream(tf);
 		hash = FUtil.sha1(fis, null);
 		fis.close();
-		Assert.assertEquals(false,
-				"c19441db790b519c33fbb775e82695c27e7afed4".equalsIgnoreCase(Utils.byte2hex(hash.hash)));
-		did = H.doGet("http://" + ts_ip + ":8000/22.png", tf, new DlmBack(cdl, -1));
-		cdl.await();
-		while (H.dlm().find(did) != null) {
-			Thread.sleep(200);
-		}
-		fis = new FileInputStream(tf);
-		hash = FUtil.sha1(fis, null);
-		fis.close();
-		Assert.assertEquals(true,
-				"c19441db790b519c33fbb775e82695c27e7afed4".equalsIgnoreCase(Utils.byte2hex(hash.hash)));
-		assertNull(this.rerr);
+		Assert.assertEquals("c19441db790b519c33fbb775e82695c27e7afed4".toLowerCase(Locale.ENGLISH),
+				Utils.byte2hex(hash.hash).toLowerCase(Locale.ENGLISH));
+		// did = H.doGet("http://" + ts_ip + ":8000/22.png", tf, new
+		// DlmBack(cdl, -1));
 		// cdl.await();
+		// while (H.dlm().find(did) != null) {
+		// Thread.sleep(200);
+		// }
+		// fis = new FileInputStream(tf);
+		// hash = FUtil.sha1(fis, null);
+		// fis.close();
+		// Assert.assertEquals(true,
+		// "c19441db790b519c33fbb775e82695c27e7afed4".equalsIgnoreCase(Utils.byte2hex(hash.hash)));
+		// assertNull(this.rerr);
+		cdl.await();
 	}
 
 	public void testDlm2() throws Exception {
@@ -634,7 +639,7 @@ public class HTest extends ActivityInstrumentationTestCase2<MainActivity> {
 		}
 
 		@Override
-		public void onProcess(DlmC c, float rate) {
+		public void onProcess(DlmC c, float speed, float rate) {
 			System.err.println(c.getFullUrl() + "->" + rate);
 			this.times_++;
 			if (rate > 1) {
@@ -659,16 +664,19 @@ public class HTest extends ActivityInstrumentationTestCase2<MainActivity> {
 		@Override
 		public void onError(DlmC c, Throwable err) throws Exception {
 			System.err.println(c.getFullUrl() + "->ERR->" + err.getMessage());
+			rerr = err;
 			if (this.times != this.times_) {
 				this.cdl.countDown();
 			}
-			rerr = err;
 		}
 
 		@Override
 		public void onExecErr(DlmC c, Throwable e) {
 			System.err.println(c.getFullUrl() + "->ExecErr->" + e.getMessage());
 			rerr = e;
+			if (this.times != this.times_) {
+				this.cdl.countDown();
+			}
 		}
 	}
 }

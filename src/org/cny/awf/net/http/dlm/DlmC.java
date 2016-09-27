@@ -103,13 +103,13 @@ public class DlmC extends C {
 	}
 
 	@Override
-	protected void onProcess(HResp res, long rsize, long clen) {
+	protected void onProcess(HResp res, long clen, long rsize, long perid) {
 		this.tmp.range = this.loaded + rsize;
 		this.saveTmp();
 		if (res.getRg_len() > 0) {
-			super.onProcess(res, this.tmp.range, res.getRg_len());
+			super.onProcess(res, res.getRg_len(), this.tmp.range, perid);
 		} else {
-			super.onProcess(res, rsize, clen);
+			super.onProcess(res, clen, rsize, perid);
 		}
 	}
 

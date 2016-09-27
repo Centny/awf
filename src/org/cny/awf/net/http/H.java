@@ -267,6 +267,11 @@ public class H {
 		return doPost(url, null, PIS.create(name, bm), cb);
 	}
 
+	public static HAsyncTask doPost(String url, String name, Bitmap bm, int maxWidth, int maxHeight, int quality,
+			HCallback cb) {
+		return doPost(url, null, PIS.create(name, bm, maxWidth, maxHeight, quality), cb);
+	}
+
 	/**
 	 * Do a GET request and call back by Handler.
 	 * 
@@ -408,7 +413,7 @@ public class H {
 
 	public static DLM dlm() {
 		if (_DLM_ == null) {
-			_DLM_ = new DLM(0, 3, 100);
+			_DLM_ = new DLM(3, 3, 100);
 		}
 		return _DLM_;
 	}
