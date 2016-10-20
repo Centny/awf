@@ -2,7 +2,7 @@ package org.cny.awf.im;
 
 import java.io.IOException;
 import java.net.SocketException;
-import java.util.HashMap;
+import java.util.Map;
 
 import org.cny.awf.base.BaseSrv;
 import org.cny.awf.net.NetInfo;
