@@ -2,6 +2,7 @@ package org.cny.awf.im;
 
 import java.io.IOException;
 import java.net.SocketException;
+import java.util.HashMap;
 
 import org.cny.awf.base.BaseSrv;
 import org.cny.awf.net.NetInfo;
@@ -285,6 +286,10 @@ public abstract class ImSrv extends BaseSrv implements MsgListener, EvnListener,
 
 	public void ur() throws Exception {
 		this.imc.ur();
+	}
+
+	public void ur(Map<String, Object> args) throws Exception {
+		this.imc.ur(args);
 	}
 
 	public void sms(String[] r, byte t, byte[] c) throws IOException {
