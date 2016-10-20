@@ -201,9 +201,14 @@ public class Util {
 		int w = bitmap.getWidth();
 		int h = bitmap.getHeight();
 		Matrix matrix = new Matrix();
-		float scaleWidth = ((float) width / w);
-		float scaleHeight = ((float) height / h);
-		matrix.postScale(scaleWidth, scaleHeight);
+		float scale = 1;
+		if (w > width) {
+			scale = (float) width / (float) w;
+		}
+		if (h * scale > height) {
+			scale = (float) height / (float) h;
+		}
+		matrix.postScale(scale, scale);
 		Bitmap newbmp = Bitmap.createBitmap(bitmap, 0, 0, w, h, matrix, true);
 		return newbmp;
 	}
