@@ -4,6 +4,7 @@ import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
@@ -310,6 +311,14 @@ public abstract class PIS extends InputStream {
 			tmp.recycle();
 		}
 		return create(name, filename, new ByteArrayInputStream(out.toByteArray()), out.size(), mimeType, false);
+	}
+
+	public static PIS create(String name, String filename, String filepath, int maxWidth, int maxHeight, int quality)
+			throws FileNotFoundException {
+		Bitmap bm = Util.readBitmap(filepath, maxWidth, maxHeight);
+		PIS res = create(name, filename, bm, !bm.hasAlpha(), maxWidth, maxHeight, quality);
+		bm.recycle();
+		return res;
 	}
 
 	public static PIS create(String name, String filename, InputStream in, long length, ContentType mimeType,
