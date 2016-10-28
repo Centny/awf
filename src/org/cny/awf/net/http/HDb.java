@@ -14,7 +14,7 @@ import android.database.Cursor;
 
 public class HDb {
 	public static final String DB_F_NAME = "_hcache_.dbf";
-	public static final String DB_SCRIPT_F = "_hc_.sql";
+	public static final String DB_SCRIPT_F = "hc.sql";
 	public static final String COLS = "TID,U,M,ARG,LMT,ETAG,TYPE,LEN,ENC,PATH,TIME";
 	private static HDb HDB_;
 

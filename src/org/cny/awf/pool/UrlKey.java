@@ -1,5 +1,6 @@
 package org.cny.awf.pool;
 
+import java.io.ByteArrayOutputStream;
 import java.util.Locale;
 
 import org.cny.awf.util.Util;
@@ -34,10 +35,18 @@ public class UrlKey {
 	}
 
 	public Bitmap read() throws Exception {
+		String key = this.toString();
 		Bitmap img = Util.readBitmap(this.loc, this.w, this.h, this.maxw, this.maxh);
 		if (img == null) {
 			throw new Exception("read bitmap error from" + this.loc);
 		}
+		ByteArrayOutputStream stream = new ByteArrayOutputStream();
+		if (img.hasAlpha()) {
+			img.compress(Bitmap.CompressFormat.PNG, 100, stream);
+		} else {
+			img.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+		}
+		BytePool.instance().put(key, stream.toByteArray());
 		if (this.roundCorner > 0) {
 			Bitmap timg = img;
 			img = Util.toRoundCorner(timg, this.roundCorner);
@@ -64,7 +73,7 @@ public class UrlKey {
 
 	@Override
 	public int hashCode() {
-		return String.format(Locale.ENGLISH, "%d-%d-%d", this.roundCorner, this.w, this.h).hashCode();
+		return this.toString().hashCode();
 	}
 
 	public static UrlKey create(String url, String loc, int roundCorner, int w, int h, int maxw, int maxh) {
@@ -89,8 +98,11 @@ public class UrlKey {
 
 	@Override
 	public String toString() {
-		return String.format(Locale.ENGLISH, "url(%s)=>loc(%s)@%d-%d-%d", this.url, this.loc, this.roundCorner, this.w,
-				this.h);
+		if (Util.isNoEmpty(this.url)) {
+			return String.format(Locale.ENGLISH, "url(%s)@%d-%d", this.url, this.w, this.h);
+		} else {
+			return String.format(Locale.ENGLISH, "url(%s)@%d-%d", this.loc, this.w, this.h);
+		}
 	}
 
 }

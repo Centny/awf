@@ -10,7 +10,7 @@ import org.cny.jwf.im.IMC.MsgListener;
 import org.cny.jwf.im.Msg;
 import org.cny.jwf.im.PbSckIMC;
 import org.cny.jwf.im.SckIMC;
-import org.cny.jwf.netw.bean.Con;
+import org.cny.jwf.netw.bean.Conn;
 import org.cny.jwf.netw.r.Netw;
 import org.cny.jwf.netw.r.NetwRunnable;
 import org.cny.jwf.netw.r.NetwRunnable.EvnListener;
@@ -276,12 +276,12 @@ public abstract class ImSrv extends BaseSrv implements MsgListener, EvnListener,
 		return true;
 	}
 
-	public Con.Res li(Object v) throws Exception {
-		return this.imc.li(v, Con.Res.class);
+	public Conn.Res li(Object v) throws Exception {
+		return this.imc.li(v, Conn.Res.class);
 	}
 
-	public Con.Res lo(Object v) throws Exception {
-		return this.imc.lo(v, Con.Res.class);
+	public Conn.Res lo(Object v) throws Exception {
+		return this.imc.lo(v, Conn.Res.class);
 	}
 
 	public void ur() throws Exception {

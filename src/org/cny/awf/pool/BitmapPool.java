@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.support.v4.util.LruCache;
 
 public class BitmapPool extends LruCache<UrlKey, Bitmap> {
@@ -66,6 +67,19 @@ public class BitmapPool extends LruCache<UrlKey, Bitmap> {
 
 	public static Bitmap cache(UrlKey key) {
 		return instance().get(key);
+	}
+
+	public static Bitmap bytedCache(UrlKey key) {
+		Bitmap img = instance().get(key);
+		if (img != null) {
+			return img;
+		}
+		String bkey = key.toString();
+		byte[] data = BytePool.cache(bkey);
+		if (data != null) {
+			img = BitmapFactory.decodeByteArray(data, 0, data.length);
+		}
+		return img;
 	}
 
 	@Override

@@ -14,7 +14,7 @@ import android.database.Cursor;
 
 public class ImDb {
 	public static final String DB_F_NAME = "_imdb_.dbf";
-	public static final String DB_SCRIPT_F = "_im_.sql";
+	public static final String DB_SCRIPT_F = "im.sql";
 	public static final String COLS = "I,IDX,S,R,D,T,C,A,TIME,STATUS";
 	// protected static ImDb IDB_;
 	//

@@ -41,6 +41,7 @@ public class ImageView extends android.widget.ImageView {
 	protected int roundCorner = 0;
 	protected int showTime = 500;
 	protected Drawable bg;
+	protected boolean usingBytePool = true;
 	//
 	private static final ThreadFactory sThreadFactory = new ThreadFactory() {
 		private final AtomicInteger mCount = new AtomicInteger(1);
@@ -66,63 +67,88 @@ public class ImageView extends android.widget.ImageView {
 
 		@Override
 		public void onSuccess(CBase c, HResp res, Bitmap img) throws Exception {
-			if (this.turl.equals(url)) {
-				this.img = img;
-				ImageView.this.doAnimationH(this);
-			}
+			ImageView.this.onSuccess(this, c, res, img);
 		}
 
 		@Override
 		public void onError(CBase c, Bitmap cache, Throwable err) throws Exception {
-			if (this.turl.equals(url)) {
-				ImageView.this.reset_bg_cbH(this);
-			}
+			ImageView.this.onError(this, c, cache, err);
 		}
 
 		@Override
 		public int getImgWidth() {
-			ViewGroup.LayoutParams lo = ImageView.this.getLayoutParams();
-			if (lo == null) {
-				return 0;
-			}
-			int w = lo.width;
-			if (w > 0) {
-				return w;
-			} else {
-				return 0;
-			}
+			return ImageView.this.getImgWidth();
 		}
 
 		@Override
 		public int getImgHeight() {
-			ViewGroup.LayoutParams lo = ImageView.this.getLayoutParams();
-			if (lo == null) {
-				return 0;
-			}
-			int h = lo.height;
-			if (h > 0) {
-				return h;
-			} else {
-				return 0;
-			}
+			return ImageView.this.getImgHeight();
 		}
 
 		@Override
-		@SuppressWarnings("deprecation")
 		public int getImgMaxWidth() {
-			WindowManager wm = (WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE);
-			return wm.getDefaultDisplay().getWidth();
+			return ImageView.this.getImgMaxWidth();
 		}
 
 		@Override
-		@SuppressWarnings("deprecation")
 		public int getImgMaxHeight() {
-			WindowManager wm = (WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE);
-			return wm.getDefaultDisplay().getHeight();
+			return ImageView.this.getImgMaxHeight();
 		}
 
 	};
 
+	public void onSuccess(ImgCallback cb, CBase c, HResp res, Bitmap img) throws Exception {
+		if (cb.turl.equals(this.url)) {
+			cb.img = img;
+			this.doAnimationH(cb);
+		}
+	}
+
+	public void onError(ImgCallback cb, CBase c, Bitmap cache, Throwable err) throws Exception {
+		if (cb.turl.equals(this.url)) {
+			this.reset_bg_cbH(cb);
+		}
+	}
+
+	public int getImgWidth() {
+		ViewGroup.LayoutParams lo = this.getLayoutParams();
+		if (lo == null) {
+			return 0;
+		}
+		int w = lo.width;
+		if (w > 0) {
+			return w;
+		} else {
+			return 0;
+		}
+	}
+
+	public int getImgHeight() {
+		ViewGroup.LayoutParams lo = this.getLayoutParams();
+		if (lo == null) {
+			return 0;
+		}
+		int h = lo.height;
+		if (h > 0) {
+			return h;
+		} else {
+			return 0;
+		}
+	}
+
+	@SuppressWarnings("deprecation")
+	public int getImgMaxWidth() {
+		WindowManager wm = (WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE);
+		return wm.getDefaultDisplay().getWidth();
+	}
+
+	@SuppressWarnings("deprecation")
+	public int getImgMaxHeight() {
+		WindowManager wm = (WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE);
+		return wm.getDefaultDisplay().getHeight();
+	}
+
+	///
 	public ImageView(Context context) {
 		super(context);
 	}
@@ -160,8 +186,14 @@ public class ImageView extends android.widget.ImageView {
 			this.reset_bg();
 			this.url = url;
 			ImgCallback imgc = new ImgCallback(this.url, this.roundCorner);
-			Bitmap img = BitmapPool.cache(org.cny.awf.pool.UrlKey.create(CBase.parseUrl(this.url), null,
-					this.roundCorner, imgc.getImgWidth(), imgc.getImgHeight()));
+			org.cny.awf.pool.UrlKey key = org.cny.awf.pool.UrlKey.create(CBase.parseUrl(this.url), null,
+					this.roundCorner, imgc.getImgWidth(), imgc.getImgHeight());
+			Bitmap img;
+			if (this.usingBytePool) {
+				img = BitmapPool.bytedCache(key);
+			} else {
+				img = BitmapPool.cache(key);
+			}
 			if (img == null) {
 				H.doGetNH(this.getContext(), IMG_POOL_EXECUTOR, this.url, Args.A("_hc_", "I"), null, imgc);
 			} else {
@@ -270,6 +302,14 @@ public class ImageView extends android.widget.ImageView {
 		Animation an = new AlphaAnimation(0, ImageView.this.getAlpha());
 		an.setDuration(this.showTime);
 		this.startAnimation(an);
+	}
+
+	public boolean isUsingBytePool() {
+		return usingBytePool;
+	}
+
+	public void setUsingBytePool(boolean usingBytePool) {
+		this.usingBytePool = usingBytePool;
 	}
 
 	private static Handler h = new Handler() {
