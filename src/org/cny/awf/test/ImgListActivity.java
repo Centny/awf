@@ -1,10 +1,9 @@
 package org.cny.awf.test;
 
-import java.util.Locale;
-
 import org.cny.awf.view.ImageView;
 
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,6 +21,15 @@ public class ImgListActivity extends Activity {
 		setContentView(R.layout.activity_img_list);
 		this.ilist = (ListView) this.findViewById(R.id.imgl);
 		this.ilist.setAdapter(new ImgListAdapter());
+		ActivityManager.MemoryInfo info = this.getAvailableMemory();
+		System.out.println(info.availMem / 1024 / 1024);
+	}
+
+	private ActivityManager.MemoryInfo getAvailableMemory() {
+		ActivityManager activityManager = (ActivityManager) this.getSystemService(ACTIVITY_SERVICE);
+		ActivityManager.MemoryInfo memoryInfo = new ActivityManager.MemoryInfo();
+		activityManager.getMemoryInfo(memoryInfo);
+		return memoryInfo;
 	}
 
 	public class ImgListAdapter extends BaseAdapter {
@@ -33,11 +41,14 @@ public class ImgListActivity extends Activity {
 
 		@Override
 		public Object getItem(int position) {
-			if (position % 3 == 1) {
-				return String.format(Locale.ENGLISH, "http://pb.dev.jxzy.com/img/F1%04d.jpg", position);
-			} else {
-				return "";
-			}
+			// if (position % 3 == 1) {
+			// return String.format(Locale.ENGLISH,
+			// "http://pb.dev.jxzy.com/img/F1%04d.jpg", position);
+			// } else {
+			// return "";
+			// }
+			return "http://fs.dyfchk2.kuxiao.cn/usr/api/dload?mark=attach-5816abcc27076f1410adf939-1477881127477&type=D_pdfx&token=5816C66C27076F14026BBE36&idx="
+					+ (position % 130);
 		}
 
 		@Override
@@ -56,8 +67,59 @@ public class ImgListActivity extends Activity {
 			} else {
 				vh = (ViewHolder) cview.getTag();
 			}
+			// H.doGetNH(ImgListActivity.this, ImageView.IMG_POOL_EXECUTOR,
+			// this.getItem(position).toString(),
+			// Args.A("_hc_", "I"), null, new HCallback.HDataCallback() {
+			//
+			// // @Override
+			// // public void onSuccess(CBase c, HResp res, Bitmap img)
+			// // throws Exception {
+			// // // TODO Auto-generated method stub
+			// // System.out.println("done....->" +
+			// // ImageView.sPoolWorkQueue.size());
+			// // img.recycle();
+			// // }
+			// //
+			// // @Override
+			// // public void onError(CBase c, Bitmap cache, Throwable
+			// // err) throws Exception {
+			// // // TODO Auto-generated method stub
+			// // System.out
+			// // .println("error....->" + err.getMessage() + "->" +
+			// // ImageView.sPoolWorkQueue.size());
+			// // }
+			//
+			// @Override
+			// public void onError(CBase c, Throwable err) throws Exception {
+			// // TODO Auto-generated method stub
+			//
+			// }
+			//
+			// @Override
+			// public void onSuccess(CBase c, HResp res, String data) throws
+			// Exception {
+			// // TODO Auto-generated method stub
+			// System.out.println("done....->" +
+			// ImageView.sPoolWorkQueue.size());
+			// // Util.readBitmap(data);
+			// // BitmapPool.dol(data);
+			// UrlKey.create(c.getFullUrl(), data, 0, 0, 0, 1468, 2024).read();
+			// // BitmapPool.dol();
+			//
+			// }
+			// });
 			vh.iv.setUrl(this.getItem(position).toString());
 			return cview;
+		}
+	}
+
+	public void sleep() {
+		try {
+			Thread.sleep(3000);
+			// System.out.println("done....->" +
+			// ImageView.sPoolWorkQueue.size());
+		} catch (InterruptedException e) {
+			e.printStackTrace();
 		}
 	}
 

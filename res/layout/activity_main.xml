@@ -50,4 +50,22 @@
         android:onClick="toDlm"
         android:text="@string/title_activity_dlm_aty" />
 
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="toViewPagerActivity"
+        android:text="@string/title_activity_view_pager" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="toThread"
+        android:text="thread" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="toMemory"
+        android:text="memory" />
+
 </LinearLayout>

@@ -1,6 +1,5 @@
 package org.cny.awf.pool;
 
-import java.io.ByteArrayOutputStream;
 import java.util.Locale;
 
 import org.cny.awf.util.Util;
@@ -35,18 +34,24 @@ public class UrlKey {
 	}
 
 	public Bitmap read() throws Exception {
-		String key = this.toString();
+		// String key = this.toString();
 		Bitmap img = Util.readBitmap(this.loc, this.w, this.h, this.maxw, this.maxh);
 		if (img == null) {
 			throw new Exception("read bitmap error from" + this.loc);
 		}
-		ByteArrayOutputStream stream = new ByteArrayOutputStream();
-		if (img.hasAlpha()) {
-			img.compress(Bitmap.CompressFormat.PNG, 100, stream);
-		} else {
-			img.compress(Bitmap.CompressFormat.JPEG, 100, stream);
-		}
-		BytePool.instance().put(key, stream.toByteArray());
+		// if (this.usingBytePool) {
+		// ByteArrayOutputStream stream = new ByteArrayOutputStream();
+		// if (img.hasAlpha()) {
+		// img.compress(Bitmap.CompressFormat.PNG, 100, stream);
+		// } else {
+		// img.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+		// }
+		// BytePool.instance().put(key, stream.toByteArray());
+		// ByteBuffer buffer = ByteBuffer.allocate(img.getByteCount());
+		// img.copyPixelsToBuffer(buffer);
+		// byte[] bys = buffer.array();
+		// BytePool.instance().put(key, bys);
+		// }
 		if (this.roundCorner > 0) {
 			Bitmap timg = img;
 			img = Util.toRoundCorner(timg, this.roundCorner);
@@ -63,10 +68,10 @@ public class UrlKey {
 		}
 		UrlKey key = (UrlKey) o;
 		if (this.loc != null && key.loc != null) {
-			return this.loc.equals(key.loc);
+			return this.loc.equals(key.loc) && this.locKey().equals(key.locKey());
 		}
 		if (this.url != null && key.url != null) {
-			return this.url.equals(key.url);
+			return this.url.equals(key.url) && this.urlKey().equals(key.urlKey());
 		}
 		return false;
 	}
@@ -96,12 +101,20 @@ public class UrlKey {
 		return new UrlKey(url, loc, 0, 0, 0, 0, 0);
 	}
 
+	private String locKey() {
+		return String.format(Locale.ENGLISH, "url(%s)@%d-%d-%d", this.url, this.w, this.h, this.roundCorner);
+	}
+
+	private String urlKey() {
+		return String.format(Locale.ENGLISH, "url(%s)@%d-%d-%d", this.loc, this.w, this.h, this.roundCorner);
+	}
+
 	@Override
 	public String toString() {
 		if (Util.isNoEmpty(this.url)) {
-			return String.format(Locale.ENGLISH, "url(%s)@%d-%d", this.url, this.w, this.h);
+			return this.locKey();
 		} else {
-			return String.format(Locale.ENGLISH, "url(%s)@%d-%d", this.loc, this.w, this.h);
+			return this.urlKey();
 		}
 	}
 

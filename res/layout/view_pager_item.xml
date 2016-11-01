@@ -5,9 +5,9 @@
     android:orientation="vertical" >
 
     <org.cny.awf.view.ImageView
-        android:id="@+id/img_list_item_i"
+        android:id="@+id/view_pager_item_i"
         android:layout_width="match_parent"
-        android:layout_height="500dp"
+        android:layout_height="match_parent"
         android:src="@drawable/good" />
 
 </LinearLayout>

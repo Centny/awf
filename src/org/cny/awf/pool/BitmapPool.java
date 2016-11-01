@@ -4,12 +4,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.support.v4.util.LruCache;
 
 public class BitmapPool extends LruCache<UrlKey, Bitmap> {
 	private static final Logger L = LoggerFactory.getLogger(BitmapPool.class);
-	public static boolean ShowLog = false;
+	public static boolean ShowLog = true;
 
 	public BitmapPool(int maxSize) {
 		super(maxSize);
@@ -62,25 +61,14 @@ public class BitmapPool extends LruCache<UrlKey, Bitmap> {
 	}
 
 	public static Bitmap cache(Object key, Object... args) {
-		return instance().get(createKey(key, args));
+		return instance().loadCache(createKey(key, args));
 	}
 
 	public static Bitmap cache(UrlKey key) {
-		return instance().get(key);
+		return instance().loadCache(key);
 	}
 
-	public static Bitmap bytedCache(UrlKey key) {
-		Bitmap img = instance().get(key);
-		if (img != null) {
-			return img;
-		}
-		String bkey = key.toString();
-		byte[] data = BytePool.cache(bkey);
-		if (data != null) {
-			img = BitmapFactory.decodeByteArray(data, 0, data.length);
-		}
-		return img;
-	}
+	public boolean usingBytePool = true;
 
 	@Override
 	protected void entryRemoved(boolean evicted, UrlKey key, Bitmap oldValue, Bitmap newValue) {
@@ -88,11 +76,26 @@ public class BitmapPool extends LruCache<UrlKey, Bitmap> {
 		this.slog("remove bimap cache({}) on pool", key);
 	}
 
+	public synchronized Bitmap loadCache(UrlKey key) {
+		Bitmap img = this.get(key);
+		if (img == null && this.usingBytePool) {
+			String bkey = key.toString();
+			img = BitmapBytePool.cache(bkey);
+		}
+		if (img != null) {
+			this.slog("using bimap cache({}) on pool", key);
+		}
+		return img;
+	}
+
 	public synchronized Bitmap load(UrlKey key) throws Exception {
 		Bitmap img = this.get(key);
 		if (img == null) {
 			img = key.read();
 			this.put(key, img);
+			if (this.usingBytePool) {
+				BitmapBytePool.instance().put(key.toString(), img);
+			}
 			this.slog("put bitmap({}) to pool", key);
 		} else {
 			this.slog("using cache for bitmap({}) on pool", key);

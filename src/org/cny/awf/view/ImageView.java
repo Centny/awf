@@ -41,7 +41,6 @@ public class ImageView extends android.widget.ImageView {
 	protected int roundCorner = 0;
 	protected int showTime = 500;
 	protected Drawable bg;
-	protected boolean usingBytePool = true;
 	//
 	private static final ThreadFactory sThreadFactory = new ThreadFactory() {
 		private final AtomicInteger mCount = new AtomicInteger(1);
@@ -52,7 +51,7 @@ public class ImageView extends android.widget.ImageView {
 	};
 	private static final BlockingQueue<Runnable> sPoolWorkQueue = new LinkedBlockingQueue<Runnable>(128);
 
-	public static Executor IMG_POOL_EXECUTOR = new ThreadPoolExecutor(1, 3, 3, TimeUnit.SECONDS, sPoolWorkQueue,
+	public static Executor IMG_POOL_EXECUTOR = new ThreadPoolExecutor(3, 3, 60, TimeUnit.SECONDS, sPoolWorkQueue,
 			sThreadFactory);
 
 	protected class ImgCallback extends HBitmapCallback {
@@ -188,12 +187,7 @@ public class ImageView extends android.widget.ImageView {
 			ImgCallback imgc = new ImgCallback(this.url, this.roundCorner);
 			org.cny.awf.pool.UrlKey key = org.cny.awf.pool.UrlKey.create(CBase.parseUrl(this.url), null,
 					this.roundCorner, imgc.getImgWidth(), imgc.getImgHeight());
-			Bitmap img;
-			if (this.usingBytePool) {
-				img = BitmapPool.bytedCache(key);
-			} else {
-				img = BitmapPool.cache(key);
-			}
+			Bitmap img = BitmapPool.cache(key);
 			if (img == null) {
 				H.doGetNH(this.getContext(), IMG_POOL_EXECUTOR, this.url, Args.A("_hc_", "I"), null, imgc);
 			} else {
@@ -201,6 +195,7 @@ public class ImageView extends android.widget.ImageView {
 			}
 			return true;
 		} catch (Throwable e) {
+			L.error("ImageView set url fail with error->", e);
 			return false;
 		}
 	}
@@ -302,14 +297,6 @@ public class ImageView extends android.widget.ImageView {
 		Animation an = new AlphaAnimation(0, ImageView.this.getAlpha());
 		an.setDuration(this.showTime);
 		this.startAnimation(an);
-	}
-
-	public boolean isUsingBytePool() {
-		return usingBytePool;
-	}
-
-	public void setUsingBytePool(boolean usingBytePool) {
-		this.usingBytePool = usingBytePool;
 	}
 
 	private static Handler h = new Handler() {

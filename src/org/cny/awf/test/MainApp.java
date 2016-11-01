@@ -5,6 +5,9 @@ import org.cny.awf.base.BaseApp;
 public class MainApp extends BaseApp {
 	@Override
 	public void onCreate() {
+		Runtime rt = Runtime.getRuntime();
+		long maxMemory = rt.maxMemory();
+		System.out.println(maxMemory / 1024 / 1024);
 		// try {
 		// ER.init(getBaseContext());
 		// ER.writem("sfsdf", "A", 0);
