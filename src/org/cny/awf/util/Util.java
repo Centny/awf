@@ -222,7 +222,7 @@ public class Util {
 	}
 
 	public static Bitmap readBitmap(String file, int w, int h, int maxw, int maxh) throws FileNotFoundException {
-		if ((w < 1 || h < 1) && maxw < 1 && maxh < 1) {
+		if (w < 1 && h < 1 && maxw < 1 && maxh < 1) {
 			return BitmapFactory.decodeFile(file);
 		}
 		BitmapFactory.Options opts = new BitmapFactory.Options();
@@ -232,24 +232,24 @@ public class Util {
 			return null;
 		}
 		int inSampleSize = 1;
-		if (w > 0 && h > 0) {
-			if (opts.outWidth > w || opts.outHeight > h) {
-				while ((opts.outHeight / inSampleSize) > h && (opts.outWidth / inSampleSize) > w) {
-					inSampleSize *= 2;
-				}
+		if (w > 0 && opts.outWidth > w) {
+			while ((opts.outWidth / inSampleSize) > w) {
+				inSampleSize *= 2;
 			}
-		} else {
-			if (maxw > 0 && opts.outWidth > maxw) {
-				inSampleSize = opts.outWidth / maxw;
-				if (maxw - opts.outWidth / inSampleSize > maxw / 2) {
-					inSampleSize += 1;
-				}
+		}
+		if (h > 0 && opts.outHeight > h) {
+			while ((opts.outHeight / inSampleSize) > h) {
+				inSampleSize *= 2;
 			}
-			if (maxh > 0 && opts.outHeight / inSampleSize > maxh) {
-				inSampleSize = opts.outHeight / maxh;
-				if (maxh - opts.outHeight / inSampleSize > maxh / 2) {
-					inSampleSize += 1;
-				}
+		}
+		if (maxw > 0 && opts.outWidth > maxw) {
+			while ((opts.outWidth / inSampleSize) > maxw) {
+				inSampleSize *= 2;
+			}
+		}
+		if (maxh > 0 && opts.outHeight > maxh) {
+			while ((opts.outHeight / inSampleSize) > maxh) {
+				inSampleSize *= 2;
 			}
 		}
 		opts.inSampleSize = inSampleSize;

@@ -194,6 +194,9 @@ public class ImageView extends android.widget.ImageView {
 				this.setImageBitmap(img);
 			}
 			return true;
+		} catch (OutOfMemoryError e) {
+			L.error("ImageView set url fail with oom error->", e);
+			return false;
 		} catch (Throwable e) {
 			L.error("ImageView set url fail with error->", e);
 			return false;

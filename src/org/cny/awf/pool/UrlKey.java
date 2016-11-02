@@ -67,11 +67,11 @@ public class UrlKey {
 			return false;
 		}
 		UrlKey key = (UrlKey) o;
-		if (this.loc != null && key.loc != null) {
-			return this.loc.equals(key.loc) && this.locKey().equals(key.locKey());
-		}
 		if (this.url != null && key.url != null) {
 			return this.url.equals(key.url) && this.urlKey().equals(key.urlKey());
+		}
+		if (this.loc != null && key.loc != null) {
+			return this.loc.equals(key.loc) && this.locKey().equals(key.locKey());
 		}
 		return false;
 	}
@@ -102,19 +102,19 @@ public class UrlKey {
 	}
 
 	private String locKey() {
-		return String.format(Locale.ENGLISH, "url(%s)@%d-%d-%d", this.url, this.w, this.h, this.roundCorner);
+		return String.format(Locale.ENGLISH, "url(%s)@%d-%d-%d", this.loc, this.w, this.h, this.roundCorner);
 	}
 
 	private String urlKey() {
-		return String.format(Locale.ENGLISH, "url(%s)@%d-%d-%d", this.loc, this.w, this.h, this.roundCorner);
+		return String.format(Locale.ENGLISH, "url(%s)@%d-%d-%d", this.url, this.w, this.h, this.roundCorner);
 	}
 
 	@Override
 	public String toString() {
 		if (Util.isNoEmpty(this.url)) {
-			return this.locKey();
-		} else {
 			return this.urlKey();
+		} else {
+			return this.locKey();
 		}
 	}
 

@@ -8,7 +8,7 @@ import android.support.v4.util.LruCache;
 
 public class BitmapPool extends LruCache<UrlKey, Bitmap> {
 	private static final Logger L = LoggerFactory.getLogger(BitmapPool.class);
-	public static boolean ShowLog = true;
+	public static boolean ShowLog = false;
 
 	public BitmapPool(int maxSize) {
 		super(maxSize);
@@ -17,8 +17,10 @@ public class BitmapPool extends LruCache<UrlKey, Bitmap> {
 	protected static BitmapPool POOL_;
 
 	public static BitmapPool instance() {
-		if (POOL_ == null) {
-			POOL_ = new BitmapPool(5 * 1024 * 1024);
+		synchronized (L) {
+			if (POOL_ == null) {
+				POOL_ = new BitmapPool(5 * 1024 * 1024);
+			}
 		}
 		return POOL_;
 	}
@@ -73,6 +75,9 @@ public class BitmapPool extends LruCache<UrlKey, Bitmap> {
 	@Override
 	protected void entryRemoved(boolean evicted, UrlKey key, Bitmap oldValue, Bitmap newValue) {
 		super.entryRemoved(evicted, key, oldValue, newValue);
+		if (this.usingBytePool) {
+			BitmapBytePool.instance().put(key.toString(), oldValue);
+		}
 		this.slog("remove bimap cache({}) on pool", key);
 	}
 
@@ -93,9 +98,6 @@ public class BitmapPool extends LruCache<UrlKey, Bitmap> {
 		if (img == null) {
 			img = key.read();
 			this.put(key, img);
-			if (this.usingBytePool) {
-				BitmapBytePool.instance().put(key.toString(), img);
-			}
 			this.slog("put bitmap({}) to pool", key);
 		} else {
 			this.slog("using cache for bitmap({}) on pool", key);

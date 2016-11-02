@@ -5,9 +5,11 @@
     android:orientation="vertical" >
 
     <org.cny.awf.view.ImageView
+        android:background="#f00"
         android:id="@+id/img_list_item_i"
         android:layout_width="match_parent"
-        android:layout_height="500dp"
+        android:layout_height="wrap_content"
+        android:scaleType="center"
         android:src="@drawable/good" />
 
 </LinearLayout>

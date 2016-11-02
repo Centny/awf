@@ -23,6 +23,18 @@ public class ImgListActivity extends Activity {
 		this.ilist.setAdapter(new ImgListAdapter());
 		ActivityManager.MemoryInfo info = this.getAvailableMemory();
 		System.out.println(info.availMem / 1024 / 1024);
+		// for (UrlKey key : BitmapPool.instance().keys) {
+		// System.out.println("A->" + key + "->");
+		//
+		// }
+		// for (String key : BitmapBytePool.instance().keys) {
+		// System.out.println("B->" + key);
+		// }
+		// for (String url : this.data) {
+		// org.cny.awf.pool.UrlKey key =
+		// org.cny.awf.pool.UrlKey.create(CBase.parseUrl(url), null, 0, 0, 0);
+		// System.out.println("C->" + BitmapPool.cache(key) == null);
+		// }
 	}
 
 	private ActivityManager.MemoryInfo getAvailableMemory() {
@@ -31,6 +43,12 @@ public class ImgListActivity extends Activity {
 		activityManager.getMemoryInfo(memoryInfo);
 		return memoryInfo;
 	}
+
+	String[] data = new String[] { "http://fs.dev.gdy.io/bD9FnA\u003d\u003d", "http://fs.dev.gdy.io/mPfG6t\u003d\u003d",
+			"http://fs.dev.gdy.io/\u003dv5Gi1\u003d\u003d", "http://fs.dev.gdy.io/g\u003dbcQx\u003d\u003d",
+			"http://fs.dev.gdy.io/wtf\u003d2t\u003d\u003d", "http://fs.dev.gdy.io/tq0zzt\u003d\u003d",
+			"http://fs.dev.gdy.io/ucgV7x\u003d\u003d", "http://fs.dev.gdy.io/TXkRYt\u003d\u003d",
+			"http://fs.dev.gdy.io/VnDu\u003dA\u003d\u003d" };
 
 	public class ImgListAdapter extends BaseAdapter {
 
@@ -47,8 +65,10 @@ public class ImgListActivity extends Activity {
 			// } else {
 			// return "";
 			// }
-			return "http://fs.dyfchk2.kuxiao.cn/usr/api/dload?mark=attach-5816abcc27076f1410adf939-1477881127477&type=D_pdfx&token=5816C66C27076F14026BBE36&idx="
-					+ (position % 130);
+			// return
+			// "http://fs.dyfchk2.kuxiao.cn/usr/api/dload?mark=attach-5816abcc27076f1410adf939-1477881127477&type=D_pdfx&token=5816C66C27076F14026BBE36&idx="
+			// + (position % 130);
+			return data[position % data.length];
 		}
 
 		@Override

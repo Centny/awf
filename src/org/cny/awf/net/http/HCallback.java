@@ -154,8 +154,12 @@ public interface HCallback {
 				maxw = this.getImgMaxWidth();
 				maxh = this.getImgMaxHeight();
 			}
-			this.onSuccess(c, res,
-					BitmapPool.dol(UrlKey.create(this.createUrl(c), data, this.roundCorner, w, h, maxw, maxh)));
+			try {
+				this.onSuccess(c, res,
+						BitmapPool.dol(UrlKey.create(this.createUrl(c), data, this.roundCorner, w, h, maxw, maxh)));
+			} catch (OutOfMemoryError e) {
+				this.onExecErr(c, e);
+			}
 		}
 
 		@Override

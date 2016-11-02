@@ -1,15 +1,21 @@
 package org.cny.awf.pool;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import android.graphics.Bitmap;
 import android.support.v4.util.LruCache;
 
 public class BitmapBytePool extends LruCache<String, BitmapByte> {
+	private static final Logger L = LoggerFactory.getLogger(BitmapBytePool.class);
 	protected static BitmapBytePool POOL_;
 
 	public static BitmapBytePool instance() {
-		if (POOL_ == null) {
-			Runtime rt = Runtime.getRuntime();
-			POOL_ = new BitmapBytePool((int) rt.maxMemory() / 2);
+		synchronized (L) {
+			if (POOL_ == null) {
+				Runtime rt = Runtime.getRuntime();
+				POOL_ = new BitmapBytePool((int) rt.maxMemory() / 2);
+			}
 		}
 		return POOL_;
 	}
@@ -45,6 +51,11 @@ public class BitmapBytePool extends LruCache<String, BitmapByte> {
 	@Override
 	protected int sizeOf(String key, BitmapByte value) {
 		return value.count;
+	}
+
+	@Override
+	protected void entryRemoved(boolean evicted, String key, BitmapByte oldValue, BitmapByte newValue) {
+		super.entryRemoved(evicted, key, oldValue, newValue);
 	}
 
 }
