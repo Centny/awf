@@ -17,6 +17,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
@@ -94,9 +95,6 @@ public class MainActivity extends BaseAty {
 	}
 
 	public void toThread(View v) {
-		// Bitmap bm = BitmapFactory.decodeResource(this.getResources(),
-		// R.drawable.ic_launcher);
-		// BitmapByte bb = new BitmapByte(bm);
 		// Bitmap xx = bb.create();
 		// try {
 		// this.testPool();
@@ -117,50 +115,52 @@ public class MainActivity extends BaseAty {
 		// e.printStackTrace();
 		// }
 		try {
-			if (this.bm.size() > 0) {
-				System.out.println("awf->" + bm.size() * this.bm.get(0).getByteCount() + "MB");
+			for (int i = 0; i < 10; i++) {
+				Bitmap bm = BitmapFactory.decodeResource(this.getResources(), R.drawable.ic_launcher);
+				// BitmapBytePool.instance().put("xx" + i, bm);
+				this.bm.add(bm);
 			}
-			this.m.add(new byte[100 * 1024 * 1024]);
 		} catch (OutOfMemoryError e) {
 			e.printStackTrace();
 		}
-		H.doGetNH(this, ImageView.IMG_POOL_EXECUTOR,
-				"http://fs.dyfchk2.kuxiao.cn/usr/api/dload?mark=attach-5816abcc27076f1410adf939-1477881127477&type=D_pdfx&token=5816C66C27076F14026BBE36&idx=0",
-				Args.A("_hc_", "I"), null, new HCallback.HDataCallback() {
-
-					// @Override
-					// public void onSuccess(CBase c, HResp res, Bitmap img)
-					// throws Exception {
-					// // TODO Auto-generated method stub
-					// System.out.println("done....->" +
-					// ImageView.sPoolWorkQueue.size());
-					// img.recycle();
-					// }
-					//
-					// @Override
-					// public void onError(CBase c, Bitmap cache, Throwable
-					// err) throws Exception {
-					// // TODO Auto-generated method stub
-					// System.out
-					// .println("error....->" + err.getMessage() + "->" +
-					// ImageView.sPoolWorkQueue.size());
-					// }
-
-					@Override
-					public void onError(CBase c, Throwable err) throws Exception {
-						// TODO Auto-generated method stub
-
-					}
-
-					@Override
-					public void onSuccess(CBase c, HResp res, String data) throws Exception {
-						try {
-							bm.add(Util.readBitmap(data));
-						} catch (OutOfMemoryError e) {
-							e.printStackTrace();
-						}
-					}
-				});
+		// H.doGetNH(this, ImageView.IMG_POOL_EXECUTOR,
+		// "http://fs.dyfchk2.kuxiao.cn/usr/api/dload?mark=attach-5816abcc27076f1410adf939-1477881127477&type=D_pdfx&token=5816C66C27076F14026BBE36&idx=0",
+		// Args.A("_hc_", "I"), null, new HCallback.HDataCallback() {
+		//
+		// // @Override
+		// // public void onSuccess(CBase c, HResp res, Bitmap img)
+		// // throws Exception {
+		// // // TODO Auto-generated method stub
+		// // System.out.println("done....->" +
+		// // ImageView.sPoolWorkQueue.size());
+		// // img.recycle();
+		// // }
+		// //
+		// // @Override
+		// // public void onError(CBase c, Bitmap cache, Throwable
+		// // err) throws Exception {
+		// // // TODO Auto-generated method stub
+		// // System.out
+		// // .println("error....->" + err.getMessage() + "->" +
+		// // ImageView.sPoolWorkQueue.size());
+		// // }
+		//
+		// @Override
+		// public void onError(CBase c, Throwable err) throws Exception {
+		// // TODO Auto-generated method stub
+		//
+		// }
+		//
+		// @Override
+		// public void onSuccess(CBase c, HResp res, String data) throws
+		// Exception {
+		// try {
+		// bm.add(Util.readBitmap(data));
+		// } catch (OutOfMemoryError e) {
+		// e.printStackTrace();
+		// }
+		// }
+		// });
 	}
 
 	//

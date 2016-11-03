@@ -32,6 +32,10 @@ public class BitmapBytePool extends LruCache<String, BitmapByte> {
 		return instance().load(key);
 	}
 
+	public static void gc() {
+		instance().evictAll();
+	}
+
 	public BitmapBytePool(int maxSize) {
 		super(maxSize);
 	}

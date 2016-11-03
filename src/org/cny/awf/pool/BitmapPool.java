@@ -33,6 +33,11 @@ public class BitmapPool extends LruCache<UrlKey, Bitmap> {
 		POOL_ = new BitmapPool(max);
 	}
 
+	public static void gc() {
+		instance().evictAll();
+		BitmapBytePool.gc();
+	}
+
 	public static UrlKey createKey(Object key, Object[] args) {
 		UrlKey tk;
 		if (key instanceof UrlKey) {
@@ -71,6 +76,7 @@ public class BitmapPool extends LruCache<UrlKey, Bitmap> {
 	}
 
 	public boolean usingBytePool = true;
+	public boolean usingBitmapPool = false;
 
 	@Override
 	protected void entryRemoved(boolean evicted, UrlKey key, Bitmap oldValue, Bitmap newValue) {
@@ -82,25 +88,54 @@ public class BitmapPool extends LruCache<UrlKey, Bitmap> {
 	}
 
 	public synchronized Bitmap loadCache(UrlKey key) {
-		Bitmap img = this.get(key);
-		if (img == null && this.usingBytePool) {
-			String bkey = key.toString();
-			img = BitmapBytePool.cache(bkey);
+		Bitmap img = null;
+		OutOfMemoryError err = null;
+		for (int i = 0; i < 2; i++) {
+			try {
+				img = this.get(key);
+				if (img == null && this.usingBytePool) {
+					String bkey = key.toString();
+					img = BitmapBytePool.cache(bkey);
+				}
+				if (img != null) {
+					this.slog("using bimap cache({}) on pool", key);
+				}
+				return img;
+			} catch (OutOfMemoryError e) {
+				gc();
+				err = e;
+			}
 		}
-		if (img != null) {
-			this.slog("using bimap cache({}) on pool", key);
+		if (err != null) {
+			throw err;
 		}
 		return img;
 	}
 
 	public synchronized Bitmap load(UrlKey key) throws Exception {
-		Bitmap img = this.get(key);
-		if (img == null) {
-			img = key.read();
-			this.put(key, img);
-			this.slog("put bitmap({}) to pool", key);
-		} else {
+		Bitmap img = this.loadCache(key);
+		if (img != null) {
 			this.slog("using cache for bitmap({}) on pool", key);
+			return img;
+		}
+		OutOfMemoryError err = null;
+		for (int i = 0; i < 2; i++) {
+			try {
+				img = key.read();
+				if (this.usingBitmapPool) {
+					this.put(key, img);
+					this.slog("put bitmap({}) to pool", key);
+				} else if (this.usingBytePool) {
+					BitmapBytePool.instance().put(key.toString(), img);
+				}
+				return img;
+			} catch (OutOfMemoryError e) {
+				gc();
+				err = e;
+			}
+		}
+		if (err != null) {
+			throw err;
 		}
 		return img;
 	}

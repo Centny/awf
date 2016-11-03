@@ -41,6 +41,7 @@ public class ImageView extends android.widget.ImageView {
 	protected int roundCorner = 0;
 	protected int showTime = 500;
 	protected Drawable bg;
+	protected int targetWidth = 0, targetHeight = 0;
 	//
 	private static final ThreadFactory sThreadFactory = new ThreadFactory() {
 		private final AtomicInteger mCount = new AtomicInteger(1);
@@ -110,6 +111,9 @@ public class ImageView extends android.widget.ImageView {
 	}
 
 	public int getImgWidth() {
+		if (this.targetWidth > 0) {
+			return this.targetWidth;
+		}
 		ViewGroup.LayoutParams lo = this.getLayoutParams();
 		if (lo == null) {
 			return 0;
@@ -123,6 +127,9 @@ public class ImageView extends android.widget.ImageView {
 	}
 
 	public int getImgHeight() {
+		if (this.targetHeight > 0) {
+			return this.targetHeight;
+		}
 		ViewGroup.LayoutParams lo = this.getLayoutParams();
 		if (lo == null) {
 			return 0;
@@ -173,6 +180,10 @@ public class ImageView extends android.widget.ImageView {
 	}
 
 	public synchronized boolean setUrl(String url) {
+		return this.setUrl(url, 0, 0);
+	}
+
+	public synchronized boolean setUrl(String url, int width, int height) {
 		if (Util.isNullOrEmpty(url)) {
 			this.url = "";
 			this.reset_bg();
@@ -185,8 +196,9 @@ public class ImageView extends android.widget.ImageView {
 			this.reset_bg();
 			this.url = url;
 			ImgCallback imgc = new ImgCallback(this.url, this.roundCorner);
-			org.cny.awf.pool.UrlKey key = org.cny.awf.pool.UrlKey.create(CBase.parseUrl(this.url), null,
-					this.roundCorner, imgc.getImgWidth(), imgc.getImgHeight());
+			this.targetWidth = width;
+			this.targetHeight = height;
+			org.cny.awf.pool.UrlKey key = imgc.createKey(CBase.parseUrl(this.url), null);
 			Bitmap img = BitmapPool.cache(key);
 			if (img == null) {
 				H.doGetNH(this.getContext(), IMG_POOL_EXECUTOR, this.url, Args.A("_hc_", "I"), null, imgc);

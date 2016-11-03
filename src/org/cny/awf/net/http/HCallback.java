@@ -147,6 +147,20 @@ public interface HCallback {
 
 		@Override
 		public void onSuccess(CBase c, HResp res, String data) throws Exception {
+			OutOfMemoryError err = null;
+			for (int i = 0; i < 2; i++) {
+				try {
+					this.onSuccess(c, res, BitmapPool.dol(this.createKey(this.createUrl(c), data)));
+					return;
+				} catch (OutOfMemoryError e) {
+					BitmapPool.gc();
+					err = e;
+				}
+			}
+			this.onExecErr(c, err);
+		}
+
+		public UrlKey createKey(String url, String loc) {
 			int w = 0, h = 0, maxw = 0, maxh = 0;
 			w = this.getImgWidth();
 			h = this.getImgHeight();
@@ -154,12 +168,7 @@ public interface HCallback {
 				maxw = this.getImgMaxWidth();
 				maxh = this.getImgMaxHeight();
 			}
-			try {
-				this.onSuccess(c, res,
-						BitmapPool.dol(UrlKey.create(this.createUrl(c), data, this.roundCorner, w, h, maxw, maxh)));
-			} catch (OutOfMemoryError e) {
-				this.onExecErr(c, e);
-			}
+			return UrlKey.create(url, loc, this.roundCorner, w, h, maxw, maxh);
 		}
 
 		@Override
