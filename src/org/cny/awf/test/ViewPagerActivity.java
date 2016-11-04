@@ -7,6 +7,7 @@ import org.cny.awf.view.ImageView;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
@@ -17,6 +18,20 @@ import android.view.ViewGroup.LayoutParams;
 public class ViewPagerActivity extends Activity {
 
 	ViewPager pager;
+	private static Handler h = new Handler();
+
+	public class Rx implements Runnable {
+		public int idx;
+
+		public Rx(int x) {
+			this.idx = x;
+		}
+
+		@Override
+		public void run() {
+			pager.setCurrentItem(this.idx);
+		}
+	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -25,6 +40,21 @@ public class ViewPagerActivity extends Activity {
 		this.pager = (ViewPager) this.findViewById(R.id.viewpager);
 		this.pager.setAdapter(new Pager());
 		this.pager.setCurrentItem(0);
+		new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				try {
+					Thread.sleep(1000);
+					for (int i = 0; i < 1000; i++) {
+						h.post(new Rx(i));
+						Thread.sleep(200);
+					}
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+		}).start();
 	}
 
 	public class Pager extends PagerAdapter {
@@ -64,7 +94,7 @@ public class ViewPagerActivity extends Activity {
 
 		@Override
 		public int getCount() {
-			return 100;
+			return 1000;
 		}
 
 		@Override

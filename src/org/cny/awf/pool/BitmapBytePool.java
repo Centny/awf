@@ -14,7 +14,17 @@ public class BitmapBytePool extends LruCache<String, BitmapByte> {
 		synchronized (L) {
 			if (POOL_ == null) {
 				Runtime rt = Runtime.getRuntime();
-				POOL_ = new BitmapBytePool((int) rt.maxMemory() / 2);
+				long max = rt.maxMemory();
+				if (max < 100 * 1024 * 1024) {
+					max = max / 10;
+				} else if (max < 150 * 1024 * 1024) {
+					max = max / 5;
+				} else if (max < 250 * 1024 * 1024) {
+					max = max / 4;
+				} else {
+					max = max / 3;
+				}
+				POOL_ = new BitmapBytePool((int) max);
 			}
 		}
 		return POOL_;

@@ -36,6 +36,7 @@ public class BitmapPool extends LruCache<UrlKey, Bitmap> {
 	public static void gc() {
 		instance().evictAll();
 		BitmapBytePool.gc();
+		System.gc();
 	}
 
 	public static UrlKey createKey(Object key, Object[] args) {

@@ -17,7 +17,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
@@ -108,21 +107,22 @@ public class MainActivity extends BaseAty {
 	List<Bitmap> bm = new ArrayList<Bitmap>();
 
 	public void toMemory(View v) {
-		// try {
-		// System.out.println("awf->" + this.m.size() * 100 + "MB");
-		// this.m.add(new byte[100 * 1024 * 1024]);
-		// } catch (OutOfMemoryError e) {
-		// e.printStackTrace();
-		// }
 		try {
-			for (int i = 0; i < 10; i++) {
-				Bitmap bm = BitmapFactory.decodeResource(this.getResources(), R.drawable.ic_launcher);
-				// BitmapBytePool.instance().put("xx" + i, bm);
-				this.bm.add(bm);
-			}
+			System.out.println("awf->" + this.m.size() * 10 + "MB");
+			this.m.add(new byte[10 * 1024 * 1024]);
 		} catch (OutOfMemoryError e) {
 			e.printStackTrace();
 		}
+		// try {
+		// for (int i = 0; i < 10; i++) {
+		// Bitmap bm = BitmapFactory.decodeResource(this.getResources(),
+		// R.drawable.ic_launcher);
+		// // BitmapBytePool.instance().put("xx" + i, bm);
+		// this.bm.add(bm);
+		// }
+		// } catch (OutOfMemoryError e) {
+		// e.printStackTrace();
+		// }
 		// H.doGetNH(this, ImageView.IMG_POOL_EXECUTOR,
 		// "http://fs.dyfchk2.kuxiao.cn/usr/api/dload?mark=attach-5816abcc27076f1410adf939-1477881127477&type=D_pdfx&token=5816C66C27076F14026BBE36&idx=0",
 		// Args.A("_hc_", "I"), null, new HCallback.HDataCallback() {
