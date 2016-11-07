@@ -293,7 +293,7 @@ public abstract class ImSrv extends BaseSrv implements MsgListener, EvnListener,
 	}
 
 	public void sms(String[] r, byte t, byte[] c) throws IOException {
-		this.imc.sms(r, t, c);
+		this.sms(null, r, t, c);
 	}
 
 	public void sms(String[] r, int t, byte[] c) throws IOException {
@@ -302,6 +302,18 @@ public abstract class ImSrv extends BaseSrv implements MsgListener, EvnListener,
 
 	public void sms(String r, int t, byte[] c) throws IOException {
 		this.sms(new String[] { r }, t, c);
+	}
+
+	public void sms(String i, String[] r, byte t, byte[] c) throws IOException {
+		this.imc.sms(i, r, t, c);
+	}
+
+	public void sms(String i, String[] r, int t, byte[] c) throws IOException {
+		this.sms(i, r, (byte) t, c);
+	}
+
+	public void sms(String i, String r, int t, byte[] c) throws IOException {
+		this.sms(i, new String[] { r }, t, c);
 	}
 
 	protected void close() throws IOException {
