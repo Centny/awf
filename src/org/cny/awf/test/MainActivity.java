@@ -103,6 +103,10 @@ public class MainActivity extends BaseAty {
 		// }
 	}
 
+	public void toIm(View v) {
+		this.startActivity(new Intent(this, ImActivity.class));
+	}
+
 	List<byte[]> m = new ArrayList<byte[]>();
 	List<Bitmap> bm = new ArrayList<Bitmap>();
 

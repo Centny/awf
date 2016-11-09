@@ -53,6 +53,12 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:onClick="toIm"
+        android:text="@string/title_activity_im" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:onClick="toViewPagerActivity"
         android:text="@string/title_activity_view_pager" />
 
